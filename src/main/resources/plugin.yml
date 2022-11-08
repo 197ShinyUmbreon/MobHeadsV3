@@ -1,0 +1,8 @@
+name: MobHeads
+version: '${project.version}'
+main: io.github.shinyumbreon197.mobheads.MobHeads
+api-version: 1.19
+softdepend: [ ProtocolLib ]
+authors: [ 197ShinyUmbreon ]
+description: All creatures have a chance to drop their head when killed by a Player, and those heads have many effects.
+website: https://github.com/197ShinyUmbreon
