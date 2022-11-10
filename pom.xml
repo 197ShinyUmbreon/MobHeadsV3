@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.ShinyUmbreon197</groupId>
-    <artifactId>MobHeads</artifactId>
+    <artifactId>MobHeadsV3</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>MobHeads</name>
+    <name>MobHeadsV3</name>
 
     <description>All creatures have a chance to drop their head when killed by a Player, and those heads have many
         effects.
@@ -27,8 +27,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>14</source>
+                    <target>14</target>
                 </configuration>
             </plugin>
             <plugin>

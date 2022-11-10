@@ -1,6 +1,6 @@
-name: MobHeads
+name: MobHeadsV3
 version: '${project.version}'
-main: io.github.shinyumbreon197.mobheads.MobHeads
+main: io.github.shinyumbreon197.mobheadsv3.MobHeadsV3
 api-version: 1.19
 softdepend: [ ProtocolLib ]
 authors: [ 197ShinyUmbreon ]

@@ -1,0 +1,451 @@
+MobHeadsV3 UUID & Skin Texture Database
+
+
+Single-Skin Passives
+
+Cow: 
+1940fbd2-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7dfa0ac37baba2aa290e4faee419a613cd6117fa568e709d90374753c032dcb0
+Pig: 
+1940fe48-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4
+Chicken: 
+1940ff9c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/45b4e2229de94c15dbfcf2bae49e80f0e4d65914a49a312c0417929a29bb7
+Wolf: 
+194100dc-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/24d7727f52354d24a64bd6602a0ce71a7b484d05963da83b470360faa9ceab5f
+Donkey: 
+19410442-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/dfb6c3c052cf787d236a2915f8072b77c547497715d1d2f8cbc9d241d88a
+Mule: 
+19410596-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/46dcda265e57e4f51b145aacbf5b59bdc6099ffd3cce0a661b2c0065d80930d8
+Dolphin: 
+19410942-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/8e9688b950d880b55b7aa2cfcd76e5a0fa94aac6d16f78e833f7443ea29fed3
+Cod: 
+19410a82-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7892d7dd6aadf35f86da27fb63da4edda211df96d2829f691462a4fb1cab0
+Salmon: 
+19410bae-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/8aeb21a25e46806ce8537fbd6668281cf176ceafe95af90e94a5fd84924878
+Pufferfish: 
+19410cd0-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/17152876bc3a96dd2a2299245edb3beef647c8a56ac8853a687c3e7b5d8bb
+Tropical Fish: 
+19410e06-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/12510b301b088638ec5c8747e2d754418cb747a5ce7022c9c712ecbdc5f6f065
+Turtle: 
+19410f28-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/0a4050e7aacc4539202658fdc339dd182d7e322f9fbcc4d5f99b5718a
+Strider: 
+19411054-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/e245e4760abf10f2900626914cf42f80440cd53099ae5529534f59824067dad6
+Goat: 
+19411176-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/f03330398a0d833f53ae8c9a1cb393c74e9d31e18885870e86a2133d44f0c63c
+Squid: 
+1941140a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/01433be242366af126da434b8735df1eb5b3cb2cede39145974e9c483607bac
+Bee: 
+19411540-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/59ac16f296b461d05ea0785d477033e527358b4f30c266aa02f020157ffca736
+Bat: 
+1941166c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/6ffd808f8127b4ad458d9d2e181c690adf489a6ad32ee2aa4acfa6341fe842
+Ocelot: 
+194117a2-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/51f07e3f2e5f256bfade666a8de1b5d30252c95e98f8a8ecc6e3c7b7f67095
+Snowman: 
+194118ce-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/1fdfd1f7538c040258be7a91446da89ed845cc5ef728eb5e690543378fcf4
+Panda: 
+19411a04-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/dca096eea506301bea6d4b17ee1605625a6f5082c71f74a639cc940439f47166
+Polar Bear: 
+19411b26-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/c4fe926922fbb406f343b34a10bb98992cee4410137d3f88099427b22de3ab90
+Skeleton Horse: 
+19411efa-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/47effce35132c86ff72bcae77dfbb1d22587e94df3cbc2570ed17cf8973a
+Zombie Horse: 
+1941204e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d22950f2d3efddb18de86f8f55ac518dce73f12a6e0f8636d551d8eb480ceec
+Wandering Trader: 
+19412170-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/5f1379a82290d7abe1efaabbc70710ff2ec02dd34ade386bc00c930c461cf932
+Iron Golem: 
+19412292-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/fcecba31f26919d92a3d6420cd2fa9112f8e108ac04e3fc71da7329cd10fe5ca
+Glow Squid: 
+194123be-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/2ecd0b5eb6b384db076d8446065202959dddff0161e0d723b3df0cc586d16bbd
+Allay: 
+194124d6-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/e1c59dccde4b8535500dcf6794ca450663f607290e2510f6d8eb1e5eb71da5af
+Tadpole: 
+19412602-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/6cc9b9740bd3adeba52e0ce0a77b3dfdef8d3a40555a4e8bb67d200cd62770d0
+
+Single-Skin Hostiles
+
+Silverfish: 
+1941272e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/da91dab8391af5fda54acd2c0b18fbd819b865e1a8f1d623813fa761e924540
+Stray: 
+19412d50-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/2c5097916bc0565d30601c0eebfeb287277a34e867b4ea43c63819d53e89ede7
+Shulker: 
+19412f26-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/1433a4b73273a64c8ab2830b0fff777a61a488c92f60f83bfb3e421f428a44
+Phantom: 
+19413070-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7e95153ec23284b283f00d19d29756f244313a061b70ac03b97d236ee57bd982
+Husk: 
+19413192-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d674c63c8db5f4ca628d69a3b1f8a36e29d8fd775e1a6bdb6cabb4be4db121
+Drowned: 
+194132b4-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/c84df79c49104b198cdad6d99fd0d0bcf1531c92d4ab6269e40b7d3cbbb8e98c
+Hoglin: 
+194133e0-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/9bb9bc0f01dbd762a08d9e77c08069ed7c95364aa30ca1072208561b730e8d75
+Zoglin: 
+194134f8-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/12510b301b088638ec5c8747e2d754418cb747a5ce7022c9c712ecbdc5f6f065
+Piglin: 
+19413908-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d71b3aee182b9a99ed26cbf5ecb47ae90c2c3adc0927dde102c7b30fdf7f4545
+Piglin Brute: 
+19413a70-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/3e300e9027349c4907497438bac29e3a4c87a848c50b34c21242727b57f4e1cf
+Witch: 
+19413b92-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/91f1508590291bee0562d32ad7544f628aead89ea3caa54dc875120ac95b1fa
+Guardian: 
+19413cbe-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/932c24524c82ab3b3e57c2052c533f13dd8c0beb8bdd06369bb2554da86c123
+Ravager: 
+19413dea-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/cd20bf52ec390a0799299184fc678bf84cf732bb1bd78fd1c4b441858f0235a8
+Vex: 
+19413f16-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/c2ec5a516617ff1573cd2f9d5f3969f56d5575c4ff4efefabd2a18dc7ab98cd
+Evoker: 
+1941406a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d954135dc82213978db478778ae1213591b93d228d36dd54f1ea1da48e7cba6
+Spider: 
+194141aa-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/cd541541daaff50896cd258bdbdd4cf80c3ba816735726078bfe393927e57f1
+Enderman: 
+1941445c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/96c0b36d53fff69a49c7d6f3932f2b0fe948e032226d5e8045ec58408a36e951
+Ghast: 
+19414588-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7a8b714d32d7f6cf8b37e221b758b9c599ff76667c7cd45bbc49c5ef19858646
+Blaze: 
+194146b4-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0
+Cave Spider: 
+194147d6-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/41645dfd77d09923107b3496e94eeb5c30329f97efc96ed76e226e98224
+Magma Cube: 
+19414902-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/38957d5023c937c4c41aa2412d43410bda23cf79a9f6ab36b76fef2d7c429
+Zombified Piglin: 
+19414a1a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7eabaecc5fae5a8a49c8863ff4831aaa284198f1a2398890c765e0a8de18da8c
+Slime: 
+19414b32-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/895aeec6b842ada8669f846d65bc49762597824ab944f22f45bf3bbb941abe6c
+Endermite: 
+19414e8e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/5bc7b9d36fb92b6bf292be73d32c6c5b0ecc25b44323a541fae1f1e67e393a3e
+Pillager: 
+19414fe2-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/4aee6bb37cbfc92b0d86db5ada4790c64ff4468d68b84942fde04405e8ef5333
+Vindicator: 
+1941510e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f
+Illusioner: 
+1941524e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/4639d325f4494258a473a93a3b47f34a0c51b3fceaf59fee87205a5e7ff31f68
+
+Boss Mobs
+
+Elder Guardian: 
+19415370-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/4adc4a6f53afa116027b51d6f2e433ee7afa5d59b2ffa04780be464fa5d61a
+Wither: 
+194154ec-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/cdf74e323ed41436965f5c57ddf2815d5332fe999e68fbb9d6cf5c8bd4139f
+Warden: 
+19415668-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/6cf3674b2ddc0ef7c39e3b9c6b58677de5cf377d2eb073f2f3fe50919b1ca4c9
+
+Multi-Skin Passives
+
+Rabbits
+Brown Rabbit: 
+19415794-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7d1169b2694a6aba826360992365bcda5a10c89a3aa2b48c438531dd8685c3a7
+White Rabbit: 
+19415b54-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/b4dcfed6897a18a7ab995a66134d41a1ca821b69bcb7d14cf269b4a98df49a8
+Black Rabbit: 
+19415cee-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/72c58116a147d1a9a26269224a8be184fe8e5f3f3df9b61751369ad87382ec9
+Black & White Rabbit: 
+19415e4c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/cb8cff4b15b8ca37e25750f345718f289cb22c5b3ad22627a71223faccc
+Golden Rabbit: 
+19415f96-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/c977a3266bf3b9eaf17e5a02ea5fbb46801159863dd288b93e6c12c9cb
+Salt & Pepper Rabbit: 
+1941627a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/ffecc6b5e6ea5ced74c46e7627be3f0826327fba26386c6cc7863372e9bc
+
+Axolotls
+Leucistic Axolotl: 
+19416428-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/5c138f401c67fc2e1e387d9c90a9691772ee486e8ddbf2ed375fc8348746f936
+Brown Axolotl: 
+1941673e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/4d7efe02012cf31ae2708e7d7df079726575c7ee8504328175fe544708187dce
+Golden Axolotl: 
+194168c4-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7f80cc1492e44668cccdb40178c3a6689e8dfc0d234e98553fb7debc26fcaeac
+Cyan Axolotl: 
+19416c8e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/e1c2d0c3b96ad45b466388e028b247aafe36b26b12c411ecb72e9b50ea21e52c
+Blue Axolotl: 
+19416dd8-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/eef630657e4a279b0b7ea0f67905920af365f9c84ca9f34a32b53343ff629910
+
+Cats
+Tabby Cat: 
+19416f2c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/de28d30db3f8c3fe50ca4f26f3075e36f003ae8028135a8cd692f24c9a98ae1b
+All-Black Cat: 
+194170d0-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/22c1e81ff03e82a3e71e0cd5fbec607e11361089aa47f290d46c8a2c07460d92
+Red Cat: 
+1941721a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/2113dbd3c6a078a17b4edb78ce07d836c38dace5027d4b0a83fd60e7ca7a0fcb
+Siamese Cat: 
+19417346-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d5b3f8ca4b3a555ccb3d194449808b4c9d783327197800d4d65974cc685af2ea
+British Shorthair Cat: 
+19417472-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/5389e0d5d3e81f84b570e2978244b3a73e5a22bcdb6874b44ef5d0f66ca24eec
+Calico Cat: 
+194175b2-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/340097271bb680fe981e859e8ba93fea28b813b1042bd277ea3329bec493eef3
+Persian Cat: 
+19417a8a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/ff40c746260ef91c96b27159795e87191ae7ce3d5f767bf8c74faad9689af25d
+Ragdoll Cat: 
+19417bd4-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/dc7a45d25889e3fdf7797cb258e26d4e94f5bc13eef00795dafef2e83e0ab511
+White Cat: 
+19417cf6-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/21d15ac9558e98b89aca89d3819503f1c5256c2197dd3c34df5aac4d72e7fbed
+Jellie Cat: 
+19417e7c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/a0db41376ca57df10fcb1539e86654eecfd36d3fe75e8176885e93185df280a5
+Tuxedo Cat: 
+19417fb2-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/4fd10c8e75f67398c47587d25fc146f311c053cc5d0aeab8790bce36ee88f5f8
+
+Horses
+White Horse: 
+194180d4-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/9f4bdd59d4f8f1d5782e0fee4bd64aed100627f188a91489ba37eeadededd827
+Creamy Horse: 
+194181f6-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/a6dae0ade0e0dafb6dbc7786ce4241242b6b6df527a0f7af0a42184c93fd646b
+Chestnut Horse: 
+194184da-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/9717d71025f7a62c90a333c51663ffeb385a9a0d92af68083c5b045c0524b23f
+Brown Horse: 
+19418782-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/25e397def0af06feef22421860088186639732aa0a5eb5756e0aa6b03fd092c8
+Black Horse: 
+194188fe-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/3efb0b9857d7c8d295f6df97b605f40b9d07ebe128a6783d1fa3e1bc6e44117
+Grey Horse: 
+19418aac-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/8f0d955889b0378d4933c956398567e770103ae9eff0f702d0d53d52e7f6a83b
+Dark-Brown Horse: 
+19418bec-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f
+
+Llamas
+Creamy Llama: 
+19418d04-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/2a5f10e6e6232f182fe966f501f1c3799d45ae19031a1e4941b5dee0feff059b
+White Llama: 
+19419286-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/83d9b5915912ffc2b85761d6adcb428a812f9b83ff634e331162ce46c99e9
+Brown Llama: 
+194193ee-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/c2b1ecff77ffe3b503c30a548eb23a1a08fa26fd67cdff389855d74921368
+Grey Llama: 
+19419510-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/cf24e56fd9ffd7133da6d1f3e2f455952b1da462686f753c597ee82299a
+
+Trader Llamas
+Creamy Trader Llama: 
+19419632-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/e89a2eb17705fe7154ab041e5c76a08d41546a31ba20ea3060e3ec8edc10412c
+White Trader Llama: 
+1941975e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7087a556d4ffa95ecd2844f350dc43e254e5d535fa596f540d7e77fa67df4696
+Brown Trader Llama: 
+194198bc-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/8424780b3c5c5351cf49fb5bf41fcb289491df6c430683c84d7846188db4f84d
+Grey Trader Llama: 
+19419b0a-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/be4d8a0bc15f239921efd8be3480ba77a98ee7d9ce00728c0d733f0a2d614d16
+
+Parrots
+Red Parrot: 
+1941a06e-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/c38796f62db5f93949ae26a2f7a3c5f797a31d2694bce4c48ee843ee85f7
+Blue Parrot: 
+1941a1cc-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/dcb934e4a5d51c2c958dd2c9f03e1915a4722487bcd8bcd71eddc53377622d9d
+Green Parrot: 
+1941a302-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/9fbb3deb3d8adeea9914acb7a073ca566c3fec7f58fd63d6197af52fbdbf8780
+Cyan Parrot: 
+1941a438-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/a9df6dd4f9434d44c97dbac4fa98591f1e37506355b9e4406f716bec7dd248e
+Grey Parrot: 
+766c2476-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/efe08d511499a247146128e55ab6547ecd967d4dbcf803f7ceea2658737c9fa
+
+Foxes
+Red Fox: 
+766c27be-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d8954a42e69e0881ae6d24d4281459c144a0d5a968aed35d6d3d73a3c65d26a
+Arctic Fox: 
+766c299e-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/ddcd0db8cbe8f1e0ab1ec0a9385fb9288da84d3202c1c397da76ee1035e608b0
+
+Sheep
+White Sheep: 
+766c30d8-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/f31f9ccc6b3e32ecf13b8a11ac29cd33d18c95fc73db8a66c5d657ccb8be70
+Orange Sheep: 
+766c32b8-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/f098397a270b4c3d2b1e574b8cfd3cc4ea3409066cefe31ea993633c9d576
+Magenta Sheep: 
+766c345c-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/1836565c7897d49a71bc18986d1ea6561321a0bbf711d41a56ce3bb2c217e7a
+Light-Blue Sheep: 
+766c37f4-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/9a624f5966bedd6e67f654b59e9249b2ecf307d903339bc199923977f4c8c
+Yellow Sheep: 
+766c3c36-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/26a4112df1e4bce2a5e28417f3aaff79cd66e885c3724554102cef8eb8
+Lime Sheep: 
+766c3e2a-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/92a2448f58a491332434e85c45d786d874397e830a3a7894e6d92699c42b30
+Pink Sheep: 
+766c442e-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/2ac74a2b9b91452e56fa1dda5db81077856e49f27c6e2de1e841e5c95a6fc5ab
+Grey Sheep: 
+766c4672-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/4287eb501391f275389f166ec9febea75ec4ae951b88b38cae87df7e24f4c
+Light-Gray Sheep: 
+766c492e-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/ce1ac683993be35512e1be31d1f4f98e583edb1658a9e21192c9b23b5cccdc3
+Cyan Sheep: 
+766c4b7c-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/46f6c7e7fd514ce0acc68593229e40fcc4352b841646e4f0ebcccb0ce23d16
+Purple Sheep: 
+766c4d66-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/ae52867afef38bb14a26d1426c8c0f116ad34761acd92e7aae2c819a0d55b85
+Blue Sheep: 
+766c51a8-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/d9ec22818d1fbfc8167fbe36728b28240e34e16469a2929d03fdf511bf2ca1
+Brown Sheep: 
+766c539c-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/a55ad6e5db5692d87f51511f4e09b39ff9ccb3de7b4819a7378fce8553b8
+Green Sheep: 
+766c581a-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/6de55a395a2246445b45f9a6d68872344bbea54f362d529fc5b0b857ea58326b
+Red Sheep: 
+766c5d1a-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/839af477eb627815f723a5662556ec9dfcbab5d494d338bd214232f23e446
+Black Sheep: 
+766c6080-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/32652083f28ed1b61f9b965df1abf010f234681c21435951c67d88364749822
+
+Mooshroom
+Red Mooshroom: 
+766c63c8-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/2b52841f2fd589e0bc84cbabf9e1c27cb70cac98f8d6b3dd065e55a4dcb70d77
+Brown Mooshroom: 
+766c65bc-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/b6d5fc7031acc95beeb52875f15408e979a0a9c391b6db7ecee7e400072de5c4
+
+Frogs
+Temperate Frog: 
+766c6792-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/1f3e29dd947a177895f6121d2331b65ac3f896fda4bdd1151491e40b804952a7
+Warm Frog: 
+766c697c-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/1e9312b5b2bab9ad51ea4b6a407d6d390bb5043408757b976a7556898ac43de0
+Cold Frog: 
+766c7318-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/27bcccc125a4110434a85c40ada039d050f14ef7db34a3444067310f8ce69606
+
+Villagers
+Desert Villager: 
+766c74e4-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/10bf6df37dac6ca6089d2ba04135f223d4d850df9f09c7ec4eaf8c50764cbc50
+Jungle Villager: 
+766c77c8-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/44b062a9f8399dccb6251a74e618647342a3c0240ca56f34614d52f60a3fecec
+Plains Villager: 
+766c799e-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/d14bff1a38c9154e5ec84ce5cf00c58768e068eb42b2d89a6bbd29787590106b
+Savanna Villager: 
+766c7c82-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/14f05fd4215ea2a43244e832c723f65f05c2562abfe0bdf336f50293e683789d
+Snow Villager: 
+766c7e62-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/20c641e3d3764ed1c1f1907c4334e2b1303e2152b13d1eb0c605763f97fb258a
+Swamp Villager: 
+766c80a6-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/9ad7a9e8fe2bdfea03bb1f9fabe45fb10cf69a72e3760e5fd9a70f3384c536ad
+Taiga Villager: 
+766c884e-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/61e897719b54b844fa059f04817e13db8abd97e6bdb0624093032b4512f7a1c6
+
+Zombie Villagers
+Desert Zombie Villager: 
+766c8a9c-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/41225ae82e4918eb84f4687fe97a83b291515e7a56e55499c8b046aed2d6e182
+Jungle Zombie Villager: 
+766c8cd6-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/649a46275dec0c247df986dfb4b351d289f0242b5fcd620daae113725720c7c9
+Plains Zombie Villager: 
+766c8eac-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/c45c11e0327035649ca0600ef938900e25fd1e38017422bc9740e4cda2cba892
+Savanna Zombie Villager: 
+766c90a0-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/ab24ec3998250f9508361039182266687103b894ec8b94883feacd3c351db506
+Snow Zombie Villager: 
+766c9276-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/ef12b7b53001ef851719fdf8c088de03b11d4ae43f6ff53ac5a267d24df1dc60
+Swamp Zombie Villager: 
+766c95dc-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/22cca2d9f0aef42cc3086415e1419560f34334b167bebfefecc43492cb141789
+Taiga Zombie Villager: 
+766c9c3a-5fe3-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/279862124fcf95aece708624d40a4fe4658351113e436524eb5f20f8fe5e66b6
+
