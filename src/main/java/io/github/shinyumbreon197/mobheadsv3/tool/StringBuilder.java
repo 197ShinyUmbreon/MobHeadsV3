@@ -6,7 +6,7 @@ public class StringBuilder {
 
     private static final MobHeadsV3 plugin = MobHeadsV3.getPlugin();
 
-    public static String toPersistentString(String input){
+    public static String toSimplifiedString(String input){
         String simplified = input.toLowerCase();
         simplified = simplified.replace(" ", "_").replace("&", "and");
         return simplified;

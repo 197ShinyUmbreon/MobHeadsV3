@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.head;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadItem;
+import io.github.shinyumbreon197.mobheadsv3.tool.Recipes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -14,9 +15,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class FoxHead {
 
@@ -34,6 +33,15 @@ public class FoxHead {
             Fox.Type.RED, UUID.fromString("766c27be-5fe3-11ed-9b6a-0242ac120002"),
             Fox.Type.SNOW, UUID.fromString("766c299e-5fe3-11ed-9b6a-0242ac120002")
     );
+    private static Sound randomInteractSound(){
+        Random random = new Random();
+        int i = random.nextInt(99);
+        if (i < 49){
+            return Sound.ENTITY_FOX_AMBIENT;
+        }else if (i < 79){
+            return Sound.ENTITY_FOX_SNIFF;
+        }else return Sound.ENTITY_FOX_SCREECH;
+    }
 
     public static void initialize() throws MalformedURLException {
         textureURLMap = Map.of(
@@ -52,7 +60,10 @@ public class FoxHead {
             HeadData.headItemLookupMap.put(uuid, head);
             HeadData.uuidFromNameLookupMap.put(name, uuid);
             HeadData.variantLookupMap.put(uuid, type.toString());
+            Recipes.registerHeadRecipe(head, lootItem);
         }
+        HeadData.uuidFromEntityTypeMap.put(entityType, new ArrayList<>(headUUIDMap.values()));
+        HeadData.entityTypes.add(entityType);
     }
 
     public static void onTest(PlayerInteractAtEntityEvent e) {
@@ -63,21 +74,11 @@ public class FoxHead {
     private static void playInteractEffect(Location origin){
         World world = origin.getWorld();
         assert world != null;
-        world.playSound(origin, randomInteractSound(), 0.5F, 1.0F);
+        world.playSound(origin, randomInteractSound(), 0.6F, 1.0F);
     }
 
     public static void onHeadInteractEvent(PlayerInteractEvent e){
         assert e.getClickedBlock() != null;
         playInteractEffect(e.getClickedBlock().getLocation().add(0.5,0.5,0.5));
-    }
-
-    private static Sound randomInteractSound(){
-        Random random = new Random();
-        int i = random.nextInt(99);
-        if (i < 49){
-            return Sound.ENTITY_FOX_AMBIENT;
-        }else if (i < 79){
-            return Sound.ENTITY_FOX_SNIFF;
-        }else return Sound.ENTITY_FOX_SCREECH;
     }
 }

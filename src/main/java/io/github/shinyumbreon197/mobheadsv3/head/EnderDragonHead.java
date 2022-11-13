@@ -1,5 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.head;
 
+import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.tool.Recipes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,8 +20,9 @@ public class EnderDragonHead {
     private static final Sound interactSound = Sound.ENTITY_ENDER_DRAGON_AMBIENT;
     private static final ItemStack headItem = new ItemStack(Material.DRAGON_HEAD);
 
-    private void initialize(){
-
+    public static void initialize(){
+        HeadData.entityTypes.add(entityType);
+        Recipes.registerHeadRecipe(headItem, lootItem);
     }
 
     public static void onTest(PlayerInteractAtEntityEvent e) {

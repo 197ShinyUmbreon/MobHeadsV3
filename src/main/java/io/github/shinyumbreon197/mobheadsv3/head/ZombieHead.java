@@ -1,5 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.head;
 
+import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.tool.Recipes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -18,8 +20,9 @@ public class ZombieHead {
     private static final Sound interactSound = Sound.ENTITY_ZOMBIE_AMBIENT;
     private static final ItemStack headItem = new ItemStack(Material.ZOMBIE_HEAD);
 
-    private void initialize(){
-
+    public static void initialize(){
+        Recipes.registerHeadRecipe(headItem, lootItem);
+        HeadData.entityTypes.add(entityType);
     }
 
     public static void onTest(PlayerInteractAtEntityEvent e) {

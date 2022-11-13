@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.head;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadItem;
+import io.github.shinyumbreon197.mobheadsv3.tool.Recipes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.UUID;
 
 public class CowHead {
@@ -33,6 +35,9 @@ public class CowHead {
         HeadData.entityTypeLookupMap.put(headUUID, entityType);
         HeadData.headItemLookupMap.put(headUUID, headItem);
         HeadData.uuidFromNameLookupMap.put(headName, headUUID);
+        HeadData.uuidFromEntityTypeMap.put(entityType, List.of(headUUID));
+        HeadData.entityTypes.add(entityType);
+        Recipes.registerHeadRecipe(headItem, lootItem);
     }
 
     public static void onTest(PlayerInteractAtEntityEvent e) {
