@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
+import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,18 +14,20 @@ public class MobHead {
     private ItemStack headItem;
     private ItemStack lootItem;
     private UUID uuid;
+    private Sound interactSound;
 
     public MobHead(){
 
     }
 
-    public MobHead(EntityType et, String v, String n, ItemStack hi, ItemStack li, UUID id){
+    public MobHead(EntityType et, String v, String n, ItemStack hi, ItemStack li, UUID id, Sound is){
         entityType = et;
         variant = v;
         name = n;
         headItem = hi;
         lootItem = li;
         uuid = id;
+        interactSound = is;
     }
 
     public UUID getUuid() {
@@ -73,5 +76,13 @@ public class MobHead {
 
     public void setLootItem(ItemStack lootItem) {
         this.lootItem = lootItem;
+    }
+
+    public Sound getInteractSound() {
+        return interactSound;
+    }
+
+    public void setInteractSound(Sound interactSound) {
+        this.interactSound = interactSound;
     }
 }

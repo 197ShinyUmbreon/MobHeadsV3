@@ -1,123 +1,133 @@
 MobHeadsV3 UUID & Skin Texture Database
 
 
+Vanilla Mob Heads
+
+Zombie: X
+766c9f82-5fe3-11ed-9b6a-0242ac120002
+Skeleton: X
+766ca39c-5fe3-11ed-9b6a-0242ac120002
+Creeper: X
+766ca6e4-5fe3-11ed-9b6a-0242ac120002
+Wither Skeleton: X
+766ca90a-5fe3-11ed-9b6a-0242ac120002
+Ender Dragon: X
+766caacc-5fe3-11ed-9b6a-0242ac120002
+
 Single-Skin Passives
 
-Cow: 
+Cow: X
 1940fbd2-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/7dfa0ac37baba2aa290e4faee419a613cd6117fa568e709d90374753c032dcb0
-Pig: 
+Pig: X
 1940fe48-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4
-Chicken: 
+Chicken: X
 1940ff9c-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/45b4e2229de94c15dbfcf2bae49e80f0e4d65914a49a312c0417929a29bb7
-Wolf: 
+Wolf: X
 194100dc-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/24d7727f52354d24a64bd6602a0ce71a7b484d05963da83b470360faa9ceab5f
-Donkey: 
+Donkey: X
 19410442-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/dfb6c3c052cf787d236a2915f8072b77c547497715d1d2f8cbc9d241d88a
-Mule: 
+Mule: X
 19410596-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/46dcda265e57e4f51b145aacbf5b59bdc6099ffd3cce0a661b2c0065d80930d8
-Dolphin: 
+Dolphin: X
 19410942-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/8e9688b950d880b55b7aa2cfcd76e5a0fa94aac6d16f78e833f7443ea29fed3
-Cod: 
+Cod: X
 19410a82-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/7892d7dd6aadf35f86da27fb63da4edda211df96d2829f691462a4fb1cab0
-Salmon: 
-19410bae-5fac-11ed-9b6a-0242ac120002
+Salmon: X
+19410bae-5fac-11ed-9b6a-0242ac120002 
 http://textures.minecraft.net/texture/8aeb21a25e46806ce8537fbd6668281cf176ceafe95af90e94a5fd84924878
-Pufferfish: 
+Pufferfish: X
 19410cd0-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/17152876bc3a96dd2a2299245edb3beef647c8a56ac8853a687c3e7b5d8bb
-Tropical Fish: 
+Tropical Fish: X
 19410e06-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/12510b301b088638ec5c8747e2d754418cb747a5ce7022c9c712ecbdc5f6f065
-Turtle: 
+Turtle: X
 19410f28-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/0a4050e7aacc4539202658fdc339dd182d7e322f9fbcc4d5f99b5718a
-Strider: 
+Strider: X
 19411054-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/e245e4760abf10f2900626914cf42f80440cd53099ae5529534f59824067dad6
-Goat: 
+Goat: X
 19411176-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/f03330398a0d833f53ae8c9a1cb393c74e9d31e18885870e86a2133d44f0c63c
-Squid: 
+Squid: X
 1941140a-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/01433be242366af126da434b8735df1eb5b3cb2cede39145974e9c483607bac
-Bee: 
+Bee: X
 19411540-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/59ac16f296b461d05ea0785d477033e527358b4f30c266aa02f020157ffca736
-Bat: 
+Bat: X
 1941166c-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/6ffd808f8127b4ad458d9d2e181c690adf489a6ad32ee2aa4acfa6341fe842
-Ocelot: 
+Ocelot: X
 194117a2-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/51f07e3f2e5f256bfade666a8de1b5d30252c95e98f8a8ecc6e3c7b7f67095
-Snowman: 
+Snowman: X
 194118ce-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/1fdfd1f7538c040258be7a91446da89ed845cc5ef728eb5e690543378fcf4
-Panda: 
-19411a04-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/dca096eea506301bea6d4b17ee1605625a6f5082c71f74a639cc940439f47166
-Polar Bear: 
+Polar Bear: X
 19411b26-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/c4fe926922fbb406f343b34a10bb98992cee4410137d3f88099427b22de3ab90
-Skeleton Horse: 
+Skeleton Horse: X
 19411efa-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/47effce35132c86ff72bcae77dfbb1d22587e94df3cbc2570ed17cf8973a
-Zombie Horse: 
+Zombie Horse: X
 1941204e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/d22950f2d3efddb18de86f8f55ac518dce73f12a6e0f8636d551d8eb480ceec
-Wandering Trader: 
+Wandering Trader: X
 19412170-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/5f1379a82290d7abe1efaabbc70710ff2ec02dd34ade386bc00c930c461cf932
-Iron Golem: 
+Iron Golem: X
 19412292-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/fcecba31f26919d92a3d6420cd2fa9112f8e108ac04e3fc71da7329cd10fe5ca
-Glow Squid: 
+Glow Squid: X
 194123be-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/2ecd0b5eb6b384db076d8446065202959dddff0161e0d723b3df0cc586d16bbd
-Allay: 
+Allay: X
 194124d6-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/e1c59dccde4b8535500dcf6794ca450663f607290e2510f6d8eb1e5eb71da5af
-Tadpole: 
+Tadpole: X
 19412602-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/6cc9b9740bd3adeba52e0ce0a77b3dfdef8d3a40555a4e8bb67d200cd62770d0
 
 Single-Skin Hostiles
 
-Silverfish: 
+Silverfish: X
 1941272e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/da91dab8391af5fda54acd2c0b18fbd819b865e1a8f1d623813fa761e924540
-Stray: 
+Stray: X
 19412d50-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/2c5097916bc0565d30601c0eebfeb287277a34e867b4ea43c63819d53e89ede7
-Shulker: 
+Shulker: X
 19412f26-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/1433a4b73273a64c8ab2830b0fff777a61a488c92f60f83bfb3e421f428a44
-Phantom: 
+Phantom: X
 19413070-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/7e95153ec23284b283f00d19d29756f244313a061b70ac03b97d236ee57bd982
-Husk: 
+Husk: X
 19413192-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/d674c63c8db5f4ca628d69a3b1f8a36e29d8fd775e1a6bdb6cabb4be4db121
-Drowned: 
+Drowned: X
 194132b4-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/c84df79c49104b198cdad6d99fd0d0bcf1531c92d4ab6269e40b7d3cbbb8e98c
-Hoglin: 
+Hoglin: X
 194133e0-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/9bb9bc0f01dbd762a08d9e77c08069ed7c95364aa30ca1072208561b730e8d75
-Zoglin: 
+Zoglin: X
 194134f8-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/12510b301b088638ec5c8747e2d754418cb747a5ce7022c9c712ecbdc5f6f065
-Piglin: 
+http://textures.minecraft.net/texture/3c8c7c5d0556cd6629716e39188b21e7c0477479f242587bf19e0bc76b322551
+Piglin: X
 19413908-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/d71b3aee182b9a99ed26cbf5ecb47ae90c2c3adc0927dde102c7b30fdf7f4545
-Piglin Brute: 
+Piglin Brute: X
 19413a70-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/3e300e9027349c4907497438bac29e3a4c87a848c50b34c21242727b57f4e1cf
 Witch: 
@@ -334,6 +344,14 @@ Arctic Fox:
 766c299e-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/ddcd0db8cbe8f1e0ab1ec0a9385fb9288da84d3202c1c397da76ee1035e608b0
 
+Pandas 
+Panda: X
+19411a04-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/dca096eea506301bea6d4b17ee1605625a6f5082c71f74a639cc940439f47166
+Brown Panda: X
+766cac7a-5fe3-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/b4f7c73fda6a34cf8be4c7907dd0f5f0865dd77fd882fc633563649c57517cae
+
 Sheep
 White Sheep: 
 766c30d8-5fe3-11ed-9b6a-0242ac120002
@@ -425,6 +443,8 @@ https://textures.minecraft.net/texture/9ad7a9e8fe2bdfea03bb1f9fabe45fb10cf69a72e
 Taiga Villager: 
 766c884e-5fe3-11ed-9b6a-0242ac120002
 https://textures.minecraft.net/texture/61e897719b54b844fa059f04817e13db8abd97e6bdb0624093032b4512f7a1c6
+
+Multi-Skin Hostiles
 
 Zombie Villagers
 Desert Zombie Villager: 

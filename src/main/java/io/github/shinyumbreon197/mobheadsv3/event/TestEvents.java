@@ -1,13 +1,14 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.head.FoxHead;
-import io.github.shinyumbreon197.mobheadsv3.head.CowHead;
-import io.github.shinyumbreon197.mobheadsv3.head.ZombieHead;
+import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
+
+import java.util.Random;
 
 public class TestEvents implements Listener {
 
@@ -15,14 +16,22 @@ public class TestEvents implements Listener {
     public void onInteractAtEntity(PlayerInteractAtEntityEvent e){
         if (!e.getHand().equals(EquipmentSlot.HAND))return;
 
-        EntityType entityType = e.getRightClicked().getType();
-        if (entityType.equals(EntityType.COW)){
-            CowHead.onTest(e);
-        }else if (entityType.equals(EntityType.FOX)){
-            FoxHead.onTest(e);
-        }else if (entityType.equals(EntityType.ZOMBIE)){
-            ZombieHead.onTest(e);
+
+    }
+
+    @EventHandler
+    public void giveSpawnedZombiesHead(org.bukkit.event.entity.CreatureSpawnEvent e){
+        if (e.getEntity().getType().equals(EntityType.ZOMBIE)){
+            Zombie zombie = (Zombie) e.getEntity();
+            if (zombie.getEquipment() != null){
+                Random random = new Random();
+                int randInt = random.nextInt(HeadData.getMobHeads().size());
+                zombie.getEquipment().setHelmet(HeadData.getMobHeads().get(randInt).getHeadItem());
+            }
+
         }
     }
+
+
 
 }

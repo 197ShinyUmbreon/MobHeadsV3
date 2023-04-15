@@ -76,7 +76,8 @@ public class DecollationSmith implements Listener {
         assert weaponMeta != null;
         NamespacedKey nsk = new NamespacedKey(MobHeadsV3.getPlugin(), "decollation");
         PersistentDataContainer data = weaponMeta.getPersistentDataContainer();
-        data.set(nsk, PersistentDataType.INTEGER, 0);
+        //data.set(nsk, PersistentDataType.INTEGER, 0);
+        data.remove(nsk);
         List<String> lore = new ArrayList<>();
         List<String> newLore = new ArrayList<>();
         if (weaponMeta.getLore() != null) lore.addAll(weaponMeta.getLore());
@@ -101,7 +102,7 @@ public class DecollationSmith implements Listener {
         if (base == null || base.getType().equals(Material.AIR) || addition == null || addition.getType().equals(Material.AIR))return;
         if (!baseMaterials.contains(base.getType()) || !addition.getType().equals(Material.WITHER_SKELETON_SKULL))return;
         ItemStack result = base.clone();
-        addDecollation(result);
+        result = addDecollation(result);
         e.setResult(result);
     }
 
@@ -117,7 +118,5 @@ public class DecollationSmith implements Listener {
         }
         return smithingRecipes;
     }
-
-
 
 }

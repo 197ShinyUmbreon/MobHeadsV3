@@ -6,3 +6,9 @@ softdepend: [ ProtocolLib ]
 authors: [ 197ShinyUmbreon ]
 description: All creatures have a chance to drop their head when killed by a Player, and those heads have many effects.
 website: https://github.com/197ShinyUmbreon
+commands:
+  mobheads:
+    description: Opens a GUI displaying all Vanilla, Player, and Custom heads provided by the plugin
+  summonheaded:
+    description: Summons an Entity with a MobHead in their Helmet slot
+    usage: /summonheaded <entityname>

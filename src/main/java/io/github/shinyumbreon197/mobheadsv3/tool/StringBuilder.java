@@ -8,7 +8,7 @@ public class StringBuilder {
 
     public static String toSimplifiedString(String input){
         String simplified = input.toLowerCase();
-        simplified = simplified.replace(" ", "_").replace("&", "and");
+        simplified = simplified.replace(" ", "_").replace("&", "_and_");
         return simplified;
     }
 
