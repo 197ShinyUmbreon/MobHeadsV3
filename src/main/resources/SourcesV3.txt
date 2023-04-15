@@ -160,37 +160,37 @@ http://textures.minecraft.net/texture/b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b3
 Cave Spider: X
 194147d6-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/41645dfd77d09923107b3496e94eeb5c30329f97efc96ed76e226e98224
-Magma Cube: 
+Magma Cube: X
 19414902-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/38957d5023c937c4c41aa2412d43410bda23cf79a9f6ab36b76fef2d7c429
-Zombified Piglin: 
+Zombified Piglin: X
 19414a1a-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/7eabaecc5fae5a8a49c8863ff4831aaa284198f1a2398890c765e0a8de18da8c
-Slime: 
+Slime: X
 19414b32-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/895aeec6b842ada8669f846d65bc49762597824ab944f22f45bf3bbb941abe6c
-Endermite: 
+Endermite: X
 19414e8e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/5bc7b9d36fb92b6bf292be73d32c6c5b0ecc25b44323a541fae1f1e67e393a3e
-Pillager: 
+Pillager: X
 19414fe2-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4aee6bb37cbfc92b0d86db5ada4790c64ff4468d68b84942fde04405e8ef5333
-Vindicator: 
+Vindicator: X
 1941510e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f
-Illusioner: 
+Illusioner: X
 1941524e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4639d325f4494258a473a93a3b47f34a0c51b3fceaf59fee87205a5e7ff31f68
 
 Boss Mobs
 
-Elder Guardian: 
+Elder Guardian: X
 19415370-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4adc4a6f53afa116027b51d6f2e433ee7afa5d59b2ffa04780be464fa5d61a
-Wither: 
+Wither: X
 194154ec-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/cdf74e323ed41436965f5c57ddf2815d5332fe999e68fbb9d6cf5c8bd4139f
-Warden: 
+Warden: X
 19415668-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/6cf3674b2ddc0ef7c39e3b9c6b58677de5cf377d2eb073f2f3fe50919b1ca4c9
 

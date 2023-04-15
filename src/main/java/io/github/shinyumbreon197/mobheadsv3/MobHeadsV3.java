@@ -8,7 +8,7 @@ import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.head.*;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.*;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.*;
-import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.FoxHead;
+import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.*;
 import io.github.shinyumbreon197.mobheadsv3.head.vanilla.*;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.ChatColor;
@@ -128,15 +128,25 @@ public final class MobHeadsV3 extends JavaPlugin {
         GhastHead.initialize();
         BlazeHead.initialize();
         CaveSpiderHead.initialize();
+        MagmaCubeHead.initialize();
+        ZombifiedPiglinHead.initialize();
+        SlimeHead.initialize();
+        EndermiteHead.initialize();
+        PillagerHead.initialize();
+        VindicatorHead.initialize();
+        IllusionerHead.initialize();
         //Boss Mobs ----------------------------------------------------------------------------------------------------
-
+        ElderGuardianHead.initialize();
+        WitherHead.initialize();
+        WardenHead.initialize();
         //Multi-skin Passives ------------------------------------------------------------------------------------------
 
+        FoxHead.initialize();
         PandaHead.initialize();
 
         //Multi-skin Hostiles ------------------------------------------------------------------------------------------
 
-        FoxHead.initialize();
+        
 
     }
 

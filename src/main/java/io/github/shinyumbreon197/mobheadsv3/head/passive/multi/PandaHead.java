@@ -1,4 +1,4 @@
-package io.github.shinyumbreon197.mobheadsv3.head.passive;
+package io.github.shinyumbreon197.mobheadsv3.head.passive.multi;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
