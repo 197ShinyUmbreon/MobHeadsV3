@@ -14,18 +14,18 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
-public class EndermanHead {
+public class BlazeHead {
 
-    private static final EntityType entityType = EntityType.ENDERMAN;
-    private static final ItemStack lootItem = new ItemStack(Material.ENDER_PEARL, 8);
-    private static final Sound interactSound = Sound.ENTITY_ENDERMAN_AMBIENT;
-    private static final String headName = "Enderman Head";
-    private static final UUID headUUID = UUID.fromString("1941445c-5fac-11ed-9b6a-0242ac120002");
+    private static final EntityType entityType = EntityType.BLAZE;
+    private static final ItemStack lootItem = new ItemStack(Material.BLAZE_ROD, 8);
+    private static final Sound interactSound = Sound.ENTITY_BLAZE_AMBIENT;
+    private static final String headName = "Blaze Core";
+    private static final UUID headUUID = UUID.fromString("194146b4-5fac-11ed-9b6a-0242ac120002");
 
     public static void initialize(){
         URL textureURL;
         try{
-            textureURL = new URL("http://textures.minecraft.net/texture/96c0b36d53fff69a49c7d6f3932f2b0fe948e032226d5e8045ec58408a36e951");
+            textureURL = new URL("http://textures.minecraft.net/texture/b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0");
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

@@ -151,13 +151,13 @@ http://textures.minecraft.net/texture/cd541541daaff50896cd258bdbdd4cf80c3ba81673
 Enderman: X
 1941445c-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/96c0b36d53fff69a49c7d6f3932f2b0fe948e032226d5e8045ec58408a36e951
-Ghast: 
+Ghast: X
 19414588-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/7a8b714d32d7f6cf8b37e221b758b9c599ff76667c7cd45bbc49c5ef19858646
-Blaze: 
+Blaze: X
 194146b4-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0
-Cave Spider: 
+Cave Spider: X
 194147d6-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/41645dfd77d09923107b3496e94eeb5c30329f97efc96ed76e226e98224
 Magma Cube: 

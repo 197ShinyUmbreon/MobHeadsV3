@@ -125,6 +125,9 @@ public final class MobHeadsV3 extends JavaPlugin {
         EvokerHead.initialize();
         SpiderHead.initialize();
         EndermanHead.initialize();
+        GhastHead.initialize();
+        BlazeHead.initialize();
+        CaveSpiderHead.initialize();
         //Boss Mobs ----------------------------------------------------------------------------------------------------
 
         //Multi-skin Passives ------------------------------------------------------------------------------------------
