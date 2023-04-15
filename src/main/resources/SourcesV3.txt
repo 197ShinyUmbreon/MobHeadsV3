@@ -130,25 +130,25 @@ http://textures.minecraft.net/texture/d71b3aee182b9a99ed26cbf5ecb47ae90c2c3adc09
 Piglin Brute: X
 19413a70-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/3e300e9027349c4907497438bac29e3a4c87a848c50b34c21242727b57f4e1cf
-Witch: 
+Witch: X
 19413b92-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/91f1508590291bee0562d32ad7544f628aead89ea3caa54dc875120ac95b1fa
-Guardian: 
+Guardian: X
 19413cbe-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/932c24524c82ab3b3e57c2052c533f13dd8c0beb8bdd06369bb2554da86c123
-Ravager: 
+Ravager: X
 19413dea-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/cd20bf52ec390a0799299184fc678bf84cf732bb1bd78fd1c4b441858f0235a8
-Vex: 
+Vex: X
 19413f16-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/c2ec5a516617ff1573cd2f9d5f3969f56d5575c4ff4efefabd2a18dc7ab98cd
-Evoker: 
+Evoker: X
 1941406a-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/d954135dc82213978db478778ae1213591b93d228d36dd54f1ea1da48e7cba6
-Spider: 
+Spider: X
 194141aa-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/cd541541daaff50896cd258bdbdd4cf80c3ba816735726078bfe393927e57f1
-Enderman: 
+Enderman: X
 1941445c-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/96c0b36d53fff69a49c7d6f3932f2b0fe948e032226d5e8045ec58408a36e951
 Ghast: 
