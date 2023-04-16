@@ -17,7 +17,7 @@ import java.util.UUID;
 public class EvokerHead {
 
     private static final EntityType entityType = EntityType.EVOKER;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = new ItemStack(Material.EMERALD_BLOCK, 1);
     private static final Sound interactSound = Sound.ENTITY_EVOKER_AMBIENT;
     private static final String headName = "Evoker Head";
     private static final UUID headUUID = UUID.fromString("1941406a-5fac-11ed-9b6a-0242ac120002");

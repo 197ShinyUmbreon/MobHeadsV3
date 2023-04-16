@@ -7,6 +7,9 @@ import io.github.shinyumbreon197.mobheadsv3.event.*;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.head.*;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.*;
+import io.github.shinyumbreon197.mobheadsv3.head.hostile.ElderGuardianHead;
+import io.github.shinyumbreon197.mobheadsv3.head.hostile.WardenHead;
+import io.github.shinyumbreon197.mobheadsv3.head.hostile.WitherHead;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.*;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.*;
 import io.github.shinyumbreon197.mobheadsv3.head.vanilla.*;
@@ -140,6 +143,11 @@ public final class MobHeadsV3 extends JavaPlugin {
         WitherHead.initialize();
         WardenHead.initialize();
         //Multi-skin Passives ------------------------------------------------------------------------------------------
+        CatHead.initialize();
+        HorseHead.initialize();
+        LlamaHead.initialize();
+        TraderLlamaHead.initialize();
+        ParrotHead.initialize();
 
         FoxHead.initialize();
         PandaHead.initialize();

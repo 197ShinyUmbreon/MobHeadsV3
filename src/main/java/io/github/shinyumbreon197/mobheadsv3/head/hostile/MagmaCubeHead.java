@@ -17,9 +17,9 @@ import java.util.UUID;
 public class MagmaCubeHead {
 
     private static final EntityType entityType = EntityType.MAGMA_CUBE;
-    private static final ItemStack lootItem = new ItemStack(, );
-    private static final Sound interactSound = Sound.ENTITY_MAGMA_CUBE_AMBIENT;
-    private static final String headName = "Crystalized Magma Cube";
+    private static final ItemStack lootItem = new ItemStack(Material.MAGMA_CREAM, 8);
+    private static final Sound interactSound = Sound.ENTITY_MAGMA_CUBE_SQUISH_SMALL;
+    private static final String headName = "Crystallized Magma Cube";
     private static final UUID headUUID = UUID.fromString("19414902-5fac-11ed-9b6a-0242ac120002");
 
     public static void initialize(){

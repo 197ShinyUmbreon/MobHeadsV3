@@ -17,7 +17,7 @@ import java.util.UUID;
 public class WardenHead {
 
     private static final EntityType entityType = EntityType.WARDEN;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = new ItemStack(Material.SCULK_SHRIEKER, 1);
     private static final Sound interactSound = Sound.ENTITY_WARDEN_AMBIENT;
     private static final String headName = "Warden Head";
     private static final UUID headUUID = UUID.fromString("19415668-5fac-11ed-9b6a-0242ac120002");

@@ -17,9 +17,9 @@ import java.util.UUID;
 public class PillagerHead {
 
     private static final EntityType entityType = EntityType.PILLAGER;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = new ItemStack(Material.EMERALD, 8);
     private static final Sound interactSound = Sound.ENTITY_PILLAGER_AMBIENT;
-    private static final String headName = "PILLAGER Head";
+    private static final String headName = "Pillager Head";
     private static final UUID headUUID = UUID.fromString("19414fe2-5fac-11ed-9b6a-0242ac120002");
 
     public static void initialize(){

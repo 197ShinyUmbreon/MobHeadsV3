@@ -17,7 +17,7 @@ import java.util.UUID;
 public class EndermiteHead {
 
     private static final EntityType entityType = EntityType.ENDERMITE;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = new ItemStack(Material.POPPED_CHORUS_FRUIT, 1);
     private static final Sound interactSound = Sound.ENTITY_ENDERMITE_AMBIENT;
     private static final String headName = "Enlarged Endermite Head";
     private static final UUID headUUID = UUID.fromString("19414e8e-5fac-11ed-9b6a-0242ac120002");

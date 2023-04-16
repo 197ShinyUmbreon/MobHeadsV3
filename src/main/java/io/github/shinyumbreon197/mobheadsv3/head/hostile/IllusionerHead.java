@@ -2,11 +2,15 @@ package io.github.shinyumbreon197.mobheadsv3.head.hostile;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.Trophies;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,7 +21,7 @@ import java.util.UUID;
 public class IllusionerHead {
 
     private static final EntityType entityType = EntityType.ILLUSIONER;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = getSixteenArrows();
     private static final Sound interactSound = Sound.ENTITY_ILLUSIONER_AMBIENT;
     private static final String headName = "Illusioner Head";
     private static final UUID headUUID = UUID.fromString("1941524e-5fac-11ed-9b6a-0242ac120002");
@@ -32,6 +36,12 @@ public class IllusionerHead {
         ItemStack headItem = HeadUtil.customHead(headName, headUUID, textureURL);
         MobHead mobHead = new MobHead(entityType, null, headName, headItem, lootItem, headUUID, interactSound);
         HeadData.addMobHead(mobHead);
+    }
+
+    private static ItemStack getSixteenArrows(){
+        ItemStack arrows = Trophies.getBlindnessArrow();
+        arrows.setAmount(16);
+        return arrows;
     }
 
 }

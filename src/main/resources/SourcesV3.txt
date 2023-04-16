@@ -177,7 +177,7 @@ Pillager: X
 http://textures.minecraft.net/texture/4aee6bb37cbfc92b0d86db5ada4790c64ff4468d68b84942fde04405e8ef5333
 Vindicator: X
 1941510e-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f
+http://textures.minecraft.net/texture/6deaec344ab095b48cead7527f7dee61b063ff791f76a8fa76642c8676e2173
 Illusioner: X
 1941524e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4639d325f4494258a473a93a3b47f34a0c51b3fceaf59fee87205a5e7ff31f68
@@ -196,7 +196,7 @@ http://textures.minecraft.net/texture/6cf3674b2ddc0ef7c39e3b9c6b58677de5cf377d2e
 
 Multi-Skin Passives
 
-Rabbits
+Rabbits X
 Brown Rabbit: 
 19415794-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/7d1169b2694a6aba826360992365bcda5a10c89a3aa2b48c438531dd8685c3a7
@@ -216,11 +216,11 @@ Salt & Pepper Rabbit:
 1941627a-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/ffecc6b5e6ea5ced74c46e7627be3f0826327fba26386c6cc7863372e9bc
 
-Axolotls
+Axolotls X
 Leucistic Axolotl: 
 19416428-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/5c138f401c67fc2e1e387d9c90a9691772ee486e8ddbf2ed375fc8348746f936
-Brown Axolotl: 
+Brown (Wild) Axolotl:
 1941673e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4d7efe02012cf31ae2708e7d7df079726575c7ee8504328175fe544708187dce
 Golden Axolotl: 
@@ -233,7 +233,7 @@ Blue Axolotl:
 19416dd8-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/eef630657e4a279b0b7ea0f67905920af365f9c84ca9f34a32b53343ff629910
 
-Cats
+Cats X
 Tabby Cat: 
 19416f2c-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/de28d30db3f8c3fe50ca4f26f3075e36f003ae8028135a8cd692f24c9a98ae1b
@@ -268,7 +268,7 @@ Tuxedo Cat:
 19417fb2-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4fd10c8e75f67398c47587d25fc146f311c053cc5d0aeab8790bce36ee88f5f8
 
-Horses
+Horses X
 White Horse: 
 194180d4-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/9f4bdd59d4f8f1d5782e0fee4bd64aed100627f188a91489ba37eeadededd827
@@ -284,14 +284,14 @@ http://textures.minecraft.net/texture/25e397def0af06feef22421860088186639732aa0a
 Black Horse: 
 194188fe-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/3efb0b9857d7c8d295f6df97b605f40b9d07ebe128a6783d1fa3e1bc6e44117
-Grey Horse: 
+Gray Horse:
 19418aac-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/8f0d955889b0378d4933c956398567e770103ae9eff0f702d0d53d52e7f6a83b
 Dark-Brown Horse: 
 19418bec-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f
 
-Llamas
+Llamas X
 Creamy Llama: 
 19418d04-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/2a5f10e6e6232f182fe966f501f1c3799d45ae19031a1e4941b5dee0feff059b
@@ -301,11 +301,11 @@ http://textures.minecraft.net/texture/83d9b5915912ffc2b85761d6adcb428a812f9b83ff
 Brown Llama: 
 194193ee-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/c2b1ecff77ffe3b503c30a548eb23a1a08fa26fd67cdff389855d74921368
-Grey Llama: 
+Gray Llama:
 19419510-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/cf24e56fd9ffd7133da6d1f3e2f455952b1da462686f753c597ee82299a
 
-Trader Llamas
+Trader Llamas X
 Creamy Trader Llama: 
 19419632-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/e89a2eb17705fe7154ab041e5c76a08d41546a31ba20ea3060e3ec8edc10412c
@@ -319,7 +319,7 @@ Grey Trader Llama:
 19419b0a-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/be4d8a0bc15f239921efd8be3480ba77a98ee7d9ce00728c0d733f0a2d614d16
 
-Parrots
+Parrots X
 Red Parrot: 
 1941a06e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/c38796f62db5f93949ae26a2f7a3c5f797a31d2694bce4c48ee843ee85f7
@@ -336,7 +336,7 @@ Grey Parrot:
 766c2476-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/efe08d511499a247146128e55ab6547ecd967d4dbcf803f7ceea2658737c9fa
 
-Foxes
+Foxes X
 Red Fox: 
 766c27be-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/d8954a42e69e0881ae6d24d4281459c144a0d5a968aed35d6d3d73a3c65d26a
@@ -344,11 +344,11 @@ Arctic Fox:
 766c299e-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/ddcd0db8cbe8f1e0ab1ec0a9385fb9288da84d3202c1c397da76ee1035e608b0
 
-Pandas 
-Panda: X
+Pandas X
+Panda:
 19411a04-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/dca096eea506301bea6d4b17ee1605625a6f5082c71f74a639cc940439f47166
-Brown Panda: X
+Brown Panda:
 766cac7a-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/b4f7c73fda6a34cf8be4c7907dd0f5f0865dd77fd882fc633563649c57517cae
 

@@ -10,15 +10,13 @@ import org.bukkit.inventory.ItemStack;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
-public class CaveSpiderrHead {
+public class CaveSpiderHead {
 
     private static final EntityType entityType = EntityType.CAVE_SPIDER;
-    private static final ItemStack lootItem = new ItemStack(, );
-    private static final Sound interactSound = Sound.ENTITY_CAVE_SPIDER_AMBIENT;
+    private static final ItemStack lootItem = new ItemStack(Material.MILK_BUCKET, 1);
+    private static final Sound interactSound = Sound.ENTITY_SPIDER_AMBIENT;
     private static final String headName = "Cave Spider Head";
     private static final UUID headUUID = UUID.fromString("194147d6-5fac-11ed-9b6a-0242ac120002");
 

@@ -17,8 +17,8 @@ import java.util.UUID;
 public class SlimeHead {
 
     private static final EntityType entityType = EntityType.SLIME;
-    private static final ItemStack lootItem = new ItemStack(, );
-    private static final Sound interactSound = Sound.ENTITY_SLIME_AMBIENT;
+    private static final ItemStack lootItem = new ItemStack(Material.SLIME_BLOCK, 4);
+    private static final Sound interactSound = Sound.ENTITY_SLIME_SQUISH_SMALL;
     private static final String headName = "Crystalized Slime";
     private static final UUID headUUID = UUID.fromString("19414b32-5fac-11ed-9b6a-0242ac120002");
 

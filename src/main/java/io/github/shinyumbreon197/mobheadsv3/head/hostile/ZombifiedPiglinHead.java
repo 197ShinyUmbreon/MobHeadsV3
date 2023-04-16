@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.head.hostile;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.Trophies;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class ZombifiedPiglinHead {
 
     private static final EntityType entityType = EntityType.ZOMBIFIED_PIGLIN;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = Trophies.getZombiePiglinSword();
     private static final Sound interactSound = Sound.ENTITY_ZOMBIFIED_PIGLIN_AMBIENT;
     private static final String headName = "Zombified Piglin Head";
     private static final UUID headUUID = UUID.fromString("19414a1a-5fac-11ed-9b6a-0242ac120002");

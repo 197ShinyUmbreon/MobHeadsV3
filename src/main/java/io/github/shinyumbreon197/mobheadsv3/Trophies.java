@@ -7,8 +7,11 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
@@ -103,6 +106,66 @@ public class Trophies {
         sword.setItemMeta(swordMeta);
         addTrophyItem(sword, vexSwordUUID);
         return sword;
+    }
+
+    private static final UUID zombiePiglinSwordUUID = UUID.fromString("766cbcba-5fe3-11ed-9b6a-0242ac120002");
+    private static ItemStack zombiePiglinSword;
+    public static ItemStack getZombiePiglinSword(){
+        if (zombiePiglinSword == null) zombiePiglinSword = buildZombiePiglinSword();
+        return zombiePiglinSword;
+    }
+    private static ItemStack buildZombiePiglinSword(){
+        ItemStack sword = new ItemStack(Material.GOLDEN_SWORD, 1);
+        ItemMeta swordMeta = sword.getItemMeta();
+        assert swordMeta != null;
+        PersistentDataContainer data = swordMeta.getPersistentDataContainer();
+        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, zombiePiglinSwordUUID.toString());
+        swordMeta.setDisplayName(ChatColor.AQUA+"Zombie Piglin's Sword");
+        swordMeta.addEnchant(Enchantment.DURABILITY, 2, false);
+        swordMeta.addEnchant(Enchantment.DAMAGE_UNDEAD, 4, false);
+        swordMeta.addEnchant(Enchantment.FIRE_ASPECT, 2, true);
+        sword.setItemMeta(swordMeta);
+        addTrophyItem(sword, zombiePiglinSwordUUID);
+        return sword;
+    }
+
+    private static final UUID vindicatorAxeUUID = UUID.fromString("766cbee0-5fe3-11ed-9b6a-0242ac120002");
+    private static ItemStack vindicatorAxe;
+    public static ItemStack getVindicatorAxe(){
+        if (vindicatorAxe == null) vindicatorAxe = buildVindicatorAxe();
+        return vindicatorAxe;
+    }
+    private static ItemStack buildVindicatorAxe(){
+        ItemStack axe = new ItemStack(Material.IRON_AXE, 1);
+        ItemMeta axeMeta = axe.getItemMeta();
+        assert axeMeta != null;
+        PersistentDataContainer data = axeMeta.getPersistentDataContainer();
+        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, vindicatorAxeUUID.toString());
+        axeMeta.setDisplayName(ChatColor.AQUA+"Vindicator's Axe");
+        axeMeta.addEnchant(Enchantment.DURABILITY, 1, false);
+        axeMeta.addEnchant(Enchantment.DAMAGE_ALL, 3, false);
+        axeMeta.addEnchant(Enchantment.LOOT_BONUS_MOBS, 2, true);
+        axe.setItemMeta(axeMeta);
+        addTrophyItem(axe, vindicatorAxeUUID);
+        return axe;
+    }
+
+    private static final UUID blindnessArrowUUID = UUID.fromString("766cc0ac-5fe3-11ed-9b6a-0242ac120002");
+    private static ItemStack blindnessArrow;
+    public static ItemStack getBlindnessArrow(){
+        if (blindnessArrow == null) blindnessArrow = buildBlindnessArrow();
+        return blindnessArrow;
+    }
+    private static ItemStack buildBlindnessArrow(){
+        ItemStack arrows = new ItemStack(Material.TIPPED_ARROW);
+        PotionMeta potionMeta = (PotionMeta) arrows.getItemMeta();
+        assert potionMeta != null;
+        PersistentDataContainer data = potionMeta.getPersistentDataContainer();
+        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, blindnessArrowUUID.toString());
+        potionMeta.setDisplayName(ChatColor.AQUA+"Arrow of Blindness");
+        potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20*20,0), true);
+        arrows.setItemMeta(potionMeta);
+        return arrows;
     }
 
 }

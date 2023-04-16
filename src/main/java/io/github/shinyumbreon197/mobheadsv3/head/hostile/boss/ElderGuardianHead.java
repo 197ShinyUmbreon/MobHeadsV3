@@ -17,7 +17,7 @@ import java.util.UUID;
 public class ElderGuardianHead {
 
     private static final EntityType entityType = EntityType.ELDER_GUARDIAN;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = new ItemStack(Material.WET_SPONGE, 1);
     private static final Sound interactSound = Sound.ENTITY_ELDER_GUARDIAN_AMBIENT;
     private static final String headName = "Shrunken Elder Guardian Head";
     private static final UUID headUUID = UUID.fromString("19415370-5fac-11ed-9b6a-0242ac120002");

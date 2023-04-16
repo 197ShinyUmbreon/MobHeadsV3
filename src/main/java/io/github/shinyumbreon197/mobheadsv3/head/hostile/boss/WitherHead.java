@@ -17,7 +17,7 @@ import java.util.UUID;
 public class WitherHead {
 
     private static final EntityType entityType = EntityType.WITHER;
-    private static final ItemStack lootItem = new ItemStack(, );
+    private static final ItemStack lootItem = new ItemStack(Material.END_CRYSTAL, 8);
     private static final Sound interactSound = Sound.ENTITY_WITHER_AMBIENT;
     private static final String headName = "Wither Head";
     private static final UUID headUUID = UUID.fromString("194154ec-5fac-11ed-9b6a-0242ac120002");
