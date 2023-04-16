@@ -1,21 +1,15 @@
 package io.github.shinyumbreon197.mobheadsv3.head.hostile;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.Trophies;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 
 public class IllusionerHead {

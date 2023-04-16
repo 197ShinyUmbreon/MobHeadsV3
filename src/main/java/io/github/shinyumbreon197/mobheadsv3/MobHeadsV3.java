@@ -17,7 +17,6 @@ import io.github.shinyumbreon197.mobheadsv3.head.vanilla.*;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;

@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.effect;
 
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.EffectUtil;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.entity.EntityType;

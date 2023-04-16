@@ -1,7 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.head.passive;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -12,7 +12,6 @@ import org.bukkit.potion.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.UUID;
 
 public class PufferfishHead {

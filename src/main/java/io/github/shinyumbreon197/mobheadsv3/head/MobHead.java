@@ -1,4 +1,4 @@
-package io.github.shinyumbreon197.mobheadsv3;
+package io.github.shinyumbreon197.mobheadsv3.head;
 
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;

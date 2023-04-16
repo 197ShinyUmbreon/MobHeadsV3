@@ -1,7 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.head.passive.multi;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;

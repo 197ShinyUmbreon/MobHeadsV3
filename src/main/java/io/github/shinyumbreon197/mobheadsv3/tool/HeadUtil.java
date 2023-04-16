@@ -1,7 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.tool;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.Bukkit;

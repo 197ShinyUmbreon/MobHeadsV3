@@ -1,7 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.head;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;

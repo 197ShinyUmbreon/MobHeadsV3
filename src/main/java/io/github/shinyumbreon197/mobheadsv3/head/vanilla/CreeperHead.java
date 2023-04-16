@@ -1,13 +1,10 @@
 package io.github.shinyumbreon197.mobheadsv3.head.vanilla;
 
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
-import org.bukkit.Location;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.World;
 import org.bukkit.entity.EntityType;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
