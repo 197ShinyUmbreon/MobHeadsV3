@@ -60,7 +60,7 @@ public class HorseHead {
             textureURLMap.put(v2, new URL("http://textures.minecraft.net/texture/9717d71025f7a62c90a333c51663ffeb385a9a0d92af68083c5b045c0524b23f"));
             textureURLMap.put(v3, new URL("http://textures.minecraft.net/texture/25e397def0af06feef22421860088186639732aa0a5eb5756e0aa6b03fd092c8"));
             textureURLMap.put(v4, new URL("http://textures.minecraft.net/texture/3efb0b9857d7c8d295f6df97b605f40b9d07ebe128a6783d1fa3e1bc6e44117"));
-            textureURLMap.put(v5, new URL("http://textures.minecraft.net/texture/8f0d955889b0378d4933c956398567e770103ae9eff0f702d0d53d52e7f6a83"));
+            textureURLMap.put(v5, new URL("http://textures.minecraft.net/texture/8f0d955889b0378d4933c956398567e770103ae9eff0f702d0d53d52e7f6a83b"));
             textureURLMap.put(v6, new URL("http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f"));
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);

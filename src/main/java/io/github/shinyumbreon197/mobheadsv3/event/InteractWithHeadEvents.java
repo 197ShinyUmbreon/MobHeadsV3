@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.ParrotHead;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -83,9 +84,17 @@ public class InteractWithHeadEvents implements Listener {
             case BAT -> {volume = 0.05f;}
             case OCELOT -> {volume = 1.5f;}
             case PANDA -> {interactSound = pandaSound();}
+            case PARROT -> {interactSound = parrotSound();}
+            case RABBIT -> {volume = 1.6f;}
+            case FROG -> {volume = 1.0f;}
 
         }
         if (interactSound != null) world.playSound(locCenter, interactSound, volume, 1.0F);
+    }
+
+    private static Sound parrotSound(){
+        Random random = new Random();
+        return ParrotHead.getParrotSounds().get(random.nextInt(ParrotHead.getParrotSounds().size()));
     }
 
     private static Sound foxSound(){

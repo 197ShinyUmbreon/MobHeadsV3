@@ -374,7 +374,7 @@ http://textures.minecraft.net/texture/92a2448f58a491332434e85c45d786d874397e830a
 Pink Sheep: 
 766c442e-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/2ac74a2b9b91452e56fa1dda5db81077856e49f27c6e2de1e841e5c95a6fc5ab
-Grey Sheep: 
+Gray Sheep:
 766c4672-5fe3-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4287eb501391f275389f166ec9febea75ec4ae951b88b38cae87df7e24f4c
 Light-Gray Sheep: 

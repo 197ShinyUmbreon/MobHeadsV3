@@ -3,9 +3,10 @@ package io.github.shinyumbreon197.mobheadsv3.head.passive.multi;
 import io.github.shinyumbreon197.mobheadsv3.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
+import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.entity.Axolotl;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Frog;
 import org.bukkit.inventory.ItemStack;
 
 import java.net.MalformedURLException;
@@ -18,52 +19,42 @@ import java.util.UUID;
 public class FrogHead {
 
     private static final List<MobHead> mobHeads = new ArrayList<>();
-    private static final EntityType entityType = EntityType.AXOLOTL;
-    private static final ItemStack lootItem = buildRegenerationPotion();
+    private static final EntityType entityType = EntityType.FROG;
+    private static final ItemStack lootItem = new ItemStack(Material.SLIME_BALL, 8);
 
-    private static final Sound interactSound = Sound.ENTITY_RABBIT_AMBIENT;
-    private static final Axolotl.Variant v0 = Axolotl.Variant.LUCY;
-    private static final Axolotl.Variant v1 = Axolotl.Variant.WILD;
-    private static final Axolotl.Variant v2 = Axolotl.Variant.GOLD;
-    private static final Axolotl.Variant v3 = Axolotl.Variant.CYAN;
-    private static final Axolotl.Variant v4 = Axolotl.Variant.BLUE;
-    private static final Map<Axolotl.Variant, String> headNameMap = Map.of(
-            v0,"Brown Axolotl Head",
-            v1,"White Axolotl Head",
-            v2,"Black Axolotl Head",
-            v3,"Black & White Axolotl Head",
-            v4,"Golden Axolotl Head"
+    private static final Sound interactSound = Sound.ENTITY_FROG_AMBIENT;
+    private static final Frog.Variant v0 = Frog.Variant.TEMPERATE;
+    private static final Frog.Variant v1 = Frog.Variant.WARM;
+    private static final Frog.Variant v2 = Frog.Variant.COLD;
+    private static final Map<Frog.Variant, String> headNameMap = Map.of(
+            v0,"Temperate Frog Head",
+            v1,"Warm Frog Head",
+            v2,"Cold Frog Head"
     );
-    private static final Map<Axolotl.Variant , UUID> headUUIDMap = Map.of(
-            v0, UUID.fromString(""),
-            v1, UUID.fromString(""),
-            v2, UUID.fromString(""),
-            v3, UUID.fromString(""),
-            v4, UUID.fromString("")
+    private static final Map<Frog.Variant , UUID> headUUIDMap = Map.of(
+            v0, UUID.fromString("766c6792-5fe3-11ed-9b6a-0242ac120002"),
+            v1, UUID.fromString("766c697c-5fe3-11ed-9b6a-0242ac120002"),
+            v2, UUID.fromString("766c7318-5fe3-11ed-9b6a-0242ac120002")
     );
 
     public static void initialize(){
-        Map<Axolotl.Variant , URL> textureURLMap;
+        Map<Frog.Variant , URL> textureURLMap;
         try{
             textureURLMap = Map.of(
-                    v0, new URL(""),
-                    v1, new URL(""),
-                    v2, new URL(""),
-                    v3, new URL(""),
-                    v4, new URL("")
+                    v0, new URL("http://textures.minecraft.net/texture/1f3e29dd947a177895f6121d2331b65ac3f896fda4bdd1151491e40b804952a7"),
+                    v1, new URL("http://textures.minecraft.net/texture/1e9312b5b2bab9ad51ea4b6a407d6d390bb5043408757b976a7556898ac43de0"),
+                    v2, new URL("http://textures.minecraft.net/texture/27bcccc125a4110434a85c40ada039d050f14ef7db34a3444067310f8ce69606")
             );
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        Map<Axolotl.Variant , ItemStack> headItemMap = Map.of(
+        Map<Frog.Variant , ItemStack> headItemMap = Map.of(
                 v0, HeadUtil.customHead(headNameMap.get(v0), headUUIDMap.get(v0), textureURLMap.get(v0)),
                 v1, HeadUtil.customHead(headNameMap.get(v1), headUUIDMap.get(v1), textureURLMap.get(v1)),
-                v2, HeadUtil.customHead(headNameMap.get(v2), headUUIDMap.get(v2), textureURLMap.get(v2)),
-                v3, HeadUtil.customHead(headNameMap.get(v3), headUUIDMap.get(v3), textureURLMap.get(v3)),
-                v4, HeadUtil.customHead(headNameMap.get(v4), headUUIDMap.get(v4), textureURLMap.get(v4))
+                v2, HeadUtil.customHead(headNameMap.get(v2), headUUIDMap.get(v2), textureURLMap.get(v2))
         );
-        List<Axolotl.Variant> types = List.of(v0, v1, v2, v3, v4);
-        for (Axolotl.Variant type:types){
+        List<Frog.Variant> types = List.of(v0, v1, v2);
+        for (Frog.Variant type:types){
             UUID uuid = headUUIDMap.get(type);
             ItemStack head = headItemMap.get(type);
             String name = headNameMap.get(type);

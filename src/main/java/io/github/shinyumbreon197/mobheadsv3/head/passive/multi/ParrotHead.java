@@ -74,5 +74,18 @@ public class ParrotHead {
         HeadData.addMobHeads(mobHeads);
     }
 
+    private static List<Sound> parrotSounds;
+    public static List<Sound> getParrotSounds(){
+        if (parrotSounds == null) parrotSounds = buildParrotSounds();
+        return parrotSounds;
+    }
+    private static List<Sound> buildParrotSounds(){
+        List<Sound> sounds = new ArrayList<>();
+        for (Sound sound:Sound.values()){
+            if (sound.toString().contains("PARROT_IMITATE")) sounds.add(sound);
+        }
+        return sounds;
+    }
+
 
 }

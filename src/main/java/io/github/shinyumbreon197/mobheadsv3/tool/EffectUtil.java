@@ -16,7 +16,7 @@ public class EffectUtil {
         return target.isInWater() || exposedToRain;
     }
 
-    private static boolean isExposedToWater(LivingEntity target){
+    public static boolean isExposedToWater(LivingEntity target){
         Location tLoc = target.getEyeLocation();
         World world = target.getWorld();
         Location highestBlock = world.getHighestBlockAt(tLoc).getLocation();
@@ -27,10 +27,10 @@ public class EffectUtil {
         double humid = tLoc.getBlock().getHumidity();
         boolean inWater = target.isInWater();
         //int skyLight = pLoc.getBlock().getLightFromSky();
-        return  (inWater || ((isRaining && !blockAbove) && temp > 0 && humid > 0));
+        return  (inWater || temp > 0 && humid > 0 && ((isRaining && !blockAbove)));
     }
 
-    private static boolean isExposedToSnowfall(LivingEntity target){
+    public static boolean isExposedToSnowfall(LivingEntity target){
         Location tLoc = target.getEyeLocation();
         World world = target.getWorld();
         Location highestBlock = world.getHighestBlockAt(tLoc).getLocation();
@@ -39,7 +39,7 @@ public class EffectUtil {
         boolean isRaining = !world.isClearWeather();
         double temp = tLoc.getBlock().getTemperature();
         double humid = tLoc.getBlock().getHumidity();
-        return  (isRaining && !blockAbove) && temp <= 0 && humid > 0;
+        return temp <= 0 && humid > 0 && (isRaining && !blockAbove);
     }
 
 }

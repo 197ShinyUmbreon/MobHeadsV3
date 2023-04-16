@@ -10,12 +10,14 @@ import io.github.shinyumbreon197.mobheadsv3.head.hostile.*;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.ElderGuardianHead;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.WardenHead;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.WitherHead;
+import io.github.shinyumbreon197.mobheadsv3.head.hostile.multi.ZombieVillagerHead;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.*;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.*;
 import io.github.shinyumbreon197.mobheadsv3.head.vanilla.*;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
@@ -143,19 +145,21 @@ public final class MobHeadsV3 extends JavaPlugin {
         WitherHead.initialize();
         WardenHead.initialize();
         //Multi-skin Passives ------------------------------------------------------------------------------------------
+        RabbitHead.initialize();
+        AxolotlHead.initialize();
         CatHead.initialize();
         HorseHead.initialize();
         LlamaHead.initialize();
         TraderLlamaHead.initialize();
         ParrotHead.initialize();
-
         FoxHead.initialize();
         PandaHead.initialize();
-
+        SheepHead.initialize();
+        MooshroomHead.initialize();
+        FrogHead.initialize();
+        VillagerHead.initialize();
         //Multi-skin Hostiles ------------------------------------------------------------------------------------------
-
-        
-
+        ZombieVillagerHead.initialize();
     }
 
     private void registerRecipes(){

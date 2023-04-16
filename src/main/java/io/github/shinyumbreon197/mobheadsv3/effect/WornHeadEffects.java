@@ -146,7 +146,7 @@ public class WornHeadEffects {
             case HORSE -> {effects.add(PotionFX.speed(-1, 0, false));}
             case LLAMA -> {}
             case TRADER_LLAMA -> {}
-            case PARROT -> {}
+            case PARROT -> {effects.add(PotionFX.slowFall(-1, 0, false));}
             case FOX -> {}
             case PANDA -> {}
             case SHEEP -> {}

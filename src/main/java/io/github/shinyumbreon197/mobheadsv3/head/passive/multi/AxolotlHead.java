@@ -25,18 +25,18 @@ public class AxolotlHead {
     private static final EntityType entityType = EntityType.AXOLOTL;
     private static final ItemStack lootItem = buildRegenerationPotion();
 
-    private static final Sound interactSound = Sound.ENTITY_RABBIT_AMBIENT;
+    private static final Sound interactSound = Sound.ENTITY_AXOLOTL_IDLE_AIR;
     private static final Axolotl.Variant v0 = Axolotl.Variant.LUCY;
     private static final Axolotl.Variant v1 = Axolotl.Variant.WILD;
     private static final Axolotl.Variant v2 = Axolotl.Variant.GOLD;
     private static final Axolotl.Variant v3 = Axolotl.Variant.CYAN;
     private static final Axolotl.Variant v4 = Axolotl.Variant.BLUE;
     private static final Map<Axolotl.Variant, String> headNameMap = Map.of(
-            v0,"Brown Axolotl Head",
-            v1,"White Axolotl Head",
-            v2,"Black Axolotl Head",
-            v3,"Black & White Axolotl Head",
-            v4,"Golden Axolotl Head"
+            v0,"Axolotl Head",
+            v1,"Wild Axolotl Head",
+            v2,"Golden Axolotl Head",
+            v3,"Cyan Axolotl Head",
+            v4,"Blue Axolotl Head"
     );
     private static final Map<Axolotl.Variant , UUID> headUUIDMap = Map.of(
             v0, UUID.fromString("19416428-5fac-11ed-9b6a-0242ac120002"),
