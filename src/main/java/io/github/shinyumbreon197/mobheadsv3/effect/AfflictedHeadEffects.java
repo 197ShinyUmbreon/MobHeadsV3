@@ -40,7 +40,6 @@ public class AfflictedHeadEffects {
                 case BAT -> {}
                 case OCELOT -> {}
                 case SNOWMAN -> {}
-                case PANDA -> {}
                 case POLAR_BEAR -> {}
                 case SKELETON_HORSE -> {}
                 case ZOMBIE_HORSE -> {}
@@ -79,7 +78,7 @@ public class AfflictedHeadEffects {
                 case ILLUSIONER -> {}
 
                 case ELDER_GUARDIAN -> {}
-                case WITHER -> {}
+                case WITHER -> {return witherAfflictionEffects();}
                 case WARDEN -> {}
 
                 case RABBIT -> {}
@@ -90,6 +89,7 @@ public class AfflictedHeadEffects {
                 case TRADER_LLAMA -> {}
                 case PARROT -> {}
                 case FOX -> {}
+                case PANDA -> {}
                 case SHEEP -> {}
                 case MUSHROOM_COW -> {}
                 case FROG -> {}
@@ -115,6 +115,16 @@ public class AfflictedHeadEffects {
         PotionEffect effect0 = new PotionEffect(
                 PotionEffectType.WITHER, 4*20,
                 1,false, true, true
+        );
+        effects.add(effect0);
+        return effects;
+    }
+
+    private static List<PotionEffect> witherAfflictionEffects(){
+        List<PotionEffect> effects = new ArrayList<>();
+        PotionEffect effect0 = new PotionEffect(
+                PotionEffectType.WITHER, 3*20,
+                2,false, true, true
         );
         effects.add(effect0);
         return effects;

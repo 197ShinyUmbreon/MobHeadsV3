@@ -46,7 +46,6 @@ public class WornHeadMechanics {
             case BAT -> {}
             case OCELOT -> {}
             case SNOWMAN -> {}
-            case PANDA -> {}
             case POLAR_BEAR -> {}
             case SKELETON_HORSE -> {regenerateAir(livingEntity);}
             case ZOMBIE_HORSE -> {}
@@ -96,6 +95,7 @@ public class WornHeadMechanics {
             case TRADER_LLAMA -> {}
             case PARROT -> {}
             case FOX -> {}
+            case PANDA -> {}
             case SHEEP -> {}
             case MUSHROOM_COW -> {}
             case FROG -> {regenerateAir(livingEntity);}

@@ -85,7 +85,6 @@ public class AttackDamageDeathEvents implements Listener {
                 case BAT -> {}
                 case OCELOT -> {}
                 case SNOWMAN -> {}
-                case PANDA -> {}
                 case POLAR_BEAR -> {}
                 case SKELETON_HORSE -> {}
                 case ZOMBIE_HORSE -> {}
@@ -135,6 +134,7 @@ public class AttackDamageDeathEvents implements Listener {
                 case TRADER_LLAMA -> {}
                 case PARROT -> {}
                 case FOX -> {}
+                case PANDA -> {}
                 case SHEEP -> {}
                 case MUSHROOM_COW -> {}
                 case FROG -> {}
