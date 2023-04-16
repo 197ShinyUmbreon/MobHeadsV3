@@ -57,7 +57,7 @@ public class DecollationSmith implements Listener {
         if (decollationValue != null && decollationValue == 1){
             return null;
         }
-        data.set(new NamespacedKey(MobHeadsV3.getPlugin(), "decollation"), PersistentDataType.INTEGER,1);
+        data.set(nsk, PersistentDataType.INTEGER,1);
         List<String> loreAdditions = Arrays.asList(
                 ChatColor.RESET+""+ChatColor.DARK_PURPLE+"The next kill with this weapon",
                 ChatColor.RESET+""+ChatColor.DARK_PURPLE+"will guarantee a Head drop."
