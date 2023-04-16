@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DecollationSmith implements Listener {
+    
+    private static final NamespacedKey nsk = new NamespacedKey(MobHeadsV3.getPlugin(), "decollation");
 
     private static final List<Material> baseMaterials = Arrays.asList(
             Material.WOODEN_SWORD, Material.STONE_SWORD, Material.IRON_SWORD,
@@ -39,7 +41,6 @@ public class DecollationSmith implements Listener {
         if (!baseMaterials.contains(weapon.getType()))return false;
         ItemMeta weaponMeta = weapon.getItemMeta();
         assert weaponMeta != null;
-        NamespacedKey nsk = new NamespacedKey(MobHeadsV3.getPlugin(), "decollation");
         PersistentDataContainer data = weaponMeta.getPersistentDataContainer();
         Integer decollationValue = data.get(nsk, PersistentDataType.INTEGER);
         if (decollationValue == null || decollationValue == 0)return false;
@@ -52,7 +53,7 @@ public class DecollationSmith implements Listener {
         ItemMeta resultMeta = weapon.getItemMeta();
         assert resultMeta != null;
         PersistentDataContainer data = resultMeta.getPersistentDataContainer();
-        Integer decollationValue = data.get(new NamespacedKey(MobHeadsV3.getPlugin(), "decollation"), PersistentDataType.INTEGER);
+        Integer decollationValue = data.get(nsk, PersistentDataType.INTEGER);
         if (decollationValue != null && decollationValue == 1){
             return null;
         }
@@ -74,7 +75,6 @@ public class DecollationSmith implements Listener {
         if (!hasDecollation(weapon))return null;
         ItemMeta weaponMeta = weapon.getItemMeta();
         assert weaponMeta != null;
-        NamespacedKey nsk = new NamespacedKey(MobHeadsV3.getPlugin(), "decollation");
         PersistentDataContainer data = weaponMeta.getPersistentDataContainer();
         //data.set(nsk, PersistentDataType.INTEGER, 0);
         data.remove(nsk);
