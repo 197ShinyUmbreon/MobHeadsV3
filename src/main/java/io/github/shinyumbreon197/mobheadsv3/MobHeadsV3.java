@@ -71,6 +71,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new DecollationSmith(), this);
         pm.registerEvents(new AttackDamageDeathEvents(), this);
         pm.registerEvents(new HungerChangeEvent(), this);
+        pm.registerEvents(new MovementEvents(), this);
     }
 
     private void initializeHeads(){

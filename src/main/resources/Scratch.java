@@ -133,3 +133,9 @@ public static void unregisterPlayers(List<Player> players){
         entityType = HeadData.vanillaMatEntTypeMap().get(clickedBlock.getType());
         }
         if (entityType == null)return;
+
+        double x = velocity.getX()*10;
+        double y = velocity.getY()*2;
+        double z = velocity.getZ()*10;
+        if (x > 0.5) x = 0.5; if (x < -0.5) x = -0.5;
+        if (z > 0.5) z = 0.5; if (z < -0.5) z = -0.5;

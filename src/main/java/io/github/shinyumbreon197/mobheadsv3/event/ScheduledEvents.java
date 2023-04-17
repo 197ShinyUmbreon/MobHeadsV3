@@ -2,8 +2,8 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
-import io.github.shinyumbreon197.mobheadsv3.effect.WornHeadEffects;
-import io.github.shinyumbreon197.mobheadsv3.effect.WornHeadMechanics;
+import io.github.shinyumbreon197.mobheadsv3.effect.WornEffects;
+import io.github.shinyumbreon197.mobheadsv3.effect.WornMechanics;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -68,12 +68,12 @@ public class ScheduledEvents {
     }
 
     private static void runHeadedEffects(){
-        WornHeadEffects.applyNewPotionEffects(wearingList);
-        WornHeadMechanics.runHeadTickMechanics(wearingList);
+        WornEffects.applyNewPotionEffects(wearingList);
+        WornMechanics.runHeadTickMechanics(wearingList);
     }
 
     private static void runCleanupEffects(){
-        WornHeadEffects.removeInfinitePotionEffects(noLongerWearing);
+        WornEffects.removeInfinitePotionEffects(noLongerWearing);
     }
 
 

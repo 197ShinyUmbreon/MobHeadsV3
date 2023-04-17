@@ -31,7 +31,7 @@ public class MobHeadDropEvents implements Listener {
         ItemStack headItemDrop = playerKillAdditionalDrops(player, killed);
         if (headItemDrop != null){
             e.getDrops().add(headItemDrop);
-            AVFX.playHeadEffect(killed.getEyeLocation());
+            AVFX.playHeadDropEffect(killed.getEyeLocation());
         }
     }
 

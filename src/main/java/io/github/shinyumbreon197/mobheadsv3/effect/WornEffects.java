@@ -11,7 +11,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WornHeadEffects {
+public class WornEffects {
 
     public static void applyNewPotionEffects(List<LivingEntity> wearingList){
         for (LivingEntity livingEntity:wearingList){
@@ -23,7 +23,7 @@ public class WornHeadEffects {
             assert mobHead != null;
             //System.out.println("Ready to apply effects to "+livingEntity.getEntityId()); //debug
             List<PotionEffect> oldEffects = new ArrayList<>(livingEntity.getActivePotionEffects());
-            List<PotionEffect> newEffects = WornHeadEffects.getPotionEffects(livingEntity, mobHead.getEntityType());
+            List<PotionEffect> newEffects = WornEffects.getPotionEffects(livingEntity, mobHead.getEntityType());
             if (newEffects.size() == 0){
                 removeInfinitePotionEffects(List.of(livingEntity));
             }
