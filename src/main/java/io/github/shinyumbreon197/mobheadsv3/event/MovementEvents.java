@@ -1,6 +1,5 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.effect.WornMechanics;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
@@ -9,7 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerStatisticIncrementEvent;
-import org.bukkit.util.Vector;
 
 public class MovementEvents implements Listener {
     @EventHandler //PLAYER ONLY

@@ -1,11 +1,12 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
-import io.github.shinyumbreon197.mobheadsv3.command.openHeadSpawnGUI;
-import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
 import io.github.shinyumbreon197.mobheadsv3.command.SpawnHeadedEntity;
+import io.github.shinyumbreon197.mobheadsv3.command.openHeadSpawnGUI;
 import io.github.shinyumbreon197.mobheadsv3.event.*;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
-import io.github.shinyumbreon197.mobheadsv3.head.*;
+import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.*;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.ElderGuardianHead;
 import io.github.shinyumbreon197.mobheadsv3.head.hostile.WardenHead;
@@ -27,7 +28,6 @@ public final class MobHeadsV3 extends JavaPlugin {
 
     private static MobHeadsV3 plugin;
     public static MobHeadsV3 getPlugin(){return plugin;}
-
     public static PlayerRegistry playerRegistry;
     private static NamespacedKey pluginNSK;
     public static NamespacedKey getPluginNSK(){return pluginNSK;}
@@ -44,7 +44,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         registerCommands();
         registerEvents();
         initializeHeads();
-        HeadData.initialize();
+        Data.initialize();
         registerRecipes();
 
         getServer().getScheduler().scheduleSyncRepeatingTask(this, ScheduledEvents::run10TickEvents,0, 10);
@@ -67,11 +67,13 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new PlayerJoinLeaveEvents(), this);
         pm.registerEvents(new PlaceAndBreakHeadEvents(), this);
         pm.registerEvents(new InteractWithHeadEvents(), this);
-        pm.registerEvents(new MobHeadDropEvents(), this);
+        pm.registerEvents(new PlayerKillEntityEvents(), this);
         pm.registerEvents(new DecollationSmith(), this);
         pm.registerEvents(new AttackDamageDeathEvents(), this);
         pm.registerEvents(new HungerChangeEvent(), this);
         pm.registerEvents(new MovementEvents(), this);
+        pm.registerEvents(new FurnaceEvents(), this);
+        pm.registerEvents(new InteractWithEntityEvent(), this);
     }
 
     private void initializeHeads(){
@@ -164,7 +166,7 @@ public final class MobHeadsV3 extends JavaPlugin {
 
     private void registerRecipes(){
         DecollationSmith.registerSmithingRecipes();
-        for (MobHead mobHead:HeadData.getMobHeads()){
+        for (MobHead mobHead: Data.getMobHeads()){
             ItemStack lootItem = mobHead.getLootItem();
             if (lootItem == null) continue;
             ItemStack headItem = mobHead.getHeadItem();

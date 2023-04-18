@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.head.vanilla;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -21,7 +21,7 @@ public class EnderDragonHead {
 
     public static void initialize(){
         mobHead = new MobHead(entityType, null, null, headItem, lootItem, headUUID, interactSound);
-        HeadData.addMobHead(mobHead);
+        Data.addMobHead(mobHead);
     }
 
     public static void onTest(PlayerInteractAtEntityEvent e) {

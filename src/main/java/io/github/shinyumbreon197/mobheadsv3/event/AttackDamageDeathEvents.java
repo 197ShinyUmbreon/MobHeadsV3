@@ -73,7 +73,7 @@ public class AttackDamageDeathEvents implements Listener {
         e.setCancelled(canceled);
 
         boolean playSound = damagedHead != null && !e.isCancelled() && e.getFinalDamage() > 0;
-        if (playSound) AVFX.playHurtSound(damaged);
+        if (playSound) AVFX.playHeadHurtSound(damaged);
     }
 
     private void deathHandler(EntityDeathEvent e){
@@ -84,7 +84,7 @@ public class AttackDamageDeathEvents implements Listener {
         switch (mobHead.getEntityType()){
             default -> {}
         }
-        AVFX.playDeathSound(e.getEntity());
+        AVFX.playHeadDeathSound(e.getEntity());
     }
 
 }

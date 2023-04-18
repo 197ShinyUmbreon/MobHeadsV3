@@ -5,9 +5,12 @@ import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.effect.WornEffects;
 import io.github.shinyumbreon197.mobheadsv3.effect.WornMechanics;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
+import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +41,7 @@ public class ScheduledEvents {
     }
     public static void run10TickEvents(){
         updateWearingLists();
+        updatePlayerOnlineList();
         runHeadedEffects();
         runCleanupEffects();
 
@@ -76,5 +80,18 @@ public class ScheduledEvents {
         WornEffects.removeInfinitePotionEffects(noLongerWearing);
     }
 
+    private static void updatePlayerOnlineList(){
+        List<Player> players = new ArrayList<>();
+        for (LivingEntity livingEntity:wearingList){
+            if (livingEntity instanceof Player) players.add((Player) livingEntity);
+        }
+        for (LivingEntity livingEntity:noLongerWearing){
+            if (livingEntity instanceof Player) players.add((Player) livingEntity);
+        }
+        for (Player player:players){
+            MobHead mobHead = HeadUtil.getMobHeadFromEntity(player);
+            player.setPlayerListName(StringBuilder.getPlayerListName(mobHead,player));
+        }
+    }
 
 }

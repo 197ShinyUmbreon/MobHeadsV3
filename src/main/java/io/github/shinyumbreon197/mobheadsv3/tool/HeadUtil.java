@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.tool;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Skull;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -56,9 +58,9 @@ public class HeadUtil {
             if (uuidString == null)return null;
             uuid = UUID.fromString(uuidString);
         }else{
-            EntityType entityType = HeadData.vanillaMatEntTypeMap().get(input.getType());
+            EntityType entityType = Data.vanillaMatEntTypeMap().get(input.getType());
             if (entityType == null)return null;
-            uuid = HeadData.vanillaHeadUUIDs.get(entityType);
+            uuid = Data.vanillaHeadUUIDs.get(entityType);
         }
         return uuid;
     }
@@ -74,15 +76,15 @@ public class HeadUtil {
             String uuidString = data.get(MobHeadsV3.getPluginNSK(),PersistentDataType.STRING);
             if (uuidString == null)return false;
             UUID uuid = UUID.fromString(uuidString);
-            boolean isRegistered = HeadData.mobHeadByUUID.containsKey(uuid);
+            boolean isRegistered = Data.mobHeadByUUID.containsKey(uuid);
             if (!isRegistered){
                 MobHead playerHead = PlayerHead.rebuildPlayerHead(input);
-                 HeadData.registerHead(playerHead);
+                 Data.registerHead(playerHead);
                  MobHeadsV3.playerRegistry.addToRegistry(playerHead.getHeadItem());
             }
             return true;
         }else{
-            return HeadData.headBlockMats.contains(input.getType());
+            return Data.headBlockMats.contains(input.getType());
         }
     }
 
@@ -97,7 +99,7 @@ public class HeadUtil {
 
     public static MobHead getMobHeadFromHeadItem(ItemStack input){
         if (!isMobHead(input))return null;
-        return HeadData.mobHeadByUUID.get(getHeadUUID(input));
+        return Data.mobHeadByUUID.get(getHeadUUID(input));
     }
 
     public static EntityType getHeadEntityType(ItemStack input){
@@ -112,13 +114,27 @@ public class HeadUtil {
         return mobHead.getVariant();
     }
 
+    public static MobHead getHeadFromBlock(Block headBlock){
+        MobHead mobHead = null;
+        if (Data.headBlockMats.contains(headBlock.getType())){
+            Skull skullState = (Skull) headBlock.getState();
+            PersistentDataContainer data = skullState.getPersistentDataContainer();
+            String uuidString = data.get(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING);
+            if (uuidString != null){
+                UUID uuid = UUID.fromString(uuidString);
+                mobHead = Data.mobHeadByUUID.get(uuid);
+            }
+        }
+        return mobHead;
+    }
+
     public static ItemStack GetHeadItemFromEntity(Entity entity){
-        if (!HeadData.entityTypes.contains(entity.getType()))return null;
+        if (!Data.entityTypes.contains(entity.getType()))return null;
         EntityType entityType = entity.getType();
         String variant = getVariantFromEntity(entity);
         boolean hasVariant = variant != null;
 
-        for (MobHead mobHead:HeadData.getMobHeads()){
+        for (MobHead mobHead: Data.getMobHeads()){
             if (!entityType.equals(mobHead.getEntityType()))continue;
             if (hasVariant && !variant.matches(mobHead.getVariant()))continue;
             return mobHead.getHeadItem();
@@ -128,7 +144,7 @@ public class HeadUtil {
     }
 
     public static EntityType getEntityTypeFromUUID(UUID uuid){
-        return HeadData.mobHeadByUUID.get(uuid).getEntityType();
+        return Data.mobHeadByUUID.get(uuid).getEntityType();
     }
 
     public static String getVariantFromEntity(Entity entity){

@@ -1,9 +1,49 @@
 package io.github.shinyumbreon197.mobheadsv3.effect;
 
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class PotionFX {
+
+    public static void applyPotionEffect(LivingEntity livingEntity, PotionEffectType pet, int duration, int amplifier, boolean showBubbles){
+        applyPotionEffect(livingEntity, pet, duration, amplifier, showBubbles, false);
+    }
+
+    public static void applyPotionEffect(LivingEntity livingEntity, PotionEffectType pet, int duration, int amplifier, boolean showBubbles, boolean hardReplace){
+        if (livingEntity.isDead())return;
+        boolean needsEffectRefresh = false;
+        boolean hasEffect = false;
+        if (!hardReplace){
+            PotionEffect oldEffect = livingEntity.getPotionEffect(pet);
+            if (oldEffect != null){
+                hasEffect = true;
+                if (oldEffect.getAmplifier() > amplifier)return;
+                if (oldEffect.getDuration() > duration)return;
+            }
+            if (hasEffect){
+                if (oldEffect.getDuration() < duration*0.5) needsEffectRefresh = true; //half of duration
+            }
+        }else{
+            needsEffectRefresh = true;
+        }
+        if (!hasEffect || needsEffectRefresh){
+            double health = livingEntity.getHealth();
+            PotionEffect pEffect = new PotionEffect(pet, duration, amplifier, false, showBubbles);
+            if (pet.equals(PotionEffectType.HEALTH_BOOST)){
+                health = health + 4*(amplifier+1);
+            }
+            livingEntity.removePotionEffect(pet);
+            livingEntity.addPotionEffect(pEffect);
+            if (pet.equals(PotionEffectType.HEALTH_BOOST)){
+                if (livingEntity instanceof Player){
+                    Player player = (Player) livingEntity;
+                    player.setHealth(health);
+                }
+            }
+        }
+    }
 
     public static PotionEffect hunger(int dur, int amp, boolean particles){
         return new PotionEffect(

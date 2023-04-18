@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.head;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;
@@ -22,19 +22,19 @@ public class PlayerHead {
     public static void registerOnlinePlayers(){
         List<Player> toRegister = new ArrayList<>(Bukkit.getOnlinePlayers());
         for (Player player:toRegister){
-            if (!HeadData.mobHeadByUUID.containsKey(player.getUniqueId())){
+            if (!Data.mobHeadByUUID.containsKey(player.getUniqueId())){
                 writeNewPlayerToFile(player);
             }
         }
     }
 
     public static boolean isNewPlayer(Player player){
-        return !HeadData.mobHeadByUUID.containsKey(player.getUniqueId());
+        return !Data.mobHeadByUUID.containsKey(player.getUniqueId());
     }
 
     public static void writeNewPlayerToFile(Player player){
         MobHead newPlayerHead = buildPlayerHead(player);
-        HeadData.registerHead(newPlayerHead);
+        Data.registerHead(newPlayerHead);
         MobHeadsV3.playerRegistry.addToRegistry(Serializer.serializeItemStack(newPlayerHead.getHeadItem()));
     }
 
@@ -44,7 +44,7 @@ public class PlayerHead {
         for (String string:MobHeadsV3.playerRegistry.getRegistry()){
             MobHead mobHead = rebuildPlayerHead(Serializer.deserializeItemStack(string));
             System.out.println("Registering "+mobHead.getName()+", "+mobHead.getUuid().toString()+"...");
-            HeadData.registerHead(mobHead);
+            Data.registerHead(mobHead);
         }
     }
 

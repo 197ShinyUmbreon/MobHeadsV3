@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.entity.Player;
@@ -17,7 +17,7 @@ public class HungerChangeEvent implements Listener {
         MobHead mobHead = HeadUtil.getMobHeadFromEntity(player);
         e.setCancelled(
                 mobHead != null &&
-                HeadData.zombifiedTypes.contains(mobHead.getEntityType()) &&
+                Data.zombifiedTypes.contains(mobHead.getEntityType()) &&
                 e.getItem() == null && player.getFoodLevel() <= 19
         );
     }

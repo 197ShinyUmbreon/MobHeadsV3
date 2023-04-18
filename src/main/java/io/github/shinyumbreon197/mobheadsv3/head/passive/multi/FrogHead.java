@@ -1,9 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.head.passive.multi;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
+import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Frog;
@@ -17,6 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class FrogHead {
+
+    public static NamespacedKey frogFoodKey = new NamespacedKey(MobHeadsV3.getPlugin(), "frogfood");
 
     private static final List<MobHead> mobHeads = new ArrayList<>();
     private static final EntityType entityType = EntityType.FROG;
@@ -61,7 +65,7 @@ public class FrogHead {
             MobHead mobHead = new MobHead(entityType, type.toString(), name, head, lootItem, uuid, interactSound);
             mobHeads.add(mobHead);
         }
-        HeadData.addMobHeads(mobHeads);
+        Data.addMobHeads(mobHeads);
     }
 
 

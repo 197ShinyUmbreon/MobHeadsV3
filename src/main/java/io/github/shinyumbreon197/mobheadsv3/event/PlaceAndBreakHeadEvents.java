@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import org.bukkit.Location;
@@ -36,7 +36,7 @@ public class PlaceAndBreakHeadEvents implements Listener {
         String uuidString = data.get(MobHeadsV3.getPluginNSK(),PersistentDataType.STRING);
         if (uuidString == null)return;
         UUID uuid = UUID.fromString(uuidString);
-        if (!HeadData.mobHeadByUUID.containsKey(uuid))return;
+        if (!Data.mobHeadByUUID.containsKey(uuid))return;
         updateSkullBlockData(uuid, e.getBlock().getLocation());
     }
 
@@ -69,8 +69,8 @@ public class PlaceAndBreakHeadEvents implements Listener {
         PlayerProfile pp = skullMeta.getOwnerProfile();
         if (pp == null)return;
         UUID uuid = pp.getUniqueId();
-        if (HeadData.mobHeadByUUID.containsKey(uuid)){
-            MobHead mobHead = HeadData.mobHeadByUUID.get(uuid);
+        if (Data.mobHeadByUUID.containsKey(uuid)){
+            MobHead mobHead = Data.mobHeadByUUID.get(uuid);
             World world = e.getEntity().getWorld();
             Location spawnLoc = e.getLocation();
             Vector velocity = e.getEntity().getVelocity();

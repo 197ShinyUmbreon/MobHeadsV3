@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.head.hostile;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Material;
@@ -32,7 +32,7 @@ public class ShulkerHead {
         }
         ItemStack headItem = HeadUtil.customHead(headName, headUUID, textureURL);
         MobHead mobHead = new MobHead(entityType, null, headName, headItem, lootItem, headUUID, interactSound);
-        HeadData.addMobHead(mobHead);
+        Data.addMobHead(mobHead);
     }
 
     private static ItemStack buildShulkerLoot(){

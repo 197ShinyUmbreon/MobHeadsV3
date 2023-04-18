@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
@@ -25,8 +25,8 @@ public class TestEvents implements Listener {
             Zombie zombie = (Zombie) e.getEntity();
             if (zombie.getEquipment() != null){
                 Random random = new Random();
-                int randInt = random.nextInt(HeadData.getMobHeads().size());
-                zombie.getEquipment().setHelmet(HeadData.getMobHeads().get(randInt).getHeadItem());
+                int randInt = random.nextInt(Data.getMobHeads().size());
+                zombie.getEquipment().setHelmet(Data.getMobHeads().get(randInt).getHeadItem());
             }
 
         }

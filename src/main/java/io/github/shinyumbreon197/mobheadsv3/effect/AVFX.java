@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +34,33 @@ public class AVFX {
         world.playSound(location,Sound.ENTITY_FROG_LONG_JUMP, 1.6f, 0.8f);
     }
 
+    public static void playFrogEatCreeperEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location,Sound.ENTITY_GENERIC_EXPLODE,1.0F,1.0F);
+        world.spawnParticle(Particle.EXPLOSION_LARGE,location,5, 0.5, 0.5, 0.5, 0, null);
+    }
+
+    public static void blazeHeadFlameEffect(Location headLoc){
+        World world = headLoc.getWorld();
+        List<Vector> particleVectors = Arrays.asList(
+                new Vector(0.25, 0.0, 0.0), new Vector(-0.25, 0.0, 0.0), new Vector(0.0, 0.0, 0.25),
+                new Vector(0.0, 0.0, -0.25), new Vector(0.25, 0.0, 0.25), new Vector(-0.25, 0.0, 0.25),
+                new Vector(-0.25, 0.0, -0.25), new Vector(0.25, 0.0, -0.25)
+        );
+        for (Vector vector:particleVectors){
+            Location loc = headLoc.clone();
+            loc.add(vector);
+            double xOffset = vector.getX()/6;
+            double zOffset = vector.getZ()/6;
+            world.spawnParticle(Particle.FLAME, loc, 0, xOffset, 0.2, zOffset,0.25,null);
+        }
+        float addPitch = new Random().nextFloat(0.4F);
+        world.playSound(headLoc, Sound.ITEM_FIRECHARGE_USE, 0.05F, 1.0F+addPitch);
+    }
+
     //SOUND EFFECTS -------------------------------------------------------------------------------------
-    public static void playInteractSound(Location location, MobHead mobHead){
+    public static void playHeadInteractSound(Location location, MobHead mobHead){
         World world = location.getWorld();
         if (world == null)return;
         Sound interactSound = mobHead.getInteractSound();
@@ -58,7 +84,7 @@ public class AVFX {
         }
         if (interactSound != null) world.playSound(location, interactSound, volume, 1.0F);
     }
-    public static void playHurtSound(LivingEntity livingEntity){
+    public static void playHeadHurtSound(LivingEntity livingEntity){
         assert livingEntity.getEquipment() != null;
         ItemStack headItem = livingEntity.getEquipment().getHelmet();
         MobHead mobHead = HeadUtil.getMobHeadFromHeadItem(headItem);
@@ -147,7 +173,7 @@ public class AVFX {
         }
     }
 
-    public static void playDeathSound(LivingEntity livingEntity){
+    public static void playHeadDeathSound(LivingEntity livingEntity){
         assert livingEntity.getEquipment() != null;
         ItemStack headItem = livingEntity.getEquipment().getHelmet();
         MobHead mobHead = HeadUtil.getMobHeadFromHeadItem(headItem);
@@ -235,6 +261,20 @@ public class AVFX {
         if (deathSound != null){
             livingEntity.getWorld().playSound(livingEntity.getLocation(),deathSound,volume, 1.0F);
         }
+    }
+
+    public static void playFrogTongueSound(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.ENTITY_FROG_TONGUE, 2F, 1.1F);
+    }
+
+    public static void playFrogEatenSounds(Location location, Sound eatenDeathSound){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.ENTITY_FROG_AMBIENT, 1.4F, 1.0F);
+        world.playSound(location, Sound.ENTITY_PLAYER_BURP, 0.6F,1.0F);
+        if (eatenDeathSound != null) world.playSound(location,eatenDeathSound, 0.8F, 1.0F);
     }
 
     //PARTICLE EFFECTS -----------------------------------------------------------------------------------

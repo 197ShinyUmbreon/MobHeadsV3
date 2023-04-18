@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.gui;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import org.bukkit.Bukkit;
@@ -178,11 +178,11 @@ public class MobHeadGUI implements Listener {
         List<ItemStack> items = new ArrayList<>();
         int index = 0;
         int headIndex = 0;
-        for (MobHead mobHead: HeadData.getMobHeads()){
+        for (MobHead mobHead: Data.getMobHeads()){
             ItemStack headItem = mobHead.getHeadItem();
             items.add(index, headItem);
             index++;
-            if (index > 50 | headIndex == HeadData.getMobHeads().size()-1){
+            if (index > 50 | headIndex == Data.getMobHeads().size()-1){
                 Inventory inv = Bukkit.createInventory(
                         null, 54, headGUIName+" Page: "+(invs.size()+1)
                 );
@@ -195,7 +195,7 @@ public class MobHeadGUI implements Listener {
                 if (headIndex > 54){
                     inv.setItem(51, invPrevButton());
                 }
-                if (headIndex != HeadData.getMobHeads().size()-1){
+                if (headIndex != Data.getMobHeads().size()-1){
                     inv.setItem(52, invNextButton());
                 }
                 inv.setItem(53, invCloseButton());

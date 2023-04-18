@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.head.passive.multi;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Material;
@@ -83,7 +83,7 @@ public class HorseHead {
             MobHead mobHead = new MobHead(entityType, type.toString(), name, head, lootItem, uuid, interactSound);
             mobHeads.add(mobHead);
         }
-        HeadData.addMobHeads(mobHeads);
+        Data.addMobHeads(mobHeads);
     }
 
 

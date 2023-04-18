@@ -1,13 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
-import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.ParrotHead;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
@@ -36,12 +34,12 @@ public class InteractWithHeadEvents implements Listener {
         if (clickedBlock == null)return;
         Material material = e.getClickedBlock().getType();
         if (interactCooldownMap.containsKey(player) && interactCooldownMap.get(player).equals(clickedBlock))return;
-        if (!HeadData.headBlockMats.contains(material))return;
+        if (!Data.headBlockMats.contains(material))return;
         MobHead mobHead;
-        if (HeadData.vanillaHeadMats.contains(material)){
-            EntityType entityType = HeadData.vanillaMatEntTypeMap().get(material);
-            UUID uuid = HeadData.vanillaHeadUUIDs.get(entityType);
-            mobHead = HeadData.mobHeadByUUID.get(uuid);
+        if (Data.vanillaHeadMats.contains(material)){
+            EntityType entityType = Data.vanillaMatEntTypeMap().get(material);
+            UUID uuid = Data.vanillaHeadUUIDs.get(entityType);
+            mobHead = Data.mobHeadByUUID.get(uuid);
         }else{
             Skull skull = (Skull) clickedBlock.getState();
             PersistentDataContainer data = skull.getPersistentDataContainer();
@@ -49,7 +47,7 @@ public class InteractWithHeadEvents implements Listener {
             String uuidString = data.get(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING);
             if (uuidString == null)return;
             UUID uuid = UUID.fromString(uuidString);
-            mobHead = HeadData.mobHeadByUUID.get(uuid);
+            mobHead = Data.mobHeadByUUID.get(uuid);
         }
         interactCooldown(player, clickedBlock);
         interactEffects(mobHead, e);
@@ -73,7 +71,7 @@ public class InteractWithHeadEvents implements Listener {
         Location locCenter = e.getClickedBlock().getLocation().add(0.5,0.5,0.5);
         World world = locCenter.getWorld();
         assert world != null;
-        AVFX.playInteractSound(locCenter, mobHead);
+        AVFX.playHeadInteractSound(locCenter, mobHead);
     }
 
 }

@@ -1,9 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.DecollationSmith;
-import io.github.shinyumbreon197.mobheadsv3.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
+import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.FrogHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.LivingEntity;
@@ -13,25 +15,48 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-public class MobHeadDropEvents implements Listener {
+public class PlayerKillEntityEvents implements Listener {
 
     @EventHandler
     public void onPlayerKillEntity(EntityDeathEvent e){
-        Player player = e.getEntity().getKiller();
-        if (player == null)return;
         LivingEntity killed = e.getEntity();
-        if (killed instanceof Ageable && !((Ageable) killed).isAdult())return;
-        if (!HeadData.entityTypes.contains(killed.getType()))return;
-
-        ItemStack headItemDrop = playerKillAdditionalDrops(player, killed);
+        Player player = e.getEntity().getKiller();
+        boolean frogKill = false;
+        boolean headDropEligible = true;
+        PersistentDataContainer data = killed.getPersistentDataContainer();
+        String killerUUIDString = data.get(FrogHead.frogFoodKey, PersistentDataType.STRING);
+        if (killerUUIDString != null){
+            UUID killerUUID = UUID.fromString(killerUUIDString);
+            player = Bukkit.getPlayer(killerUUID);
+            frogKill = true;
+        }
+        if (player == null)return;
+        if (killed instanceof Ageable && !((Ageable) killed).isAdult())headDropEligible = false;
+        if (!Data.entityTypes.contains(killed.getType()))headDropEligible = false;
+        ItemStack headItemDrop = null;
+        if (headDropEligible) headItemDrop = playerKillAdditionalDrops(player, killed);
         if (headItemDrop != null){
             e.getDrops().add(headItemDrop);
             AVFX.playHeadDropEffect(killed.getEyeLocation());
+        }
+        if (frogKill){
+            List<ItemStack> overflow = new ArrayList<>();
+            for (ItemStack drop:e.getDrops()){
+                if (Data.foodMats.contains(drop.getType()))continue;
+                Map<Integer, ItemStack> overflowMap = player.getInventory().addItem(drop);
+                if (overflowMap.size() != 0){
+                    overflow.add(overflowMap.get(0));
+                }
+            }
+            for (ItemStack drop:overflow){
+                player.getWorld().dropItem(player.getLocation(), drop);
+            }
+            e.getDrops().clear();
         }
     }
 
@@ -46,6 +71,7 @@ public class MobHeadDropEvents implements Listener {
         Random random = new Random();
         boolean success;
         boolean guaranteed = false;
+        //boolean guaranteed = true;
         int chance = 4;
         int roll = random.nextInt(199);
         if (withWeapon){
