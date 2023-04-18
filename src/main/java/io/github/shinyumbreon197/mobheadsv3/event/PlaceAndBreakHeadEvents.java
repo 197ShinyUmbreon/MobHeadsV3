@@ -81,6 +81,19 @@ public class PlaceAndBreakHeadEvents implements Listener {
             headItem.setVelocity(velocity);
         }
     }
+
+    @EventHandler
+    public void onCreativePickHead(){
+        Block headBlock = ;
+        if (headBlock == null)return;
+        if (!Data.playerHeadMats.contains(headBlock.getType()))return;
+        mobHead = Data.getHeadFromBlock(headBlock);
+        if(mobHead == null)return;
+        ItemStack headItem = mobHead.getHeadItem();
+
+        //replace original itemstack, or cancel and add new itemsack to inventory
+
+    }
                     
     
 
