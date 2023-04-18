@@ -45,14 +45,13 @@ public class PlaceAndBreakHeadEvents implements Listener {
             @Override
             public void run() {
                 Block headBlock = blockLocation.getBlock();
-                if (!headBlock.getType().equals(Material.PLAYER_HEAD) && !headBlock.getType().equals(Material.PLAYER_WALL_HEAD)){
+                if (!Data.playerHeadMats.contains(headBlock.getType()){
                     cancel();
-                }else{
-                    Skull head = (Skull) headBlock.getState();
-                    PersistentDataContainer data = head.getPersistentDataContainer();
-                    data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, uuid.toString());
-                    head.update();
                 }
+                Skull head = (Skull) headBlock.getState();
+                PersistentDataContainer data = head.getPersistentDataContainer();
+                data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, uuid.toString());
+                head.update();
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 1);
 
@@ -82,5 +81,7 @@ public class PlaceAndBreakHeadEvents implements Listener {
             headItem.setVelocity(velocity);
         }
     }
+                    
+    
 
 }
