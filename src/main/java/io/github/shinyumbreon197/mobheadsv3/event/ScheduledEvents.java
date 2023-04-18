@@ -18,7 +18,6 @@ import java.util.List;
 public class ScheduledEvents {
 
     private static final List<LivingEntity> wearingList = new ArrayList<>();
-    //private static final List<LivingEntity> notWearingList = new ArrayList<>();
     private static final List<LivingEntity> wasWearingList = new ArrayList<>();
     private static final List<LivingEntity> noLongerWearing = new ArrayList<>();
 
@@ -37,11 +36,10 @@ public class ScheduledEvents {
                     ));
             }
         }
-
     }
     public static void run10TickEvents(){
-        updateWearingLists();
         updatePlayerOnlineList();
+        updateWearingLists();
         runHeadedEffects();
         runCleanupEffects();
 
@@ -53,7 +51,6 @@ public class ScheduledEvents {
         wasWearingList.clear();
         wasWearingList.addAll(wearingList);
         wearingList.clear();
-        //notWearingList.clear();
         noLongerWearing.clear();
         List<LivingEntity> entities = new ArrayList<>();
         for (World world: Bukkit.getWorlds()){
@@ -61,10 +58,8 @@ public class ScheduledEvents {
         }
         for (LivingEntity livingEntity:entities){
             if (livingEntity.getEquipment() == null || !HeadUtil.isMobHead(livingEntity.getEquipment().getHelmet())){
-                //notWearingList.add(livingEntity);
                 continue;
             }
-            //System.out.println("MOBHEAD FOUND! "+livingEntity.getEntityId()); //debug
             wearingList.add(livingEntity);
         }
         noLongerWearing.addAll(wasWearingList);
@@ -81,14 +76,7 @@ public class ScheduledEvents {
     }
 
     private static void updatePlayerOnlineList(){
-        List<Player> players = new ArrayList<>();
-        for (LivingEntity livingEntity:wearingList){
-            if (livingEntity instanceof Player) players.add((Player) livingEntity);
-        }
-        for (LivingEntity livingEntity:noLongerWearing){
-            if (livingEntity instanceof Player) players.add((Player) livingEntity);
-        }
-        for (Player player:players){
+        for (Player player:Bukkit.getOnlinePlayers()){
             MobHead mobHead = HeadUtil.getMobHeadFromEntity(player);
             player.setPlayerListName(StringBuilder.getPlayerListName(mobHead,player));
         }
