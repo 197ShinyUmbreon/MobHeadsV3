@@ -111,7 +111,9 @@ public class WornMechanics {
     }
 
     //PlayerInteractAtEntityEvent
-    public static void interactAtEntityMechanicFrog(PlayerInteractAtEntityEvent e,MobHead mobHead){
+    //Break into three methods. One that returns the list of potioneffects and gained values, and another that returns an edible boolean
+    //Send the player glowing packets for every edible entity within a block radius
+    public static void interactAtEntityMechanicFrog(PlayerInteractAtEntityEvent e,MobHead mobHead){ 
         if (!e.getHand().equals(EquipmentSlot.HAND))return;
 
         Player player = e.getPlayer();
