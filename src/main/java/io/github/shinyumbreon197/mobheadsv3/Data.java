@@ -94,6 +94,7 @@ public class Data {
             EntityType.ZOGLIN, EntityType.DROWNED, EntityType.PHANTOM
     );
 
+    // Replace foodMats with a list populated with Materials.values().isEdible() that populates on runtime
     public static final List<Material> foodMats = Arrays.asList(
             Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
             Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP,
@@ -104,9 +105,5 @@ public class Data {
             Material.SALMON, Material.ROTTEN_FLESH, Material.SPIDER_EYE, Material.COOKED_BEEF, Material.SUSPICIOUS_STEW,
             Material.SWEET_BERRIES, Material.TROPICAL_FISH
     );
-
-
-
-
 
 }
