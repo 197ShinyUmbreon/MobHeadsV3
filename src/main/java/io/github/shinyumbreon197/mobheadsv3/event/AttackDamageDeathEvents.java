@@ -8,6 +8,7 @@ import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -42,7 +43,10 @@ public class AttackDamageDeathEvents implements Listener {
         LivingEntity attacker = null;
         if (damageByEntityEvent){
             Entity entity = ((EntityDamageByEntityEvent) e).getDamager();
-            if (entity instanceof LivingEntity){
+            if (entity instanceof Projectile){
+                Projectile projectile = (Projectile) entity;
+                if (projectile.getShooter() instanceof LivingEntity) attacker = (LivingEntity) projectile.getShooter();
+            }else if (entity instanceof LivingEntity){
                 attacker = (LivingEntity) entity;
             }else return;
         }
@@ -67,6 +71,7 @@ public class AttackDamageDeathEvents implements Listener {
                 default -> {}
                 case WITHER_SKELETON, WITHER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
                 case FROG -> {if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){canceled = !WornMechanics.frogFallDamage(e);}}
+                case WOLF -> {WornMechanics.wolfSummonReinforcements(damaged, attacker);}
             }
         }
 

@@ -1,11 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.effect;
 
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.FrogHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Particle;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -74,269 +74,82 @@ public class WornMechanics {
     private static void regenerateAir(LivingEntity livingEntity){
         int maxAir = livingEntity.getMaximumAir();
         int airRemaining = livingEntity.getRemainingAir();
-
         int newAir = airRemaining + 8;
         if (newAir > maxAir) newAir = maxAir;
-
         livingEntity.setRemainingAir(newAir);
     }
 
     //Event Triggered --------------------------------------------------------------------------------------
+    //EntityDamagedByEntityEvent
+    public static void wolfSummonReinforcements(LivingEntity defender, LivingEntity attacker){
+        Random random = new Random();
+        Location location = defender.getLocation().add(
+                random.nextInt(-1, 1), 0, random.nextInt(-1, 1)
+        );
+        Entity wolfSummon = Summon.wolfSummon(defender, location, attacker);
+        if (wolfSummon == null)return;
+    }
     //PlayerStatisticIncrementEvent
-    public static void frogJump(Player player){
-        if (!player.isSneaking())return;
-        Vector velocity = player.getVelocity(); //System.out.println("Pre-velocity: "+velocity);
-        Vector direction = player.getLocation().getDirection(); //System.out.println("Direction: "+direction);
-        double x = velocity.getX() + (direction.getX() * 0.8);
-        double y = (velocity.getY() * 2) + (direction.getY() * 0.1);
-        double z = velocity.getZ() + (direction.getZ() * 0.8);
-        velocity.setX(x);
-        velocity.setY(y);
-        velocity.setZ(z);
-        //System.out.println("Post-velocity: "+velocity);
-        player.setVelocity(velocity);
-        AVFX.playFrogJumpEffect(player.getLocation());
-    }
-
-    //EntityDamageEvent
-    public static boolean frogFallDamage(EntityDamageEvent e){
-        boolean frogFallDamage = e.getFinalDamage() > 3;
-        if (frogFallDamage){
-            double newDamage;
-            newDamage = e.getFinalDamage() - 3;
-            if (newDamage <= 0){return false;}
-            e.setDamage(newDamage);
-        }
-        return frogFallDamage;
-    }
-
-    //PlayerInteractAtEntityEvent
-    //Break into three methods. One that returns the list of potioneffects and gained values, and another that returns an edible boolean
-    //Send the player glowing packets for every edible entity within a block radius
-    public static void interactAtEntityMechanicFrog(PlayerInteractAtEntityEvent e,MobHead mobHead){ 
+    public static void frogEatEntity(PlayerInteractAtEntityEvent e, MobHead mobHead){
         if (!e.getHand().equals(EquipmentSlot.HAND))return;
-
         Player player = e.getPlayer();
+        if (player.isSneaking())return;
         Entity entity = e.getRightClicked();
+
         boolean cooldown = onCooldown(player, mobHead);
         if (cooldown)return;
-        List<EntityType> blacklistedTypes = Arrays.asList(EntityType.ENDER_DRAGON, EntityType.WITHER);
-        if (blacklistedTypes.contains(entity.getType()))return;
+        if (frogIsBlacklisted(entity)) return;
+        setCooldown(player, mobHead, 20);
 
-        boolean edible = false;
+        boolean edible = frogIsEdible(entity);
         boolean onFire = false;
         int gainedHealth = 0;
         int gainedFoodLv = 0;
         float gainedSaturation = 0F;
         int gainedAir = 0;
-        List<PotionEffect> gainedEffects = new ArrayList<>();
 
         if (entity instanceof LivingEntity){
             LivingEntity livingEntity = (LivingEntity) entity;
-            if (livingEntity.isDead())return;
-            if (livingEntity instanceof Tameable){
-                Tameable tameable = (Tameable) livingEntity;
-                if (tameable.isTamed())return;
-            }
-            AttributeInstance maxHealthAttribute = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-            if (maxHealthAttribute == null)return;
-            double maxHealth = maxHealthAttribute.getValue();
-            if (livingEntity.getHealth() <= 4 || livingEntity.getHealth() <= maxHealth*0.2) edible = true;
-            if (livingEntity instanceof WaterMob) gainedAir = 100;
-            onFire = livingEntity.getFireTicks() > 0 || livingEntity.isVisualFire();
-            switch (livingEntity.getType()){
-                default -> {
-                    gainedFoodLv = (int) Math.ceil(maxHealth * 0.3);
-                    gainedSaturation = (float) Math.ceil(maxHealth * 0.5);
-                }
-                case PLAYER -> {
-                    Player eatenPlayer = (Player) livingEntity;
-                    gainedFoodLv = 8;
-                    gainedSaturation = 10F;
-                    for (PotionEffect pe: eatenPlayer.getActivePotionEffects()){
-                        int duration = pe.getDuration();
-                        if (duration > 6000) duration = 6000;
-                        gainedEffects.add(new PotionEffect(pe.getType(), duration, pe.getAmplifier(), false));
-                    }
-                }
-                case SLIME -> {
-                    Slime slime = (Slime) livingEntity;
-                    if (slime.getSize() == 1) edible = true;
-                    gainedHealth = 2;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 2F;
-                }
-                case MAGMA_CUBE -> {
-                    MagmaCube magmaCube = (MagmaCube) livingEntity;
-                    if (magmaCube.getSize() == 1) edible = true;
-                    gainedHealth = 3;
-                    gainedFoodLv = 3;
-                    gainedSaturation = 3F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 3000, 0, false));
-                }
-                case COD, SALMON, TROPICAL_FISH -> {
-                    assert livingEntity instanceof Fish;
-                    Fish fish = (Fish) livingEntity;
-                    edible = true;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 2;
-                }
-                case GLOW_SQUID -> {
-                    assert livingEntity instanceof GlowSquid;
-                    GlowSquid glowSquid = (GlowSquid) livingEntity;
-                    gainedFoodLv = 3;
-                    gainedSaturation = 5F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, 3000, 0, false));
-                }
-                case BLAZE -> {
-                    Blaze blaze = (Blaze) livingEntity;
-                    gainedFoodLv = 5;
-                    gainedSaturation = 7F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 3000, 0, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 3000, 0, false));
-                }
-                case PHANTOM -> {
-                    Phantom phantom = (Phantom) livingEntity;
-                    gainedFoodLv = 4;
-                    gainedSaturation = 4F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, 3000, 0, false));
-                }
-                case FROG -> {
-                    Frog frog = (Frog) livingEntity;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 3F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.JUMP, 3000, 1, false));
-                }
-                case DOLPHIN -> {
-                    assert livingEntity instanceof Dolphin;
-                    Dolphin dolphin = (Dolphin) livingEntity;
-                    gainedFoodLv = 4;
-                    gainedSaturation = 4F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 6000, 0, false));
-                }
-                case VEX -> {
-                    Vex vex = (Vex) livingEntity;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 6F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 1200, 1, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SPEED, 2400, 0, false));
-                }
-                case ENDERMITE -> {
-                    Endermite endermite = (Endermite) livingEntity;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 4;
-                    //fxMultipleTeleportSickness(player);
-                }
-                case IRON_GOLEM -> {
-                    IronGolem ironGolem = (IronGolem) livingEntity;
-                    gainedFoodLv = 18;
-                    gainedSaturation = 18F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SLOW, 600, 1, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 1, false));
-                }
-                case WARDEN -> {
-                    Warden warden = (Warden) livingEntity;
-                    gainedFoodLv = 20;
-                    gainedSaturation = 20F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.HEALTH_BOOST, 3000, 0, false));
-                }
-                case RAVAGER -> {
-                    Ravager ravager = (Ravager) livingEntity;
-                    gainedFoodLv = 15;
-                    gainedSaturation = 15F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SLOW, 600, 0, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 600, 0, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 0, false));
-                }
-                case GHAST -> {
-                    Ghast ghast = (Ghast) livingEntity;
-                    gainedFoodLv = 6;
-                    gainedSaturation = 12F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 3000, 0, false));
-                }
-                case RABBIT -> {
-                    edible = true;
-                    Rabbit rabbit = (Rabbit) livingEntity;
-                    gainedFoodLv = 3;
-                    gainedSaturation = 4F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.JUMP, 3000, 1, false));
-                }
-                case PUFFERFISH -> {
-                    edible = true;
-                    assert livingEntity instanceof PufferFish;
-                    PufferFish pufferFish = (PufferFish) livingEntity;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 2F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.POISON, 120, 0, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.CONFUSION, 180, 0, false));
-                }
-                case STRIDER -> {
-                    Strider strider = (Strider) livingEntity;
-                    gainedFoodLv = 5;
-                    gainedSaturation = 6F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 3000, 0, false));
-                }
-                case GIANT -> {
-                    Giant giant = (Giant) livingEntity;
-                    gainedFoodLv = 20;
-                    gainedSaturation = 20F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SLOW, 2400, 4, false));
-                }
-                case CREEPER -> {
-                    Creeper creeper = (Creeper) livingEntity;
-                    gainedFoodLv = 5;
-                    gainedSaturation = 6F;
-                    frogEatCreeper(player, creeper);
-                }
-                case WITHER_SKELETON -> {
-                    WitherSkeleton witherSkeleton = (WitherSkeleton) livingEntity;
-                    gainedFoodLv = 2;
-                    gainedSaturation = 6F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.WITHER, 60, 0, false));
-                }
-                case BEE -> {
-                    Bee bee = (Bee) livingEntity;
-                    gainedFoodLv = 1;
-                    gainedSaturation = 3F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.POISON, 120, 1, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.CONFUSION, 140, 0, false));
-                }
-                case SHULKER -> {
-                    Shulker shulker = (Shulker) livingEntity;
-                    gainedFoodLv = 3;
-                    gainedSaturation = 6F;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.LEVITATION, 180, 0, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 3000, 0, false));
-                }
-            }
             if (!edible){
                 livingEntity.setVelocity(projectileVector(livingEntity.getLocation(),player.getLocation().add(0,0.5,0),0.4));
-                return;
+            }else{
+                if (livingEntity instanceof WaterMob) gainedAir = 100;
+                onFire = livingEntity.getFireTicks() > 0 || livingEntity.isVisualFire();
+                AttributeInstance maxHealthAttribute = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+                if (maxHealthAttribute == null)return;
+                double maxHealth = maxHealthAttribute.getValue();
+                gainedHealth = (int) Math.ceil(maxHealth * 0.2);
+                gainedFoodLv = (int) Math.ceil(maxHealth * 0.3);
+                gainedSaturation = (float) Math.ceil(maxHealth * 0.5);
+                PersistentDataContainer data = entity.getPersistentDataContainer();
+                data.set(FrogHead.frogFoodKey, PersistentDataType.STRING, player.getUniqueId().toString());
+                livingEntity.setVelocity(projectileVector(livingEntity.getLocation().add(0,1,0),player.getEyeLocation(),1.8));
+                livingEntity.setHealth(0);
             }
-
-            PersistentDataContainer data = entity.getPersistentDataContainer();
-            data.set(FrogHead.frogFoodKey, PersistentDataType.STRING, player.getUniqueId().toString());
-            //livingEntity.setLastDamageCause(new EntityDamageByEntityEvent(player,livingEntity,EntityDamageEvent.DamageCause.CRAMMING,0));
-            livingEntity.setVelocity(projectileVector(livingEntity.getLocation().add(0,1,0),player.getEyeLocation(),1.8));
-            livingEntity.setHealth(0);
         }
-        if (entity instanceof Projectile){
+        if ((entity instanceof Projectile) && edible){
             Projectile projectile = (Projectile) entity;
             switch (projectile.getType()){
                 default -> {}
                 case SHULKER_BULLET -> {
-                    edible = true;
                     gainedFoodLv = 2;
                     gainedSaturation = 4;
-                    gainedEffects.add(new PotionEffect(PotionEffectType.LEVITATION, 40, 0, false));
-                    gainedEffects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 1500, 0, false));
                 }
             }
-            if (!edible){
-                return;
+        }
+        switch (entity.getType()){
+            case CREEPER -> {
+                assert entity instanceof Creeper;
+                frogEatCreeper(player, (Creeper) entity);
+            }
+            case ENDERMITE -> {
+                //fxMultipleTeleportSickness(player);
             }
         }
-
+        player.swingOffHand();
+        AVFX.playFrogTongueSound(entity.getLocation());
+        if (!edible)return;
+        List<PotionEffect> gainedEffects = frogEatenEffects(entity);
         if (gainedHealth > 0){
             double health = player.getHealth();
             AttributeInstance pMaxHealthAttribute = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
@@ -364,14 +177,9 @@ public class WornMechanics {
             if (air > player.getMaximumAir()) air = player.getMaximumAir(); //if > 300
             player.setRemainingAir(air);
         }
-        if (gainedEffects.size() > 0){
-            for (PotionEffect pe:gainedEffects){
-                applyPotionEffect(player,pe.getType(),pe.getDuration(), pe.getAmplifier(), true, true);
-            }
+        for (PotionEffect pe:gainedEffects){
+            applyPotionEffect(player,pe.getType(),pe.getDuration(), pe.getAmplifier(), true, true);
         }
-        AVFX.playFrogTongueSound(entity.getLocation());
-
-        setCooldown(player, mobHead, 20);
         boolean finalOnFire = onFire;
         new BukkitRunnable(){
             @Override
@@ -387,7 +195,141 @@ public class WornMechanics {
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 5);
     }
+    public static void frogJump(Player player){
+        if (!player.isSneaking())return;
+        Vector velocity = player.getVelocity();
+        Vector direction = player.getLocation().getDirection();
+        double x = velocity.getX() + (direction.getX() * 0.8);
+        double y = (velocity.getY() * 2) + (direction.getY() * 0.1);
+        double z = velocity.getZ() + (direction.getZ() * 0.8);
+        velocity.setX(x);
+        velocity.setY(y);
+        velocity.setZ(z);
+        player.setVelocity(velocity);
+        AVFX.playFrogJumpEffect(player.getLocation());
+    }
 
+    //EntityDamageEvent
+    public static boolean frogFallDamage(EntityDamageEvent e){
+        boolean frogFallDamage = e.getFinalDamage() > 3;
+        if (frogFallDamage){
+            double newDamage;
+            newDamage = e.getFinalDamage() - 3;
+            if (newDamage <= 0){return false;}
+            e.setDamage(newDamage);
+        }
+        return frogFallDamage;
+    }
+
+    //PlayerInteractAtEntityEvent
+    //Send the player glowing packets for every edible entity within a block radius
+    private static boolean frogIsEdible(Entity entity){
+        if (entity instanceof Projectile){
+            Projectile projectile = (Projectile) entity;
+            if (projectile.getType().equals(EntityType.SHULKER_BULLET)) return true;
+        }
+        if (entity instanceof LivingEntity){
+            LivingEntity livingEntity = (LivingEntity) entity;
+            AttributeInstance maxHealthAttribute = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+            if (maxHealthAttribute == null)return false;
+            double maxHealth = maxHealthAttribute.getValue();
+            if (livingEntity.getHealth() <= 4 || livingEntity.getHealth() <= maxHealth*0.2) return true;
+        }
+        switch (entity.getType()){
+            case SLIME -> {
+                assert entity instanceof Slime;
+                Slime slime = (Slime) entity;
+                if (slime.getSize() == 1) return true;
+            }
+            case MAGMA_CUBE -> {
+                assert entity instanceof MagmaCube;
+                MagmaCube magmaCube = (MagmaCube) entity;
+                if (magmaCube.getSize() == 1) return true;
+            }
+            case COD, SALMON, TROPICAL_FISH, RABBIT, PUFFERFISH -> {return true;}
+        }
+        return false;
+    }
+    private static List<PotionEffect> frogEatenEffects(Entity entity){
+        List<PotionEffect> effects = new ArrayList<>();
+        switch (entity.getType()){
+            case PLAYER -> {
+                Player eatenPlayer = (Player) entity;
+                for (PotionEffect pe: eatenPlayer.getActivePotionEffects()){
+                    int duration = pe.getDuration();
+                    if (duration > 6000) duration = 6000;
+                    effects.add(new PotionEffect(pe.getType(), duration, pe.getAmplifier(), false));
+                }
+            }
+            case CHICKEN, PARROT -> {
+                effects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 3000, 0, false));
+            }
+            case MAGMA_CUBE, GHAST, STRIDER -> {
+                effects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 3000, 0, false));
+            }
+            case GLOW_SQUID, PHANTOM -> {
+                effects.add(new PotionEffect(PotionEffectType.NIGHT_VISION, 3000, 0, false));
+            }
+            case BLAZE -> {
+                effects.add(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 3000, 0, false));
+                effects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 3000, 0, false));
+            }
+            case FROG, RABBIT -> {
+                effects.add(new PotionEffect(PotionEffectType.JUMP, 3000, 1, false));
+            }
+            case DOLPHIN -> {
+                effects.add(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 6000, 0, false));
+            }
+            case VEX -> {
+                effects.add(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 1200, 1, false));
+                effects.add(new PotionEffect(PotionEffectType.SPEED, 2400, 0, false));
+            }
+            case IRON_GOLEM -> {
+                effects.add(new PotionEffect(PotionEffectType.SLOW, 600, 1, false));
+                effects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 1, false));
+            }
+            case WARDEN -> {
+                effects.add(new PotionEffect(PotionEffectType.HEALTH_BOOST, 3000, 0, false));
+            }
+            case RAVAGER -> {
+                effects.add(new PotionEffect(PotionEffectType.SLOW, 600, 0, false));
+                effects.add(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 600, 0, false));
+                effects.add(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 0, false));
+            }
+            case PUFFERFISH, BEE -> {
+                effects.add(new PotionEffect(PotionEffectType.POISON, 120, 0, false));
+                effects.add(new PotionEffect(PotionEffectType.CONFUSION, 180, 0, false));
+            }
+            case GIANT -> {
+                effects.add(new PotionEffect(PotionEffectType.SLOW, 2400, 4, false));
+            }
+            case WITHER_SKELETON -> {
+                effects.add(new PotionEffect(PotionEffectType.WITHER, 60, 0, false));
+            }
+            case SHULKER -> {
+                effects.add(new PotionEffect(PotionEffectType.LEVITATION, 180, 0, false));
+                effects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 3000, 0, false));
+            }
+            case SHULKER_BULLET -> {
+                effects.add(new PotionEffect(PotionEffectType.LEVITATION, 40, 0, false));
+                effects.add(new PotionEffect(PotionEffectType.SLOW_FALLING, 1500, 0, false));
+            }
+        }
+        return effects;
+    }
+    private static boolean frogIsBlacklisted(Entity entity){
+        List<EntityType> blacklistedTypes = Arrays.asList(EntityType.ENDER_DRAGON, EntityType.WITHER);
+        if (blacklistedTypes.contains(entity.getType()))return true;
+        if (entity instanceof LivingEntity){
+            LivingEntity livingEntity = (LivingEntity) entity;
+            if (livingEntity.isDead())return true;
+            if (livingEntity instanceof Tameable){
+                Tameable tameable = (Tameable) livingEntity;
+                return tameable.isTamed();
+            }
+        }
+        return false;
+    }
     private static void frogEatCreeper(Player player, Creeper creeper){
         new BukkitRunnable(){
             @Override
@@ -409,10 +351,5 @@ public class WornMechanics {
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 5);
     }
-
-
-
-
-
 
 }

@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.effect.WornEffects;
@@ -41,6 +42,7 @@ public class ScheduledEvents {
         updatePlayerOnlineList();
         updateWearingLists();
         runHeadedEffects();
+        Summon.manageSummons();
         runCleanupEffects();
 
 

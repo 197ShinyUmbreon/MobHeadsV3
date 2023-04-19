@@ -184,4 +184,10 @@ public class EffectUtil {
         return new Vector(x, y, z);
     }
 
+    public static double randomOffsetCenter(double variation){
+        Random random = new Random();
+        double floor = (variation/2)*-1;
+        return floor + random.nextDouble(variation);
+    }
+
 }

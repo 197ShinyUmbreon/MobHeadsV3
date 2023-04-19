@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import static io.github.shinyumbreon197.mobheadsv3.tool.EffectUtil.randomOffsetCenter;
+
 public class AVFX {
 
     //COMBINED A/V EFFECTS ---------------------------------------------------------------------------------
@@ -27,40 +29,7 @@ public class AVFX {
         world.playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
     }
 
-    public static void playFrogJumpEffect(Location location){
-        World world = location.getWorld();
-        if (world == null)return;
-        world.spawnParticle(Particle.WATER_SPLASH, location.add(0, 0.3, 0), 10, 0.3, 0.1, 0.3);
-        world.playSound(location,Sound.ENTITY_FROG_LONG_JUMP, 1.6f, 0.8f);
-    }
-
-    public static void playFrogEatCreeperEffect(Location location){
-        World world = location.getWorld();
-        if (world == null)return;
-        world.playSound(location,Sound.ENTITY_GENERIC_EXPLODE,1.0F,1.0F);
-        world.spawnParticle(Particle.EXPLOSION_LARGE,location,5, 0.5, 0.5, 0.5, 0, null);
-    }
-
-    public static void blazeHeadFlameEffect(Location headLoc){
-        World world = headLoc.getWorld();
-        List<Vector> particleVectors = Arrays.asList(
-                new Vector(0.25, 0.0, 0.0), new Vector(-0.25, 0.0, 0.0), new Vector(0.0, 0.0, 0.25),
-                new Vector(0.0, 0.0, -0.25), new Vector(0.25, 0.0, 0.25), new Vector(-0.25, 0.0, 0.25),
-                new Vector(-0.25, 0.0, -0.25), new Vector(0.25, 0.0, -0.25)
-        );
-        for (Vector vector:particleVectors){
-            Location loc = headLoc.clone();
-            loc.add(vector);
-            double xOffset = vector.getX()/6;
-            double zOffset = vector.getZ()/6;
-            world.spawnParticle(Particle.FLAME, loc, 0, xOffset, 0.2, zOffset,0.25,null);
-        }
-        float addPitch = new Random().nextFloat(0.4F);
-        world.playSound(headLoc, Sound.ITEM_FIRECHARGE_USE, 0.05F, 1.0F+addPitch);
-    }
-
-    //SOUND EFFECTS -------------------------------------------------------------------------------------
-    public static void playHeadInteractSound(Location location, MobHead mobHead){
+    public static void playHeadInteractEffect(Location location, MobHead mobHead){
         World world = location.getWorld();
         if (world == null)return;
         Sound interactSound = mobHead.getInteractSound();
@@ -81,9 +50,81 @@ public class AVFX {
             case FROG -> {volume = 1.0f;}
             case RAVAGER -> {volume = 0.2f;}
             case WITHER -> {volume = 0.3f;}
+            case BLAZE -> blazeHeadInteractEffect(location);
         }
         if (interactSound != null) world.playSound(location, interactSound, volume, 1.0F);
     }
+
+    public static void playSummonEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.BLOCK_SOUL_SAND_BREAK,1.8f,1.1f);
+        world.spawnParticle(Particle.SMOKE_LARGE,location,16,0.4,0.5, 0.4,0.0, null);
+    }
+    public static void playWolfSummonEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.1f, 1.0f);
+        playSummonEffect(location);
+    }
+
+    public static void playFrogJumpEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.spawnParticle(Particle.WATER_SPLASH, location.add(0, 0.3, 0), 10, 0.3, 0.1, 0.3);
+        world.playSound(location,Sound.ENTITY_FROG_LONG_JUMP, 1.6f, 0.8f);
+    }
+
+    public static void playFrogEatCreeperEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location,Sound.ENTITY_GENERIC_EXPLODE,1.0F,1.0F);
+        world.spawnParticle(Particle.EXPLOSION_LARGE,location,5, 0.5, 0.5, 0.5, 0, null);
+    }
+
+    public static void playBlazeHeadFlameEffect(Location headLoc){
+        World world = headLoc.getWorld();
+        if (world == null)return;
+        List<Vector> particleVectors = Arrays.asList(
+                new Vector(0.25, 0.0, 0.0), new Vector(-0.25, 0.0, 0.0), new Vector(0.0, 0.0, 0.25),
+                new Vector(0.0, 0.0, -0.25), new Vector(0.25, 0.0, 0.25), new Vector(-0.25, 0.0, 0.25),
+                new Vector(-0.25, 0.0, -0.25), new Vector(0.25, 0.0, -0.25)
+        );
+        for (Vector vector:particleVectors){
+            Location loc = headLoc.clone();
+            loc.add(vector);
+            double xOffset = vector.getX()/6;
+            double zOffset = vector.getZ()/6;
+            world.spawnParticle(Particle.FLAME, loc, 0, xOffset, 0.2, zOffset,0.25,null);
+        }
+        float addPitch = new Random().nextFloat(0.4F);
+        world.playSound(headLoc, Sound.ITEM_FIRECHARGE_USE, 0.05F, 1.0F+addPitch);
+    }
+
+    private static void blazeHeadInteractEffect(Location headPos){
+        World world = headPos.getWorld();
+        if (world == null)return;
+        List<Vector> points = Arrays.asList(
+                new Vector(0.3, 0.0, 0.3), new Vector(-0.3, 0.0, 0.3),
+                new Vector(0.3, 0.0, -0.3), new Vector(-0.3, 0.0, -0.3)
+        );
+        for (Vector point:points){
+            point.setX(point.getX() + randomOffsetCenter(0.2));
+            point.setY(point.getY() + randomOffsetCenter(0.1));
+            point.setZ(point.getZ() + randomOffsetCenter(0.2));
+
+            double xVar = randomOffsetCenter(0.2);
+            double zVar = randomOffsetCenter(0.2);
+
+            Location spawnLoc = headPos.clone();
+            spawnLoc.add(point).add(0,-0.2,0);
+
+            world.spawnParticle(Particle.SMOKE_LARGE,spawnLoc,0,xVar,0.1,zVar, 0.2, null);
+        }
+    }
+
+
+    //SOUND EFFECTS -------------------------------------------------------------------------------------
     public static void playHeadHurtSound(LivingEntity livingEntity){
         assert livingEntity.getEquipment() != null;
         ItemStack headItem = livingEntity.getEquipment().getHelmet();

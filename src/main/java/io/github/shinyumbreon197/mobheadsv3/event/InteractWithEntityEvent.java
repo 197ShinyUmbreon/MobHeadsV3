@@ -19,7 +19,7 @@ public class InteractWithEntityEvent implements Listener {
         EntityType entityType = mobHead.getEntityType();
         switch (entityType){
             default -> {}
-            case FROG -> {WornMechanics.interactAtEntityMechanicFrog(e,mobHead);}
+            case FROG -> {WornMechanics.frogEatEntity(e,mobHead);}
         }
     }
 

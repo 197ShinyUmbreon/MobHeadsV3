@@ -44,7 +44,7 @@ public class PlayerKillEntityEvents implements Listener {
             e.getDrops().add(headItemDrop);
             AVFX.playHeadDropEffect(killed.getEyeLocation());
         }
-        if (frogKill){
+        if (frogKill && !(killed instanceof Player)){
             List<ItemStack> overflow = new ArrayList<>();
             for (ItemStack drop:e.getDrops()){
                 if (Data.foodMats.contains(drop.getType()))continue;

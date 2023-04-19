@@ -49,6 +49,7 @@ public class InteractWithHeadEvents implements Listener {
             UUID uuid = UUID.fromString(uuidString);
             mobHead = Data.mobHeadByUUID.get(uuid);
         }
+        player.swingOffHand();
         interactCooldown(player, clickedBlock);
         interactEffects(mobHead, e);
     }
@@ -65,13 +66,12 @@ public class InteractWithHeadEvents implements Listener {
 
 
     public static void interactEffects(MobHead mobHead, PlayerInteractEvent e){
-        EntityType entityType = mobHead.getEntityType();
         Block block = e.getClickedBlock();
         assert block != null;
         Location locCenter = e.getClickedBlock().getLocation().add(0.5,0.5,0.5);
         World world = locCenter.getWorld();
         assert world != null;
-        AVFX.playHeadInteractSound(locCenter, mobHead);
+        AVFX.playHeadInteractEffect(locCenter, mobHead);
     }
 
 }
