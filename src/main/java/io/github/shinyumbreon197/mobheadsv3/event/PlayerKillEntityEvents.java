@@ -47,7 +47,7 @@ public class PlayerKillEntityEvents implements Listener {
         if (frogKill && !(killed instanceof Player)){
             List<ItemStack> overflow = new ArrayList<>();
             for (ItemStack drop:e.getDrops()){
-                if (Data.foodMats.contains(drop.getType()))continue;
+                if (Data.getFoodMats().contains(drop.getType()))continue;
                 Map<Integer, ItemStack> overflowMap = player.getInventory().addItem(drop);
                 if (overflowMap.size() != 0){
                     overflow.add(overflowMap.get(0));

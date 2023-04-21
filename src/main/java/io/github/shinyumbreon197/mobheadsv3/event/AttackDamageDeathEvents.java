@@ -5,15 +5,13 @@ import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.effect.AfflictedEffects;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 
 public class AttackDamageDeathEvents implements Listener {
 
@@ -25,15 +23,16 @@ public class AttackDamageDeathEvents implements Listener {
     }
 
     @EventHandler
-    public void onEntityDamageEntity(EntityDamageByEntityEvent e){
-        if (!(e.getEntity() instanceof LivingEntity))return;
-        damageHandler(e);
-    }
-
-
-    @EventHandler
     public void onEntityDeath(EntityDeathEvent e){
         deathHandler(e);
+    }
+
+    @EventHandler
+    public static void onProjectileHit(ProjectileHitEvent e){
+        if (e.getHitEntity() == null)return;
+        MobHead mobHead = HeadUtil.getMobHeadFromEntity(e.getHitEntity());
+        if (mobHead == null)return;
+        WornMechanics.projectileHitWearer(e, mobHead);
     }
 
     private void damageHandler(EntityDamageEvent e){
@@ -63,6 +62,12 @@ public class AttackDamageDeathEvents implements Listener {
             if (!damaged.isDead()){damaged.addPotionEffects(AfflictedEffects.getPotionEffects(headType));}
             switch (headType){
                 default -> {}
+                case ENDERMAN -> {
+                    if (damaged.getType().equals(EntityType.ENDERMAN) && attacker.getType().equals(EntityType.PLAYER)){
+                        WornMechanics.addEndermanAggroMap(damaged.getUniqueId(),(Player) attacker);
+                    }
+
+                }
             }
         }
         if (damagedHead != null){
@@ -71,7 +76,8 @@ public class AttackDamageDeathEvents implements Listener {
                 default -> {}
                 case WITHER_SKELETON, WITHER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
                 case FROG -> {if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){canceled = !WornMechanics.frogFallDamage(e);}}
-                case WOLF -> {WornMechanics.wolfSummonReinforcements(damaged, attacker);}
+                case WOLF, SILVERFISH -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
+                case ENDERMAN -> {WornMechanics.endermanDamage(damaged, damageCause);}
             }
         }
 

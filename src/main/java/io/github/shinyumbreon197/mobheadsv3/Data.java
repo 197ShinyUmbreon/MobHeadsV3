@@ -11,6 +11,7 @@ public class Data {
 
     public static void initialize(){
         populateHeadMatList();
+        foodMats = buildFoodMats();
         for (MobHead mobHead:mobHeads){
             registerHead(mobHead);
         }
@@ -95,15 +96,27 @@ public class Data {
     );
 
     // Replace foodMats with a list populated with Materials.values().isEdible() that populates on runtime
-    public static final List<Material> foodMats = Arrays.asList(
-            Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
-            Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP,
-            Material.COOKED_RABBIT, Material.COOKED_SALMON, Material.COOKIE, Material.DRIED_KELP, Material.ENCHANTED_GOLDEN_APPLE,
-            Material.GOLDEN_APPLE, Material.GLOW_BERRIES, Material.GOLDEN_CARROT, Material.HONEY_BOTTLE, Material.MELON_SLICE,
-            Material.MUSHROOM_STEW, Material.POISONOUS_POTATO, Material.POTATO, Material.PUFFERFISH, Material.PUMPKIN_PIE,
-            Material.RABBIT_STEW, Material.BEEF, Material.CHICKEN, Material.COD, Material.MUTTON, Material.PORKCHOP, Material.RABBIT,
-            Material.SALMON, Material.ROTTEN_FLESH, Material.SPIDER_EYE, Material.COOKED_BEEF, Material.SUSPICIOUS_STEW,
-            Material.SWEET_BERRIES, Material.TROPICAL_FISH
-    );
+//    public static final List<Material> foodMats = Arrays.asList(
+//            Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,
+//            Material.CHORUS_FRUIT, Material.COOKED_CHICKEN, Material.COOKED_COD, Material.COOKED_MUTTON, Material.COOKED_PORKCHOP,
+//            Material.COOKED_RABBIT, Material.COOKED_SALMON, Material.COOKIE, Material.DRIED_KELP, Material.ENCHANTED_GOLDEN_APPLE,
+//            Material.GOLDEN_APPLE, Material.GLOW_BERRIES, Material.GOLDEN_CARROT, Material.HONEY_BOTTLE, Material.MELON_SLICE,
+//            Material.MUSHROOM_STEW, Material.POISONOUS_POTATO, Material.POTATO, Material.PUFFERFISH, Material.PUMPKIN_PIE,
+//            Material.RABBIT_STEW, Material.BEEF, Material.CHICKEN, Material.COD, Material.MUTTON, Material.PORKCHOP, Material.RABBIT,
+//            Material.SALMON, Material.ROTTEN_FLESH, Material.SPIDER_EYE, Material.COOKED_BEEF, Material.SUSPICIOUS_STEW,
+//            Material.SWEET_BERRIES, Material.TROPICAL_FISH
+//    );
+
+    private static List<Material> foodMats;
+    public static List<Material> getFoodMats(){
+        return foodMats;
+    }
+    private static List<Material> buildFoodMats(){
+        List<Material> list = new ArrayList<>();
+        for (Material material:Material.values()){
+            if (material.isEdible()) list.add(material);
+        }
+        return list;
+    }
 
 }

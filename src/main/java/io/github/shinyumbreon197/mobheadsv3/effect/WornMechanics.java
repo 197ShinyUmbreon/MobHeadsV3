@@ -5,13 +5,20 @@ import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.FrogHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.*;
+import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -23,7 +30,7 @@ import org.bukkit.util.Vector;
 import java.util.*;
 
 import static io.github.shinyumbreon197.mobheadsv3.effect.PotionFX.applyPotionEffect;
-import static io.github.shinyumbreon197.mobheadsv3.tool.EffectUtil.projectileVector;
+import static io.github.shinyumbreon197.mobheadsv3.tool.EffectUtil.*;
 
 public class WornMechanics {
 
@@ -48,25 +55,23 @@ public class WornMechanics {
     public static void runHeadTickMechanics(List<LivingEntity> headed){
         for (LivingEntity livingEntity:headed){
             MobHead mobHead = HeadUtil.getMobHeadFromEntity(livingEntity);
-            if (mobHead != null) executeTickMechanics(livingEntity, mobHead);
-        }
-    }
-
-    private static void executeTickMechanics(LivingEntity livingEntity, MobHead mobHead){
-        EntityType entityType = mobHead.getEntityType();
-        switch (entityType){
-            default -> {}
-            case DOLPHIN -> {regenerateAir(livingEntity);}
-            case COD, SALMON, TROPICAL_FISH -> {regenerateAir(livingEntity);}
-            case PUFFERFISH -> {regenerateAir(livingEntity);}
-            case TURTLE -> {regenerateAir(livingEntity);}
-            case SQUID -> {regenerateAir(livingEntity);}
-            case SKELETON_HORSE -> {regenerateAir(livingEntity);}
-            case GLOW_SQUID -> {regenerateAir(livingEntity);}
-            case TADPOLE -> {regenerateAir(livingEntity);}
-            case DROWNED -> {regenerateAir(livingEntity);}
-            case AXOLOTL -> {regenerateAir(livingEntity);}
-            case FROG -> {regenerateAir(livingEntity);}
+            if (mobHead == null)return;
+            EntityType entityType = mobHead.getEntityType();
+            switch (entityType){
+                default -> {}
+                case DOLPHIN -> {regenerateAir(livingEntity);}
+                case COD, SALMON, TROPICAL_FISH -> {regenerateAir(livingEntity);}
+                case PUFFERFISH -> {regenerateAir(livingEntity);}
+                case TURTLE -> {regenerateAir(livingEntity);}
+                case SQUID -> {regenerateAir(livingEntity);}
+                case SKELETON_HORSE -> {regenerateAir(livingEntity);}
+                case GLOW_SQUID -> {regenerateAir(livingEntity);}
+                case TADPOLE -> {regenerateAir(livingEntity);}
+                case DROWNED -> {regenerateAir(livingEntity);}
+                case AXOLOTL -> {regenerateAir(livingEntity);}
+                case FROG -> {regenerateAir(livingEntity);}
+                case ENDERMAN -> {damageFromWater(livingEntity);}
+            }
         }
     }
 
@@ -78,17 +83,57 @@ public class WornMechanics {
         if (newAir > maxAir) newAir = maxAir;
         livingEntity.setRemainingAir(newAir);
     }
+    public static void damageFromWater(LivingEntity livingEntity){
+        if (isExposedToWater(livingEntity)) livingEntity.damage(1);
+    }
 
     //Event Triggered --------------------------------------------------------------------------------------
+    //Generic
+    public static void endermanTeleport(Entity entity){
+        if (entity instanceof LivingEntity && entity.isDead())return;
+        Location eLoc = entity.getLocation();
+        Location dest = randomTeleportLoc(eLoc, entity, 8, 1, true);
+        if (dest != null){
+            entity.teleport(dest, PlayerTeleportEvent.TeleportCause.COMMAND);
+            entity.setVelocity(new Vector(0,0,0));
+            World world = eLoc.getWorld();
+            if (world == null)return;
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    AVFX.playEndermanTeleportSound(eLoc);
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(), 1);
+        }
+    }
     //EntityDamagedByEntityEvent
-    public static void wolfSummonReinforcements(LivingEntity defender, LivingEntity attacker){
+    public static void summonReinforcements(LivingEntity defender, LivingEntity attacker, EntityType summonType){
+        if (defender.isDead())return;
         Random random = new Random();
         Location location = defender.getLocation().add(
                 random.nextInt(-1, 1), 0, random.nextInt(-1, 1)
         );
-        Entity wolfSummon = Summon.wolfSummon(defender, location, attacker);
-        if (wolfSummon == null)return;
+        Entity summon = null;
+        switch (summonType){
+            case WOLF -> summon = Summon.wolfSummon(defender, location, attacker);
+            case SILVERFISH -> summon = Summon.silverfishSummon(defender, location, attacker);
+        }
+        if (summon == null)return;
     }
+
+    //EntityDamageEvent
+    public static void endermanDamage(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
+        if (livingEntity.isDead())return;
+        List<EntityDamageEvent.DamageCause> damageCauses = List.of(
+                EntityDamageEvent.DamageCause.SUICIDE, EntityDamageEvent.DamageCause.FALL,
+                EntityDamageEvent.DamageCause.FLY_INTO_WALL, EntityDamageEvent.DamageCause.POISON,
+                EntityDamageEvent.DamageCause.STARVATION, EntityDamageEvent.DamageCause.FIRE_TICK,
+                EntityDamageEvent.DamageCause.SUFFOCATION, EntityDamageEvent.DamageCause.VOID
+        );
+        if (damageCauses.contains(cause))return;
+        endermanTeleport(livingEntity);
+    }
+
     //PlayerStatisticIncrementEvent
     public static void frogEatEntity(PlayerInteractAtEntityEvent e, MobHead mobHead){
         if (!e.getHand().equals(EquipmentSlot.HAND))return;
@@ -221,6 +266,21 @@ public class WornMechanics {
         return frogFallDamage;
     }
 
+    //ProjectileHitEvent
+    public static void projectileHitWearer(ProjectileHitEvent e, MobHead mobHead){
+        Entity hitEntity = e.getHitEntity();
+        assert hitEntity != null;
+        Projectile projectile = e.getEntity();
+        EntityType headType = mobHead.getEntityType();
+        switch (headType){
+            default -> {}
+            case ENDERMAN -> {
+                e.setCancelled(true);
+                endermanTeleport(hitEntity);
+            }
+        }
+    }
+
     //PlayerInteractAtEntityEvent
     //Send the player glowing packets for every edible entity within a block radius
     private static boolean frogIsEdible(Entity entity){
@@ -350,6 +410,41 @@ public class WornMechanics {
                 }
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 5);
+    }
+
+    //EntityTargetLivingEntityEvent
+    private static final Map<UUID, Player> endermanAggroMap = new HashMap<>();
+    public static void addEndermanAggroMap(UUID entID, Player player){
+        endermanAggroMap.put(entID, player);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (endermanAggroMap.containsKey(entID) && endermanAggroMap.get(entID).equals(player)){
+                    endermanAggroMap.remove(entID);
+                }
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(), 60*20);
+    }
+    public static void onTargetWearer(EntityTargetLivingEntityEvent e, LivingEntity wearer, Mob targeting, MobHead mobHead){
+        EntityType headType = mobHead.getEntityType();
+        boolean sameType = targeting.getType().equals(headType);
+        EntityTargetEvent.TargetReason reason = e.getReason();
+        System.out.println("Targeting: "+targeting.getType()+" "+targeting.getEntityId()+" Targeted: "+wearer.getType()+" "+wearer.getEntityId()+" Reason: "+reason.toString()); //debug
+        if (reason.equals(EntityTargetEvent.TargetReason.FORGOT_TARGET))return;
+        List<EntityTargetEvent.TargetReason> closestTargetReasons = List.of(
+                EntityTargetEvent.TargetReason.CLOSEST_ENTITY, EntityTargetEvent.TargetReason.CLOSEST_PLAYER, EntityTargetEvent.TargetReason.RANDOM_TARGET
+        );
+        if (sameType && headType.equals(EntityType.ENDERMAN) && wearer instanceof Player){
+            Enderman enderman = (Enderman) targeting;
+            boolean onMap = endermanAggroMap.containsKey(enderman.getUniqueId()) && endermanAggroMap.get(enderman.getUniqueId()).equals(wearer);
+            if (!onMap){
+                e.setCancelled(true);
+            }
+        }else if (closestTargetReasons.contains(reason) && sameType){
+            e.setCancelled(true);
+        }
+
+        System.out.println("Canceled: "+e.isCancelled()); //debug
     }
 
 }

@@ -318,6 +318,12 @@ public class AVFX {
         if (eatenDeathSound != null) world.playSound(location,eatenDeathSound, 0.8F, 1.0F);
     }
 
+    public static void playEndermanTeleportSound(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location,Sound.ITEM_CHORUS_FRUIT_TELEPORT, 0.4F, 1.0F);
+    }
+
     //PARTICLE EFFECTS -----------------------------------------------------------------------------------
 
     //SOUND BUILDERS --------------------------------------------------------------------------------------
