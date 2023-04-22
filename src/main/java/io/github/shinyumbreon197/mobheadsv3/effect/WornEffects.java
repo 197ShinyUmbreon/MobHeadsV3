@@ -67,93 +67,21 @@ public class WornEffects {
         List<PotionEffect> effects = new ArrayList<>();
         switch (entityType){
             default -> {}
-            case PLAYER -> {}
-
-            case ZOMBIE, HUSK -> {
-                effects.add(PotionFX.hunger(-1,0,false));
-                effects.add(PotionFX.slow(-1, 0, false));
-            }
-            case SKELETON -> {}
-            case CREEPER -> {}
+            case ZOMBIE, HUSK -> {effects.add(PotionFX.hunger(-1,0,false)); effects.add(PotionFX.slow(-1, 0, false));}
             case WITHER_SKELETON -> {effects.add(PotionFX.wither(-1, 0, false));}
-            case ENDER_DRAGON -> {}
-
-            case COW -> {}
-            case PIG -> {}
             case CHICKEN -> {effects.add(PotionFX.slowFall(-1, 0, false));}
-            case WOLF -> {}
-            case DONKEY -> {}
-            case MULE -> {}
             case DOLPHIN -> {effects.addAll(dolphinEffects(wearer));}
-            case COD -> {}
-            case SALMON -> {}
-            case PUFFERFISH -> {}
-            case TROPICAL_FISH -> {}
-            case TURTLE -> {}
-            case STRIDER -> {}
-            case GOAT -> {}
-            case SQUID -> {}
-            case BEE -> {}
-            case BAT -> {}
-            case OCELOT -> {}
-            case SNOWMAN -> {}
-            case POLAR_BEAR -> {}
+            case COD, SALMON, PUFFERFISH, TROPICAL_FISH, SQUID, TADPOLE -> {effects.addAll(fishEffects(wearer));}
             case SKELETON_HORSE -> {effects.add(PotionFX.speed(-1, 0, false));}
-            case ZOMBIE_HORSE -> {
-                effects.add(PotionFX.hunger(-1, 0, false));
-                effects.add(PotionFX.speed(-1, 0, false));
-            }
-            case WANDERING_TRADER -> {}
-            case IRON_GOLEM -> {}
+            case ZOMBIE_HORSE -> {effects.add(PotionFX.hunger(-1, 0, false)); effects.add(PotionFX.speed(-1, 0, false));}
             case GLOW_SQUID -> {effects.addAll(glowSquidEffects(wearer));}
-            case ALLAY -> {}
-            case TADPOLE -> {}
-
-            case SILVERFISH -> {}
-            case STRAY -> {}
-            case SHULKER -> {}
             case PHANTOM -> {effects.add(PotionFX.nightVision(-1, 0, false));}
             case DROWNED -> {effects.addAll(drownedEffects(wearer));}
-            case HOGLIN -> {}
             case ZOGLIN -> {effects.add(PotionFX.hunger(-1, 0, false));}
-            case PIGLIN -> {}
-            case PIGLIN_BRUTE -> {}
-            case WITCH -> {}
-            case GUARDIAN -> {}
-            case RAVAGER -> {}
-            case VEX -> {}
-            case EVOKER -> {}
-            case SPIDER -> {}
-            case ENDERMAN -> {}
-            case GHAST -> {}
-            case BLAZE -> {}
-            case CAVE_SPIDER -> {}
-            case MAGMA_CUBE -> {}
             case ZOMBIFIED_PIGLIN -> {effects.add(PotionFX.hunger(-1, 0, false));}
-            case SLIME -> {}
-            case ENDERMITE -> {}
-            case PILLAGER -> {}
-            case VINDICATOR -> {}
-            case ILLUSIONER -> {}
-
-            case ELDER_GUARDIAN -> {}
             case WITHER -> {effects.add(PotionFX.wither(-1, 1, false));}
-            case WARDEN -> {}
-
-            case RABBIT -> {}
-            case AXOLOTL -> {}
-            case CAT -> {}
             case HORSE -> {effects.add(PotionFX.speed(-1, 0, false));}
-            case LLAMA -> {}
-            case TRADER_LLAMA -> {}
             case PARROT -> {effects.add(PotionFX.slowFall(-1, 0, false));}
-            case FOX -> {}
-            case PANDA -> {}
-            case SHEEP -> {}
-            case MUSHROOM_COW -> {}
-            case FROG -> {}
-            case VILLAGER -> {}
-            case ZOMBIE_VILLAGER -> {}
         }
         return effects;
     }
@@ -170,7 +98,9 @@ public class WornEffects {
 
     private static List<PotionEffect> glowSquidEffects(LivingEntity wearer){
         List<PotionEffect> effects = new ArrayList<>();
-        if (EffectUtil.isExposedToWater(wearer)) effects.add(PotionFX.nightVision(-1, 0, false));
+        if (EffectUtil.isExposedToWater(wearer)){
+            effects.add(PotionFX.nightVision(-1, 0, false));
+        }
         return effects;
     }
 
@@ -178,6 +108,14 @@ public class WornEffects {
         List<PotionEffect> effects = new ArrayList<>();
         if (EffectUtil.isExposedToWater(wearer)){
             effects.add(PotionFX.dolphinsGrace(-1, 0, false));
+            effects.add(PotionFX.speed(-1, 0, false));
+        }
+        return effects;
+    }
+    
+    private static List<PotionEffect> fishEffects(LivingEntity wearer){
+        List<PotionEffect> effects = new ArrayList<>();
+        if (EffectUtil.isExposedToWater(wearer)){
             effects.add(PotionFX.speed(-1, 0, false));
         }
         return effects;
