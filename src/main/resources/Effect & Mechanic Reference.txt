@@ -1,0 +1,565 @@
+MobHeadsV3 Effect & Mechanic Reference
+
+
+Common
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic: No sightline aggro if wearer is of same type. Nearby of same type aggro on attack.
+		
+
+Vanilla Mob Heads
+
+Zombie: 
+	Tick:
+		Effect: Hunger, Lv1, Infinite. Slowness, Lv1, Infinite.
+		Mechanic: No hunger depletion under 19/20.
+	Event:
+		Effect:
+			Affliction: Hunger, Lv1, 10 Sec.
+		Mechanic:
+Skeleton: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Creeper: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Wither Skeleton: 
+	Tick:
+		Effect: Wither, Lv1, Infinite.
+		Mechanic: Immune to Wither damage.
+	Event:
+		Effect:
+			Affliction: Wither, Lv2, 4 Sec.
+		Mechanic:
+Ender Dragon: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+
+Single-Skin Passives
+
+Cow: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Pig: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Chicken: 
+	Tick:
+		Effect: Feather Falling, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Wolf: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic: Summons wolf ally on damage from entity.
+Donkey: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Mule: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Dolphin: 
+	Tick:
+		Effect: If exposed to water; Dolphin's Grace, Lv1, Infinite. Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Cod: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Salmon: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Pufferfish: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Tropical Fish: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Turtle: 
+	Tick:
+		Effect:
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Strider: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Goat: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Squid: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Bee: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Bat: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Ocelot: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Snowman: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Polar Bear: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Skeleton Horse: 
+	Tick:
+		Effect:
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Zombie Horse: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Wandering Trader: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Iron Golem: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Glow Squid: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite. Night Vision, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Allay: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Tadpole: 
+	Tick:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+
+Single-Skin Hostiles
+
+Silverfish: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Stray: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Shulker: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Phantom: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Husk: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Drowned: 
+	Tick:
+		Effect:
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Hoglin: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Zoglin: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Piglin: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Piglin Brute: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Witch: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Guardian: 
+	Tick:
+		Effect:
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Ravager: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Vex: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Evoker: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Spider: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Enderman: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Ghast: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Blaze: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Cave Spider: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Magma Cube: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Zombified Piglin: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Slime: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Endermite: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Pillager: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Vindicator: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Illusioner: 
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+
+Boss Mobs
+
+Elder Guardian: 
+	Tick:
+		Effect:
+		Mechanic: Regenerate Air.
+	Event:
+		Effect:
+		Mechanic:
+Wither: 
+	Tick:
+		Effect:
+		Mechanic:
+			Affliction: Wither, Lv3, 3 Sec.
+	Event:
+		Effect:
+		Mechanic:
+Warden: 
+	Tick:
+		Effect:
+		Mechanic:
+			Affliction: Darkness, Lv1, 5 Sec.
+	Event:
+		Effect:
+		Mechanic:
+
+Multi-Skin Passives
+
+Rabbit:
+	Tick:
+		Effect: Jump, Lv1, Infinite. Speed, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect: On damage from attack, gain Speed 2 for 30 seconds.
+		Mechanic:
+Axolotl:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Cat:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Horse:
+	Tick:
+		Effect: Speed, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Llama:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic: On damage from entity, spits at attacker.
+Trader Llama:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic: On damage from entity, spits at attacker.
+Parrot:
+	Tick:
+		Effect: Feather Falling, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Fox:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Panda:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Sheep:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Mooshroom:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+Frog:
+	Tick:
+		Effect: Jump, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic: Eat low health creatures for health, hunger, and effects. Jump higher and further when crouching.
+Villager:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
+
+Multi-Skin Hostiles
+
+Zombie Villagers:
+	Tick:
+		Effect:
+		Mechanic:
+	Event:
+		Effect:
+		Mechanic:
