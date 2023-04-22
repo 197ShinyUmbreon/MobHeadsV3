@@ -153,6 +153,49 @@ public class WornMechanics {
     }
 
     //PlayerStatisticIncrementEvent
+    public static void frogJump(Player player){
+        if (!player.isSneaking())return;
+        Vector velocity = player.getVelocity();
+        Vector direction = player.getLocation().getDirection();
+        double x = velocity.getX() + (direction.getX() * 0.8);
+        double y = (velocity.getY() * 2) + (direction.getY() * 0.1);
+        double z = velocity.getZ() + (direction.getZ() * 0.8);
+        velocity.setX(x);
+        velocity.setY(y);
+        velocity.setZ(z);
+        player.setVelocity(velocity);
+        AVFX.playFrogJumpEffect(player.getLocation());
+    }
+
+    //EntityDamageEvent
+    public static boolean frogFallDamage(EntityDamageEvent e){
+        boolean frogFallDamage = e.getFinalDamage() > 3;
+        if (frogFallDamage){
+            double newDamage;
+            newDamage = e.getFinalDamage() - 3;
+            if (newDamage <= 0){return false;}
+            e.setDamage(newDamage);
+        }
+        return frogFallDamage;
+    }
+
+    //ProjectileHitEvent
+    public static void projectileHitWearer(ProjectileHitEvent e, MobHead mobHead){
+        Entity hitEntity = e.getHitEntity();
+        assert hitEntity != null;
+        Projectile projectile = e.getEntity();
+        EntityType headType = mobHead.getEntityType();
+        switch (headType){
+            default -> {}
+            case ENDERMAN -> {
+                e.setCancelled(true);
+                endermanTeleport(hitEntity);
+            }
+        }
+    }
+
+    //PlayerInteractAtEntityEvent
+    //Send the player glowing packets for every edible entity within a block radius
     public static void frogEatEntity(PlayerInteractAtEntityEvent e, MobHead mobHead){
         if (!e.getHand().equals(EquipmentSlot.HAND))return;
         Player player = e.getPlayer();
@@ -200,6 +243,9 @@ public class WornMechanics {
                 }
             }
         }
+        player.swingOffHand();
+        AVFX.playFrogTongueSound(entity.getLocation());
+        if (!edible)return;
         switch (entity.getType()){
             case CREEPER -> {
                 assert entity instanceof Creeper;
@@ -209,9 +255,6 @@ public class WornMechanics {
                 //fxMultipleTeleportSickness(player);
             }
         }
-        player.swingOffHand();
-        AVFX.playFrogTongueSound(entity.getLocation());
-        if (!edible)return;
         List<PotionEffect> gainedEffects = frogEatenEffects(entity);
         if (gainedHealth > 0){
             double health = player.getHealth();
@@ -258,49 +301,6 @@ public class WornMechanics {
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 5);
     }
-    public static void frogJump(Player player){
-        if (!player.isSneaking())return;
-        Vector velocity = player.getVelocity();
-        Vector direction = player.getLocation().getDirection();
-        double x = velocity.getX() + (direction.getX() * 0.8);
-        double y = (velocity.getY() * 2) + (direction.getY() * 0.1);
-        double z = velocity.getZ() + (direction.getZ() * 0.8);
-        velocity.setX(x);
-        velocity.setY(y);
-        velocity.setZ(z);
-        player.setVelocity(velocity);
-        AVFX.playFrogJumpEffect(player.getLocation());
-    }
-
-    //EntityDamageEvent
-    public static boolean frogFallDamage(EntityDamageEvent e){
-        boolean frogFallDamage = e.getFinalDamage() > 3;
-        if (frogFallDamage){
-            double newDamage;
-            newDamage = e.getFinalDamage() - 3;
-            if (newDamage <= 0){return false;}
-            e.setDamage(newDamage);
-        }
-        return frogFallDamage;
-    }
-
-    //ProjectileHitEvent
-    public static void projectileHitWearer(ProjectileHitEvent e, MobHead mobHead){
-        Entity hitEntity = e.getHitEntity();
-        assert hitEntity != null;
-        Projectile projectile = e.getEntity();
-        EntityType headType = mobHead.getEntityType();
-        switch (headType){
-            default -> {}
-            case ENDERMAN -> {
-                e.setCancelled(true);
-                endermanTeleport(hitEntity);
-            }
-        }
-    }
-
-    //PlayerInteractAtEntityEvent
-    //Send the player glowing packets for every edible entity within a block radius
     private static boolean frogIsEdible(Entity entity){
         if (entity instanceof Projectile){
             Projectile projectile = (Projectile) entity;
@@ -312,19 +312,24 @@ public class WornMechanics {
             if (maxHealthAttribute == null)return false;
             double maxHealth = maxHealthAttribute.getValue();
             if (livingEntity.getHealth() <= 4 || livingEntity.getHealth() <= maxHealth*0.2) return true;
-        }
-        switch (entity.getType()){
-            case SLIME -> {
-                assert entity instanceof Slime;
-                Slime slime = (Slime) entity;
-                if (slime.getSize() == 1) return true;
+            switch (livingEntity.getType()){
+                case SLIME -> {
+                    assert entity instanceof Slime;
+                    Slime slime = (Slime) entity;
+                    if (slime.getSize() == 1) return true;
+                }
+                case MAGMA_CUBE -> {
+                    assert entity instanceof MagmaCube;
+                    MagmaCube magmaCube = (MagmaCube) entity;
+                    if (magmaCube.getSize() == 1) return true;
+                }
+                case CREEPER -> {
+                    assert entity instanceof Creeper;
+                    Creeper creeper = (Creeper) entity;
+                    if (creeper.getHealth() <= maxHealth*0.5) return true;
+                }
+                case COD, SALMON, TROPICAL_FISH, RABBIT, PUFFERFISH -> {return true;}
             }
-            case MAGMA_CUBE -> {
-                assert entity instanceof MagmaCube;
-                MagmaCube magmaCube = (MagmaCube) entity;
-                if (magmaCube.getSize() == 1) return true;
-            }
-            case COD, SALMON, TROPICAL_FISH, RABBIT, PUFFERFISH -> {return true;}
         }
         return false;
     }

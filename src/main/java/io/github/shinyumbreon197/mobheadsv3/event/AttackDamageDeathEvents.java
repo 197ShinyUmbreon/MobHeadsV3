@@ -66,7 +66,6 @@ public class AttackDamageDeathEvents implements Listener {
                     if (damaged.getType().equals(EntityType.ENDERMAN) && attacker.getType().equals(EntityType.PLAYER)){
                         WornMechanics.addEndermanAggroMap(damaged.getUniqueId(),(Player) attacker);
                     }
-
                 }
             }
         }
@@ -79,6 +78,7 @@ public class AttackDamageDeathEvents implements Listener {
                 case WOLF, SILVERFISH -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
                 case ENDERMAN -> {WornMechanics.endermanDamageEffect(damaged, damageCause);}
                 case RABBIT -> {WornMechanics.gainEffectsOnDamagedByEntity(damaged, headType)}
+                case LLAMA, TRADER_LLAMA -> {} //On damage from entity, spits at attacker.
             }
         }
 

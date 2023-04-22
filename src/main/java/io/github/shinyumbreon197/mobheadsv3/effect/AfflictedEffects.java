@@ -20,6 +20,7 @@ public class AfflictedEffects {
                 case ZOGLIN -> {return zombieEffects();}
                 case ZOMBIFIED_PIGLIN -> {return zombieEffects();}
                 case WITHER -> {return witherAfflictionEffects();}
+                case WARDEN -> {} //List.of() Darkness, Lv1, 5 Sec.
             }
         }
         return new ArrayList<>();
