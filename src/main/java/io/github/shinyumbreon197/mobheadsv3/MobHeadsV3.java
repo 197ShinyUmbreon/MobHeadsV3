@@ -75,6 +75,9 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new FurnaceEvents(), this);
         pm.registerEvents(new InteractWithEntityEvent(), this);
         pm.registerEvents(new EntityTargetEntityEvents(), this);
+        pm.registerEvents(new InteractWithEntityEvent(), this);
+        pm.registerEvents(new TeleportEvents(), this);
+        pm.registerEvents(new UseItemEvents(), this);
     }
 
     private void initializeHeads(){

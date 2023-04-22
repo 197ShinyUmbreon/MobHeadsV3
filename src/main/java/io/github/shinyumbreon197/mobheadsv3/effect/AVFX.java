@@ -324,7 +324,18 @@ public class AVFX {
         world.playSound(location,Sound.ITEM_CHORUS_FRUIT_TELEPORT, 0.4F, 1.0F);
     }
 
+    public static void playEndermanRegeneratePearlSound(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.ITEM_CHORUS_FRUIT_TELEPORT,0.5f, 1.5f);
+    }
+
     //PARTICLE EFFECTS -----------------------------------------------------------------------------------
+    public static void playImpostorParticles(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.spawnParticle(Particle.VILLAGER_ANGRY,location,3, 0.5, 0, 0.5,null);
+    }
 
     //SOUND BUILDERS --------------------------------------------------------------------------------------
     private static Sound parrotInteractSound(){

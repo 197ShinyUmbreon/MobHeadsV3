@@ -5,14 +5,10 @@ import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.FrogHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.*;
-import org.bukkit.entity.memory.MemoryKey;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
@@ -20,6 +16,7 @@ import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -106,6 +103,18 @@ public class WornMechanics {
             }.runTaskLater(MobHeadsV3.getPlugin(), 1);
         }
     }
+
+    //PlayerInteractEvent
+    public static void endermanRegeneratePearl(Player player){
+        Random random = new Random();
+        if (player.getGameMode().equals(GameMode.SURVIVAL) && random.nextInt(0,10) != 0){
+            Item pearlItem = player.getWorld().dropItem(player.getLocation(), new ItemStack(Material.ENDER_PEARL, 1));
+            pearlItem.setPickupDelay(0);
+            pearlItem.setThrower(player.getUniqueId());
+            AVFX.playEndermanRegeneratePearlSound(player.getLocation());
+        }
+    }
+
     //EntityDamagedByEntityEvent
     public static void summonReinforcements(LivingEntity defender, LivingEntity attacker, EntityType summonType){
         if (defender.isDead())return;
@@ -122,7 +131,7 @@ public class WornMechanics {
     }
 
     //EntityDamageEvent
-    public static void endermanDamage(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
+    public static void endermanDamageEffect(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
         if (livingEntity.isDead())return;
         List<EntityDamageEvent.DamageCause> damageCauses = List.of(
                 EntityDamageEvent.DamageCause.SUICIDE, EntityDamageEvent.DamageCause.FALL,
@@ -429,10 +438,12 @@ public class WornMechanics {
         EntityType headType = mobHead.getEntityType();
         boolean sameType = targeting.getType().equals(headType);
         EntityTargetEvent.TargetReason reason = e.getReason();
-        System.out.println("Targeting: "+targeting.getType()+" "+targeting.getEntityId()+" Targeted: "+wearer.getType()+" "+wearer.getEntityId()+" Reason: "+reason.toString()); //debug
+        //System.out.println("Targeting: "+targeting.getType()+" "+targeting.getEntityId()+" Targeted: "+wearer.getType()+" "+wearer.getEntityId()+" Reason: "+reason.toString()); //debug
         if (reason.equals(EntityTargetEvent.TargetReason.FORGOT_TARGET))return;
         List<EntityTargetEvent.TargetReason> closestTargetReasons = List.of(
-                EntityTargetEvent.TargetReason.CLOSEST_ENTITY, EntityTargetEvent.TargetReason.CLOSEST_PLAYER, EntityTargetEvent.TargetReason.RANDOM_TARGET
+                EntityTargetEvent.TargetReason.CLOSEST_ENTITY,
+                EntityTargetEvent.TargetReason.CLOSEST_PLAYER,
+                EntityTargetEvent.TargetReason.RANDOM_TARGET
         );
         if (sameType && headType.equals(EntityType.ENDERMAN) && wearer instanceof Player){
             Enderman enderman = (Enderman) targeting;
@@ -442,6 +453,20 @@ public class WornMechanics {
             }
         }else if (closestTargetReasons.contains(reason) && sameType){
             e.setCancelled(true);
+        }else if (reason.equals(EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) && sameType){
+            List<Entity> nearby = targeting.getNearbyEntities(8, 3, 8);
+            for (Entity entity:nearby){
+                if (entity instanceof Mob && entity.getType().equals(targeting.getType())){
+                    if (entity instanceof Tameable){
+                        Tameable tameable = (Tameable) entity;
+                        if (tameable.isTamed())continue;
+                    }
+                    Mob mob = (Mob) entity;
+                    if (mob.getTarget() != null && mob.getTarget().equals(wearer))continue;
+                    mob.setTarget(wearer);
+                    AVFX.playImpostorParticles(mob.getEyeLocation());
+                }
+            }
         }
 
         System.out.println("Canceled: "+e.isCancelled()); //debug

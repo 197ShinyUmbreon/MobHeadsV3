@@ -77,7 +77,7 @@ public class AttackDamageDeathEvents implements Listener {
                 case WITHER_SKELETON, WITHER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
                 case FROG -> {if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){canceled = !WornMechanics.frogFallDamage(e);}}
                 case WOLF, SILVERFISH -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
-                case ENDERMAN -> {WornMechanics.endermanDamage(damaged, damageCause);}
+                case ENDERMAN -> {WornMechanics.endermanDamageEffect(damaged, damageCause);}
             }
         }
 
