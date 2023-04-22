@@ -78,6 +78,7 @@ public class AttackDamageDeathEvents implements Listener {
                 case FROG -> {if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){canceled = !WornMechanics.frogFallDamage(e);}}
                 case WOLF, SILVERFISH -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
                 case ENDERMAN -> {WornMechanics.endermanDamageEffect(damaged, damageCause);}
+                case RABBIT -> {WornMechanics.gainEffectsOnDamagedByEntity(damaged, headType)}
             }
         }
 
