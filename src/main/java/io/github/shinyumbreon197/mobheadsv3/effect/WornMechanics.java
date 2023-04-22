@@ -68,6 +68,7 @@ public class WornMechanics {
                 case AXOLOTL -> {regenerateAir(livingEntity);}
                 case FROG -> {regenerateAir(livingEntity);}
                 case ENDERMAN -> {damageFromWater(livingEntity);}
+                case GUARDIAN, ELDER_GUARDIAN -> {regenerateAir(livingEntity);}
             }
         }
     }
