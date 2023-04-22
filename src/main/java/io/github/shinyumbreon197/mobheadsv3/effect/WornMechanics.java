@@ -130,6 +130,14 @@ public class WornMechanics {
         }
         if (summon == null)return;
     }
+    public static void gainEffectsOnDamagedByEntity(LivingEntity damaged, EntityType headType){
+        if (damaged.isDead())return;
+        switch(headType){
+            default -> {}
+            case RABBIT -> {}; //On damage from attack, gain Speed 2 for 30 seconds.
+        }
+        
+    }
 
     //EntityDamageEvent
     public static void endermanDamageEffect(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
