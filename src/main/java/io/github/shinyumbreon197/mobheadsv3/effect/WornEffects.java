@@ -82,6 +82,8 @@ public class WornEffects {
             case WITHER -> {effects.add(PotionFX.wither(-1, 1, false));}
             case HORSE -> {effects.add(PotionFX.speed(-1, 0, false));}
             case PARROT -> {effects.add(PotionFX.slowFall(-1, 0, false));}
+            case RABBIT -> {effects.add(PotionFX.speed(-1, 0, false)); effects.add(PotionFX.jump(-1, 0, false));}
+            case FROG -> {effects.add(PotionFX.jump(-1, 0, false));}
         }
         return effects;
     }
