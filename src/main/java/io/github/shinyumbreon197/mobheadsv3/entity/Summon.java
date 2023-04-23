@@ -39,7 +39,7 @@ public class Summon {
         return Bukkit.getEntity(ownerUUID);
     }
 
-    public static boolean isSummon(Mob summon){
+    public static boolean isSummon(Entity summon){
         PersistentDataContainer data = summon.getPersistentDataContainer();
         return data.has(ownerNSK, PersistentDataType.STRING);
     }
@@ -81,7 +81,7 @@ public class Summon {
                 summonsToBeRemoved.add(summon);
                 continue;
             }
-            if (target == null || target.isDead()){
+            if (target == null || target.isDead() || target.equals(summon)){
                 List<Entity> nearbyOwner = owner.getNearbyEntities(15, 5, 15);
                 for (Entity nearby:nearbyOwner){
                     if (!(nearby instanceof Mob))continue;
@@ -93,20 +93,18 @@ public class Summon {
                         break;
                     }
                 }
-                if (target == null || target.isDead()){
+                if (target == null || target.isDead() || target.equals(summon)){
                     summonsToBeRemoved.add(summon);
                     continue;
                 }
             }
             EntityType summonType = summon.getType();
             switch (summonType){
-                case WOLF -> {
-                    Wolf wolf = (Wolf) summon;
-                    wolf.setTarget(target);
-                }
-                case SILVERFISH -> {
-                    Silverfish silverfish = (Silverfish) summon;
-                    silverfish.setTarget(target);
+                default -> {
+                    if (summon instanceof Mob){
+                        Mob summonMob = (Mob) summon;
+                        summonMob.setTarget(target);
+                    }
                 }
             }
         }
@@ -117,53 +115,55 @@ public class Summon {
         }
     }
 
-    public static Wolf wolfSummon(LivingEntity owner, Location location, LivingEntity target){
-        if (summonCooldownTimerMap.get(owner) != null)return null;
+    public static void summon(LivingEntity owner, LivingEntity target, EntityType summonType){
+        List<EntityType> whitelistedSummons = List.of(EntityType.WOLF, EntityType.SILVERFISH, EntityType.BEE);
+        if (!whitelistedSummons.contains(summonType))return;
+        if (summonCooldownTimerMap.get(owner) != null)return;
+        Random random = new Random();
+        Location location = owner.getLocation().add(
+                random.nextInt(-1, 1), 0, random.nextInt(-1, 1)
+        );
         World world = location.getWorld();
-        if (world == null || target == null || owner == null)return null;
-        Wolf wolf = (Wolf) world.spawnEntity(location, EntityType.WOLF);
+        if (world == null || target == null)return;
+        int lifeTimer = 60*20;
+        int cooldownTimer = 10*20;
+        switch (summonType){
+            case BEE -> {location = owner.getEyeLocation(); lifeTimer = 30*20; cooldownTimer = 2*20;}
+            case SILVERFISH -> {cooldownTimer = 4*20;}
+        }
+        Mob summon = (Mob) world.spawnEntity(location, summonType);
 
-        summons.add(wolf);
-        summonLifeTimerMap.put(wolf, 60*20);
-        summonCooldownTimerMap.put(owner, 10*20);
+        summons.add(summon);
+        summonLifeTimerMap.put(summon, lifeTimer);
+        summonCooldownTimerMap.put(owner, cooldownTimer);
 
-        PersistentDataContainer data = wolf.getPersistentDataContainer();
+        PersistentDataContainer data = summon.getPersistentDataContainer();
         data.set(ownerNSK, PersistentDataType.STRING, owner.getUniqueId().toString());
         data.set(targetNSK, PersistentDataType.STRING, target.getUniqueId().toString());
 
-        wolf.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 60*20,0,false));
-        wolf.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60*20,0,false));
-        wolf.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20,0,false));
-
-        wolf.setAngry(true);
-        wolf.setCollarColor(DyeColor.BLACK);
-        wolf.setTarget(target);
-
-        AVFX.playWolfSummonEffect(location);
-
-        return wolf;
-    }
-
-    public static Silverfish silverfishSummon(LivingEntity owner, Location location, LivingEntity target){
-        if (summonCooldownTimerMap.get(owner) != null)return null;
-        World world = location.getWorld();
-        if (world == null || target == null || owner == null)return null;
-        Silverfish silverfish = (Silverfish) world.spawnEntity(location, EntityType.SILVERFISH);
-
-        summons.add(silverfish);
-        summonLifeTimerMap.put(silverfish, 60*20);
-        summonCooldownTimerMap.put(owner, 5*20);
-
-        PersistentDataContainer data = silverfish.getPersistentDataContainer();
-        data.set(ownerNSK, PersistentDataType.STRING, owner.getUniqueId().toString());
-        data.set(targetNSK, PersistentDataType.STRING, target.getUniqueId().toString());
-
-        silverfish.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60*20,0,false));
-        silverfish.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20,1,false));
-
-        silverfish.setTarget(target);
-
-        return silverfish;
+        summon.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, lifeTimer, 0, false));
+        switch (summonType){
+            case BEE -> {
+                Bee bee = (Bee) summon;
+                bee.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 30*20, 0, false));
+                bee.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30*20,1,false));
+                bee.setAnger(99);
+                bee.setHealth(3.0);
+            }
+            case WOLF -> {
+                Wolf wolf = (Wolf) summon;
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60*20,0,false));
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20,1,false));
+                wolf.setAngry(true);
+                wolf.setCollarColor(DyeColor.BLACK);
+                AVFX.playWolfSummonEffect(location);
+            }
+            case SILVERFISH -> {
+                summon.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60*20,0,false));
+                summon.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20,1,false));
+            }
+        }
+        summon.setTarget(target);
     }
 
 }

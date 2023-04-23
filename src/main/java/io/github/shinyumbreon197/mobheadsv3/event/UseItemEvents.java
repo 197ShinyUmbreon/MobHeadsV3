@@ -34,11 +34,7 @@ public class UseItemEvents implements Listener {
 
         switch (headType){
             default -> {}
-            case ENDERMAN -> {
-                if (usedMat != null && usedMat.equals(Material.ENDER_PEARL)){
-                    //WornMechanics.endermanRegeneratePearl(player);
-                }
-            }
+
         }
 
     }

@@ -4,10 +4,10 @@ MobHeadsV3 Effect & Mechanic Reference
 Common
 	Tick:
 		Effect:
-		Mechanic:
+		Mechanic: Online Player list will display currently worn head.
 	Event:
 		Effect:
-		Mechanic: No sightline aggro if wearer is of same type. Nearby of same type aggro on attack.
+		Mechanic: No sight-line aggro if wearer is of same type. Nearby of same type aggro on attack.
 		
 
 Vanilla Mob Heads
@@ -201,11 +201,11 @@ Skeleton Horse:
 		Mechanic:
 Zombie Horse: 
 	Tick:
-		Effect:
+		Effect: Hunger, Lv1, Infinite. Speed, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: No hunger depletion under 19/20.
 Wandering Trader: 
 	Tick:
 		Effect:
@@ -271,18 +271,20 @@ Phantom:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: No hunger depletion under 19/20.
 Husk: 
 	Tick:
-		Effect:
+		Effect: Hunger, Lv1, Infinite. Slow, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
 Drowned: 
 	Tick:
-		Effect:
-		Mechanic: Regenerate Air.
+		Effect: Hunger, Lv1, Infinite. 
+			If exposed to water; Strength, Lv1, Infinite. Haste, Lv1, Infinite. 
+			If not exposed to water; Slow, Lv1, Infinite.
+		Mechanic: Regenerate Air. No hunger depletion under 19/20.
 	Event:
 		Effect:
 		Mechanic:
@@ -295,11 +297,11 @@ Hoglin:
 		Mechanic:
 Zoglin: 
 	Tick:
-		Effect:
+		Effect: Hunger, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: No hunger depletion under 19/20.
 Piglin: 
 	Tick:
 		Effect:
@@ -362,7 +364,8 @@ Enderman:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Can look Enderman in the eyes without aggro. Allergic to water. Immune to projectile attack.
+		    Teleports after certain damage types. Can use pearls without damage and has a 90% chance to keep the pearl.
 Ghast: 
 	Tick:
 		Effect:
@@ -397,7 +400,7 @@ Zombified Piglin:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: No hunger depletion under 19/20.
 Slime: 
 	Tick:
 		Effect:
@@ -472,7 +475,7 @@ Rabbit:
 Axolotl:
 	Tick:
 		Effect:
-		Mechanic:
+		Mechanic: Regenerate Air.
 	Event:
 		Effect:
 		Mechanic:
@@ -545,7 +548,8 @@ Frog:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Eat low health creatures for health, hunger, and effects. Jump higher and further when crouching.
+		Mechanic: Regenerate air. Eat low health creatures for health, hunger, and effects.
+		    Jump higher and further when crouching.
 Villager:
 	Tick:
 		Effect:
@@ -562,4 +566,4 @@ Zombie Villagers:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: No hunger depletion under 19/20.

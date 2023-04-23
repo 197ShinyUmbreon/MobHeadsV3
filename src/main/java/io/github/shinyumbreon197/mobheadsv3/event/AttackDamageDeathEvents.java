@@ -1,6 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.effect.WornMechanics;
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.effect.AfflictedEffects;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
@@ -42,6 +43,12 @@ public class AttackDamageDeathEvents implements Listener {
         LivingEntity attacker = null;
         if (damageByEntityEvent){
             Entity entity = ((EntityDamageByEntityEvent) e).getDamager();
+            if (Summon.isSummon(entity)){
+                if (entity.getType().equals(EntityType.BEE)){
+                    Bee beeSummon = (Bee) entity;
+                    beeSummon.setHealth(0);
+                }
+            }
             if (entity instanceof Projectile){
                 Projectile projectile = (Projectile) entity;
                 if (projectile.getShooter() instanceof LivingEntity) attacker = (LivingEntity) projectile.getShooter();
@@ -75,9 +82,9 @@ public class AttackDamageDeathEvents implements Listener {
                 default -> {}
                 case WITHER_SKELETON, WITHER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
                 case FROG -> {if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){canceled = !WornMechanics.frogFallDamage(e);}}
-                case WOLF, SILVERFISH -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
+                case WOLF, SILVERFISH, BEE -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
                 case ENDERMAN -> {WornMechanics.endermanDamageEffect(damaged, damageCause);}
-                case RABBIT -> {WornMechanics.gainEffectsOnDamagedByEntity(damaged, headType)}
+                case RABBIT -> {if (e instanceof EntityDamageByEntityEvent) WornMechanics.gainEffectsOnDamagedByEntity(damaged, headType);}
                 case LLAMA, TRADER_LLAMA -> {} //On damage from entity, spits at attacker.
             }
         }

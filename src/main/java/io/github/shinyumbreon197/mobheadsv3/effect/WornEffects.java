@@ -36,7 +36,8 @@ public class WornEffects {
                         continue;
                     }
                     PotionEffectType oldType = oldEffect.getType();
-                    if (oldType.equals(newType) && (oldEffect.getAmplifier() >= newEffect.getAmplifier()) || oldEffect.isInfinite()){
+                    if ((oldType.equals(newType) && (oldEffect.getAmplifier() >= newEffect.getAmplifier())
+                            && oldEffect.getDuration() > 20) || oldEffect.isInfinite()){
                         exclusions.add(oldType);
                     }
                 }
@@ -46,13 +47,19 @@ public class WornEffects {
                 if (!exclusions.contains(newEffect.getType())) finalEffects.add(newEffect);
             }
             //System.out.println("Applying "+finalEffects+" to "+livingEntity.getEntityId()); //debug
-            if (finalEffects.size() != 0) applyInfinitePotionEffects(livingEntity, finalEffects);
+            if (finalEffects.size() != 0){
+                applyInfinitePotionEffects(livingEntity, finalEffects);
+            }
         }
     }
 
     private static void applyInfinitePotionEffects(LivingEntity livingEntity, List<PotionEffect> potionEffects){
         for (PotionEffect potionEffect:potionEffects){
-            livingEntity.addPotionEffect(potionEffect);
+            //livingEntity.addPotionEffect(potionEffect);
+            PotionFX.applyPotionEffect(
+                    livingEntity, potionEffect.getType(),
+                    potionEffect.getDuration(),potionEffect.getAmplifier(), false
+            );
         }
     }
     public static void removeInfinitePotionEffects(List<LivingEntity> livingEntities){
@@ -74,7 +81,7 @@ public class WornEffects {
             case COD, SALMON, PUFFERFISH, TROPICAL_FISH, SQUID, TADPOLE -> {effects.addAll(fishEffects(wearer));}
             case SKELETON_HORSE -> {effects.add(PotionFX.speed(-1, 0, false));}
             case ZOMBIE_HORSE -> {effects.add(PotionFX.hunger(-1, 0, false)); effects.add(PotionFX.speed(-1, 0, false));}
-            case GLOW_SQUID -> {effects.addAll(glowSquidEffects(wearer));}
+            case GLOW_SQUID -> {effects.addAll(glowSquidEffects(wearer)); effects.addAll(fishEffects(wearer));}
             case PHANTOM -> {effects.add(PotionFX.nightVision(-1, 0, false));}
             case DROWNED -> {effects.addAll(drownedEffects(wearer));}
             case ZOGLIN -> {effects.add(PotionFX.hunger(-1, 0, false));}

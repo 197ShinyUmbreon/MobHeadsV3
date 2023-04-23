@@ -86,7 +86,7 @@ public class WornMechanics {
     }
 
     //Event Triggered --------------------------------------------------------------------------------------
-    //Generic
+    //Generic ----------------------------------------------------------------------------------------------
     public static void endermanTeleport(Entity entity){
         if (entity instanceof LivingEntity && entity.isDead())return;
         Location eLoc = entity.getLocation();
@@ -105,7 +105,7 @@ public class WornMechanics {
         }
     }
 
-    //PlayerInteractEvent
+    //PlayerTeleportEvent ---------------------------------------------------------------------------------------
     public static void endermanRegeneratePearl(Player player){
         Random random = new Random();
         if (player.getGameMode().equals(GameMode.SURVIVAL) && random.nextInt(0,10) != 0){
@@ -116,30 +116,21 @@ public class WornMechanics {
         }
     }
 
-    //EntityDamagedByEntityEvent
+    //EntityDamagedByEntityEvent --------------------------------------------------------------------------
     public static void summonReinforcements(LivingEntity defender, LivingEntity attacker, EntityType summonType){
         if (defender.isDead())return;
-        Random random = new Random();
-        Location location = defender.getLocation().add(
-                random.nextInt(-1, 1), 0, random.nextInt(-1, 1)
-        );
-        Entity summon = null;
-        switch (summonType){
-            case WOLF -> summon = Summon.wolfSummon(defender, location, attacker);
-            case SILVERFISH -> summon = Summon.silverfishSummon(defender, location, attacker);
-        }
-        if (summon == null)return;
+        Summon.summon(defender, attacker, summonType);
     }
     public static void gainEffectsOnDamagedByEntity(LivingEntity damaged, EntityType headType){
         if (damaged.isDead())return;
         switch(headType){
             default -> {}
-            case RABBIT -> {}; //On damage from attack, gain Speed 2 for 30 seconds.
+            case RABBIT -> {PotionFX.applyPotionEffect(damaged,PotionEffectType.SPEED, 10*20,1, false);}
         }
         
     }
 
-    //EntityDamageEvent
+    //EntityDamageEvent -------------------------------------------------------------------------------------
     public static void endermanDamageEffect(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
         if (livingEntity.isDead())return;
         List<EntityDamageEvent.DamageCause> damageCauses = List.of(
@@ -152,7 +143,7 @@ public class WornMechanics {
         endermanTeleport(livingEntity);
     }
 
-    //PlayerStatisticIncrementEvent
+    //PlayerStatisticIncrementEvent -------------------------------------------------------------------------
     public static void frogJump(Player player){
         if (!player.isSneaking())return;
         Vector velocity = player.getVelocity();
@@ -167,19 +158,19 @@ public class WornMechanics {
         AVFX.playFrogJumpEffect(player.getLocation());
     }
 
-    //EntityDamageEvent
+    //EntityDamageEvent ------------------------------------------------------------------------------------
     public static boolean frogFallDamage(EntityDamageEvent e){
         boolean frogFallDamage = e.getFinalDamage() > 3;
         if (frogFallDamage){
             double newDamage;
-            newDamage = e.getFinalDamage() - 3;
+            newDamage = e.getFinalDamage() - 4;
             if (newDamage <= 0){return false;}
             e.setDamage(newDamage);
         }
         return frogFallDamage;
     }
 
-    //ProjectileHitEvent
+    //ProjectileHitEvent --------------------------------------------------------------------------------
     public static void projectileHitWearer(ProjectileHitEvent e, MobHead mobHead){
         Entity hitEntity = e.getHitEntity();
         assert hitEntity != null;
@@ -194,7 +185,7 @@ public class WornMechanics {
         }
     }
 
-    //PlayerInteractAtEntityEvent
+    //PlayerInteractAtEntityEvent --------------------------------------------------------------------------
     //Send the player glowing packets for every edible entity within a block radius
     public static void frogEatEntity(PlayerInteractAtEntityEvent e, MobHead mobHead){
         if (!e.getHand().equals(EquipmentSlot.HAND))return;
@@ -425,17 +416,24 @@ public class WornMechanics {
                     if (entity == null)continue;
                     if (entity instanceof LivingEntity){
                         LivingEntity le = (LivingEntity) entity;
+                        if (le instanceof Tameable){
+                            Tameable tameable = (Tameable) le;
+                            if (tameable.isTamed()){
+                                AnimalTamer tamer = tameable.getOwner();
+                                if (tamer != null && tamer.equals(player))continue;
+                            }
+                        }
                         if (le.equals(player))continue;
                         if (le.isDead())continue;
                         le.setVelocity(projectileVector(player.getLocation(), le.getEyeLocation(),4));
-                        le.damage(3, player);
+                        le.damage(5, player);
                     }
                 }
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 5);
     }
 
-    //EntityTargetLivingEntityEvent
+    //EntityTargetLivingEntityEvent --------------------------------------------------------------------------
     private static final Map<UUID, Player> endermanAggroMap = new HashMap<>();
     public static void addEndermanAggroMap(UUID entID, Player player){
         endermanAggroMap.put(entID, player);
@@ -468,7 +466,7 @@ public class WornMechanics {
         }else if (closestTargetReasons.contains(reason) && sameType){
             e.setCancelled(true);
         }else if (reason.equals(EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) && sameType){
-            List<Entity> nearby = targeting.getNearbyEntities(8, 3, 8);
+            List<Entity> nearby = targeting.getNearbyEntities(8, 5, 8);
             for (Entity entity:nearby){
                 if (entity instanceof Mob && entity.getType().equals(targeting.getType())){
                     if (entity instanceof Tameable){

@@ -67,6 +67,12 @@ public class AVFX {
         world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.1f, 1.0f);
         playSummonEffect(location);
     }
+    public static void playBeeSummonEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location,Sound.BLOCK_BEEHIVE_EXIT,1.2f, 1.0f);
+        playSummonEffect(location);
+    }
 
     public static void playFrogJumpEffect(Location location){
         World world = location.getWorld();
@@ -132,7 +138,7 @@ public class AVFX {
         if (mobHead == null)return;
         EntityType entityType = mobHead.getEntityType();
         Sound hurtSound = null;
-        float volume = 0.8F;
+        float volume = 0.6F;
         switch (entityType) {
             case PLAYER -> {hurtSound = Sound.ENTITY_PLAYER_HURT;}
             case AXOLOTL -> {hurtSound = Sound.ENTITY_AXOLOTL_HURT; volume = 1.2F;}
@@ -152,7 +158,7 @@ public class AVFX {
             case GOAT -> hurtSound = Sound.ENTITY_GOAT_SCREAMING_HURT;
             case SQUID -> hurtSound = Sound.ENTITY_SQUID_HURT;
             case BEE -> hurtSound = Sound.ENTITY_BEE_HURT;
-            case BAT -> {hurtSound = Sound.ENTITY_BAT_HURT; volume = 0.6F;}
+            case BAT -> {hurtSound = Sound.ENTITY_BAT_HURT; volume = 0.4F;}
             case OCELOT -> hurtSound = Sound.ENTITY_OCELOT_HURT;
             case SNOWMAN -> hurtSound = Sound.ENTITY_SNOW_GOLEM_HURT;
             case PANDA -> hurtSound = Sound.ENTITY_PANDA_HURT;
@@ -222,7 +228,7 @@ public class AVFX {
         EntityType entityType = mobHead.getEntityType();
 
         Sound deathSound = null;
-        float volume = 0.8F;
+        float volume = 0.6F;
         switch (entityType) {
             case PLAYER -> {deathSound = Sound.ENTITY_PLAYER_DEATH;}
             case AXOLOTL -> {deathSound = Sound.ENTITY_AXOLOTL_DEATH;volume = 1.0F;}
@@ -242,7 +248,7 @@ public class AVFX {
             case GOAT -> deathSound = Sound.ENTITY_GOAT_SCREAMING_DEATH;
             case SQUID -> deathSound = Sound.ENTITY_SQUID_DEATH;
             case BEE -> deathSound = Sound.ENTITY_BEE_DEATH;
-            case BAT -> {deathSound = Sound.ENTITY_BAT_DEATH; volume = 0.6F;}
+            case BAT -> {deathSound = Sound.ENTITY_BAT_DEATH; volume = 0.4F;}
             case OCELOT -> deathSound = Sound.ENTITY_OCELOT_DEATH;
             case SNOWMAN -> deathSound = Sound.ENTITY_SNOW_GOLEM_DEATH;
             case PANDA -> deathSound = Sound.ENTITY_PANDA_DEATH;

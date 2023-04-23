@@ -17,13 +17,13 @@ public class PotionFX {
         boolean hasEffect = false;
         if (!hardReplace){
             PotionEffect oldEffect = livingEntity.getPotionEffect(pet);
-            if (oldEffect != null){
+            if (oldEffect != null && oldEffect.getDuration() > 20){
                 hasEffect = true;
                 if (oldEffect.getAmplifier() > amplifier)return;
                 if (oldEffect.getDuration() > duration)return;
             }
             if (hasEffect){
-                if (oldEffect.getDuration() < duration*0.5) needsEffectRefresh = true; //half of duration
+                if (oldEffect.getDuration() < duration*0.5 || oldEffect.getDuration() < 20) needsEffectRefresh = true; //half of duration
             }
         }else{
             needsEffectRefresh = true;
@@ -59,7 +59,7 @@ public class PotionFX {
     }
     public static PotionEffect nightVision(int dur, int amp, boolean particles){
         return new PotionEffect(
-                PotionEffectType.SLOW, dur,
+                PotionEffectType.NIGHT_VISION, dur,
                 amp,false, particles, true
         );
     }
@@ -97,6 +97,12 @@ public class PotionFX {
     public static PotionEffect speed(int dur, int amp, boolean particles){
         return new PotionEffect(
                 PotionEffectType.SPEED, dur,
+                amp,false, particles, true
+        );
+    }
+    public static PotionEffect jump(int dur, int amp, boolean particles){
+        return new PotionEffect(
+                PotionEffectType.JUMP, dur,
                 amp,false, particles, true
         );
     }
