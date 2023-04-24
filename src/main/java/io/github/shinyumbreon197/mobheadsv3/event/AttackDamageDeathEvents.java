@@ -1,18 +1,25 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
+import com.sun.jna.platform.unix.solaris.LibKstat;
+import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.effect.PotionFX;
 import io.github.shinyumbreon197.mobheadsv3.effect.WornMechanics;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.effect.AfflictedEffects;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
+
+import java.util.UUID;
 
 public class AttackDamageDeathEvents implements Listener {
 
@@ -30,31 +37,48 @@ public class AttackDamageDeathEvents implements Listener {
 
     @EventHandler
     public static void onProjectileHit(ProjectileHitEvent e){
-        if (e.getHitEntity() == null)return;
-        MobHead mobHead = HeadUtil.getMobHeadFromEntity(e.getHitEntity());
-        if (mobHead == null)return;
-        WornMechanics.projectileHitWearer(e, mobHead);
+        Projectile projectile = e.getEntity();
+        ProjectileSource source = projectile.getShooter();
+        Entity entity = e.getHitEntity();
+        MobHead hitMobHead = HeadUtil.getMobHeadFromEntity(projectile);
+        if (hitMobHead != null) WornMechanics.projectileHitWearer(e, hitMobHead);
+        PersistentDataContainer data = projectile.getPersistentDataContainer();
+        if (!data.has(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING) || !(entity instanceof LivingEntity))return;
+        LivingEntity livingEntity = (LivingEntity) entity;
+        String UUIDString = data.get(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING);
+        LivingEntity shooter = null;
+        MobHead shooterMobHead = null;
+        if (UUIDString != null && source instanceof LivingEntity && UUIDString.equals(((LivingEntity) source).getUniqueId().toString())){
+            shooter = (LivingEntity) source;
+            shooterMobHead = HeadUtil.getMobHeadFromEntity(shooter);
+        }
+        if (shooter == null || shooterMobHead == null)return;
+        WornMechanics.wearerProjectileHitEntity(e, shooterMobHead, shooter, livingEntity);
     }
 
     private void damageHandler(EntityDamageEvent e){
+        //if (e instanceof EntityDamageByBlockEvent)return;
         if (!(e.getEntity() instanceof LivingEntity))return;
         boolean damageByEntityEvent = e instanceof EntityDamageByEntityEvent;
         LivingEntity damaged = (LivingEntity) e.getEntity();
         LivingEntity attacker = null;
         if (damageByEntityEvent){
             Entity entity = ((EntityDamageByEntityEvent) e).getDamager();
-            if (Summon.isSummon(entity)){
-                if (entity.getType().equals(EntityType.BEE)){
-                    Bee beeSummon = (Bee) entity;
-                    beeSummon.setHealth(0);
-                }
-            }
             if (entity instanceof Projectile){
                 Projectile projectile = (Projectile) entity;
                 if (projectile.getShooter() instanceof LivingEntity) attacker = (LivingEntity) projectile.getShooter();
             }else if (entity instanceof LivingEntity){
                 attacker = (LivingEntity) entity;
             }else return;
+        }
+        if (Summon.isSummon(attacker)){
+            if (attacker.getType().equals(EntityType.BEE)){
+                Bee beeSummon = (Bee) attacker;
+                beeSummon.setHealth(0);
+            }
+        }
+        if (Summon.isSummon(damaged)){
+            if (damaged.getHealth() == 0 || damaged.isDead()) damaged.setCustomName(null);
         }
         EntityDamageEvent.DamageCause damageCause = e.getCause();
         MobHead damagedHead = null;
@@ -85,7 +109,7 @@ public class AttackDamageDeathEvents implements Listener {
                 case WOLF, SILVERFISH, BEE -> {WornMechanics.summonReinforcements(damaged, attacker, headType);}
                 case ENDERMAN -> {WornMechanics.endermanDamageEffect(damaged, damageCause);}
                 case RABBIT -> {if (e instanceof EntityDamageByEntityEvent) WornMechanics.gainEffectsOnDamagedByEntity(damaged, headType);}
-                case LLAMA, TRADER_LLAMA -> {} //On damage from entity, spits at attacker.
+                case LLAMA, TRADER_LLAMA -> {if (e instanceof EntityDamageByEntityEvent) WornMechanics.llamaSpit(damaged, attacker);}
             }
         }
 

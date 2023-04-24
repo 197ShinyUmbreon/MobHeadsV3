@@ -21,6 +21,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -121,26 +122,36 @@ public class WornMechanics {
         if (defender.isDead())return;
         Summon.summon(defender, attacker, summonType);
     }
+
+    public static void llamaSpit(LivingEntity defender, LivingEntity attacker){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (defender == null || attacker == null || defender.isDead() || attacker.isDead() || (defender instanceof Player && ((Player) defender).isSneaking()))return;
+                //Vector direction = defender.getLocation().getDirection();
+                Location origin = defender.getEyeLocation().add(0,-0.5, 0);
+                World world = defender.getWorld();
+                LlamaSpit llamaSpit = (LlamaSpit) world.spawnEntity(origin,EntityType.LLAMA_SPIT);
+                PersistentDataContainer data = llamaSpit.getPersistentDataContainer();
+                data.set(MobHeadsV3.getPluginNSK(),PersistentDataType.STRING, defender.getUniqueId().toString());
+                double distance = origin.toVector().distance(attacker.getEyeLocation().toVector());
+                if (distance < 2) distance = 2;
+                llamaSpit.setVelocity(projectileVector(
+                        defender.getEyeLocation().add(0,defender.getEyeHeight()*-0.3, 0),
+                        attacker.getEyeLocation().add(0,attacker.getEyeHeight()*-0.3, 0),
+                        distance*0.2)
+                );
+                llamaSpit.setShooter(defender);
+                world.playSound(origin, Sound.ENTITY_LLAMA_SPIT,0.8F, 1.0F);
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(),5);
+    }
     public static void gainEffectsOnDamagedByEntity(LivingEntity damaged, EntityType headType){
         if (damaged.isDead())return;
         switch(headType){
             default -> {}
             case RABBIT -> {PotionFX.applyPotionEffect(damaged,PotionEffectType.SPEED, 10*20,1, false);}
         }
-        
-    }
-
-    //EntityDamageEvent -------------------------------------------------------------------------------------
-    public static void endermanDamageEffect(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
-        if (livingEntity.isDead())return;
-        List<EntityDamageEvent.DamageCause> damageCauses = List.of(
-                EntityDamageEvent.DamageCause.SUICIDE, EntityDamageEvent.DamageCause.FALL,
-                EntityDamageEvent.DamageCause.FLY_INTO_WALL, EntityDamageEvent.DamageCause.POISON,
-                EntityDamageEvent.DamageCause.STARVATION, EntityDamageEvent.DamageCause.FIRE_TICK,
-                EntityDamageEvent.DamageCause.SUFFOCATION, EntityDamageEvent.DamageCause.VOID
-        );
-        if (damageCauses.contains(cause))return;
-        endermanTeleport(livingEntity);
     }
 
     //PlayerStatisticIncrementEvent -------------------------------------------------------------------------
@@ -170,17 +181,48 @@ public class WornMechanics {
         return frogFallDamage;
     }
 
+    public static void endermanDamageEffect(LivingEntity livingEntity, EntityDamageEvent.DamageCause cause){
+        if (livingEntity.isDead())return;
+        List<EntityDamageEvent.DamageCause> damageCauses = List.of(
+                EntityDamageEvent.DamageCause.SUICIDE, EntityDamageEvent.DamageCause.FALL,
+                EntityDamageEvent.DamageCause.FLY_INTO_WALL, EntityDamageEvent.DamageCause.POISON,
+                EntityDamageEvent.DamageCause.STARVATION, EntityDamageEvent.DamageCause.FIRE_TICK,
+                EntityDamageEvent.DamageCause.SUFFOCATION, EntityDamageEvent.DamageCause.VOID
+        );
+        if (damageCauses.contains(cause))return;
+        endermanTeleport(livingEntity);
+    }
+
     //ProjectileHitEvent --------------------------------------------------------------------------------
     public static void projectileHitWearer(ProjectileHitEvent e, MobHead mobHead){
         Entity hitEntity = e.getHitEntity();
         assert hitEntity != null;
         Projectile projectile = e.getEntity();
+        ProjectileSource source = projectile.getShooter();
+        PersistentDataContainer data = projectile.getPersistentDataContainer();
         EntityType headType = mobHead.getEntityType();
         switch (headType){
             default -> {}
             case ENDERMAN -> {
                 e.setCancelled(true);
                 endermanTeleport(hitEntity);
+            }
+            case LLAMA,TRADER_LLAMA -> {
+                if (source != null && data.has(MobHeadsV3.getPluginNSK(),PersistentDataType.STRING)){
+                    String stringUUID = data.get(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING);
+                    if (stringUUID == null)return;
+                    LivingEntity shooter = Bukkit.getPlayer(UUID.fromString(stringUUID));
+                    e.setCancelled(source.equals(shooter));
+                }
+            }
+        }
+    }
+    public static void wearerProjectileHitEntity(ProjectileHitEvent e, MobHead shooterMobHead, LivingEntity shooter, LivingEntity target){
+        EntityType headType = shooterMobHead.getEntityType();
+        switch (headType){
+            case LLAMA -> {
+                target.damage(4, shooter);
+                PotionFX.applyPotionEffect(target,PotionEffectType.SLOW,5*20, 0, true);
             }
         }
     }

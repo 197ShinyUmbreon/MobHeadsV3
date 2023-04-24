@@ -4,11 +4,14 @@ import com.sun.jna.platform.unix.solaris.LibKstat;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 
@@ -40,8 +43,54 @@ public class Summon {
     }
 
     public static boolean isSummon(Entity summon){
+        if (summon == null)return false;
         PersistentDataContainer data = summon.getPersistentDataContainer();
         return data.has(ownerNSK, PersistentDataType.STRING);
+    }
+
+    public static Location getSafeSummonLocation(Location summonerLoc, BlockFace facing){
+        List<Material> airMats = List.of(Material.AIR, Material.CAVE_AIR, Material.WATER);
+        List<Material> unsafeMats = List.of(Material.LAVA, Material.FIRE, Material.SOUL_FIRE, Material.CAMPFIRE, Material.SOUL_CAMPFIRE, Material.SWEET_BERRY_BUSH);
+        World world = summonerLoc.getWorld();
+        //summonerLoc = summonerLoc.add(0,1,0);
+        if (world == null)return summonerLoc;
+        Block source = world.getBlockAt(summonerLoc);
+        Block above = source.getRelative(BlockFace.UP);
+        Block below = source.getRelative(BlockFace.DOWN);
+        List<Block> surround = new ArrayList<>();
+        List<BlockFace> blockFaces = List.of(
+                BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST,
+                BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST
+                );
+        List<BlockFace> blockFacesToCheck = new ArrayList<>();
+        for (BlockFace blockFace:blockFaces){
+            if (blockFace.equals(facing))continue;
+            blockFacesToCheck.add(blockFace);
+        }
+        blockFacesToCheck.add(facing);
+        for (BlockFace blockFace:blockFacesToCheck){
+            if (!blockFaces.contains(blockFace))continue;
+            surround.add(source.getRelative(blockFace));
+        }
+        for (BlockFace blockFace:blockFacesToCheck){
+            if (!blockFaces.contains(blockFace))continue;
+            surround.add(above.getRelative(blockFace));
+        }
+        for (BlockFace blockFace:blockFacesToCheck){
+            if (!blockFaces.contains(blockFace))continue;
+            surround.add(below.getRelative(blockFace));
+        }
+        Location summonLoc = summonerLoc;
+        for (Block block:surround){
+            Material beneathMat = block.getRelative(BlockFace.DOWN).getType();
+            Material sourceMat = block.getType();
+            if (airMats.contains(sourceMat) && !unsafeMats.contains(beneathMat)){
+                summonLoc = block.getLocation().add(0.5, 0, 0.5);
+                //System.out.println("Found summon spot at "+summonLoc); //debug
+                break;
+            }
+        }
+        return summonLoc;
     }
 
     public static void manageSummons(){
@@ -120,16 +169,15 @@ public class Summon {
         if (!whitelistedSummons.contains(summonType))return;
         if (summonCooldownTimerMap.get(owner) != null)return;
         Random random = new Random();
-        Location location = owner.getLocation().add(
-                random.nextInt(-1, 1), 0, random.nextInt(-1, 1)
-        );
+        Location location = owner.getLocation();
         World world = location.getWorld();
         if (world == null || target == null)return;
         int lifeTimer = 60*20;
         int cooldownTimer = 10*20;
         switch (summonType){
             case BEE -> {location = owner.getEyeLocation(); lifeTimer = 30*20; cooldownTimer = 2*20;}
-            case SILVERFISH -> {cooldownTimer = 4*20;}
+            case SILVERFISH -> {location = getSafeSummonLocation(owner.getLocation(), owner.getFacing()); cooldownTimer = 20;}
+            case WOLF -> {location = getSafeSummonLocation(owner.getLocation(), owner.getFacing());}
         }
         Mob summon = (Mob) world.spawnEntity(location, summonType);
 
@@ -141,29 +189,38 @@ public class Summon {
         data.set(ownerNSK, PersistentDataType.STRING, owner.getUniqueId().toString());
         data.set(targetNSK, PersistentDataType.STRING, target.getUniqueId().toString());
 
-        summon.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, lifeTimer, 0, false));
+        summon.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, lifeTimer, 0, false));
         switch (summonType){
             case BEE -> {
                 Bee bee = (Bee) summon;
-                bee.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 30*20, 0, false));
-                bee.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30*20,1,false));
+                bee.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, lifeTimer, 0, false));
+                bee.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, lifeTimer,1,false));
                 bee.setAnger(99);
                 bee.setHealth(3.0);
+                Vector direction = owner.getLocation().getDirection();
+                direction.setX(direction.getX()*-0.3);
+                direction.setZ(direction.getZ()*-0.3);
+                direction.setY(0);
+                bee.setVelocity(bee.getVelocity().setY(0.15).add(direction));
             }
             case WOLF -> {
                 Wolf wolf = (Wolf) summon;
-                wolf.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60*20,0,false));
-                wolf.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20,1,false));
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, lifeTimer, 0, false));
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, lifeTimer,0,false));
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, lifeTimer,1,false));
                 wolf.setAngry(true);
                 wolf.setCollarColor(DyeColor.BLACK);
                 AVFX.playWolfSummonEffect(location);
             }
             case SILVERFISH -> {
-                summon.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 60*20,0,false));
-                summon.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 60*20,1,false));
+                summon.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, lifeTimer,0,false));
+                summon.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, lifeTimer,1,false));
             }
         }
         summon.setTarget(target);
+        summon.setCustomName(ChatColor.DARK_RED+owner.getName());
+        summon.setCustomNameVisible(true);
+        summon.setRemoveWhenFarAway(true);
     }
 
 }

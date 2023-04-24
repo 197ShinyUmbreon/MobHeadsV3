@@ -470,7 +470,7 @@ Rabbit:
 		Effect: Jump, Lv1, Infinite. Speed, Lv1, Infinite.
 		Mechanic:
 	Event:
-		Effect: On damage from attack, gain Speed 2 for 30 seconds.
+		Effect: On damage from attack, gain Speed 2 for 10 seconds.
 		Mechanic:
 Axolotl:
 	Tick:

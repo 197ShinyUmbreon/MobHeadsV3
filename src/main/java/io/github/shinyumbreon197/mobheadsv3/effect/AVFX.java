@@ -259,7 +259,7 @@ public class AVFX {
             case WANDERING_TRADER -> deathSound = Sound.ENTITY_WANDERING_TRADER_DEATH;
             case IRON_GOLEM -> deathSound = Sound.ENTITY_IRON_GOLEM_DEATH;
             case GLOW_SQUID -> deathSound = Sound.ENTITY_GLOW_SQUID_DEATH;
-            case SILVERFISH -> {deathSound = Sound.ENTITY_SILVERFISH_DEATH; volume = 1.0F;}
+            case SILVERFISH -> {deathSound = Sound.ENTITY_SILVERFISH_DEATH; volume = 0.6F;}
             case STRAY -> deathSound = Sound.ENTITY_STRAY_DEATH;
             case SHULKER -> deathSound = Sound.ENTITY_SHULKER_DEATH;
             case PHANTOM -> deathSound = Sound.ENTITY_PHANTOM_DEATH;
