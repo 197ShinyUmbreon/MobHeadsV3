@@ -325,7 +325,7 @@ Witch:
 		Mechanic:
 Guardian: 
 	Tick:
-		Effect:
+		Effect: If exposed to water; Speed
 		Mechanic: Regenerate Air.
 	Event:
 		Effect:
@@ -448,16 +448,16 @@ Elder Guardian:
 		Mechanic:
 Wither: 
 	Tick:
-		Effect:
-		Mechanic:
+        Effect: Wither, Lv2, Infinite.
+		Mechanic: Immune to Wither damage.
 			Affliction: Wither, Lv3, 3 Sec.
 	Event:
 		Effect:
 		Mechanic:
 Warden: 
 	Tick:
-		Effect:
-		Mechanic:
+		Effect: Darkness, Lv1, Infinite. Night Vision, Lv1, Infinite.
+		Mechanic: Sends the wearing Player glow packets for nearby creatures in a wide radius. (NYI)
 			Affliction: Darkness, Lv1, 5 Sec.
 	Event:
 		Effect:
@@ -474,11 +474,11 @@ Rabbit:
 		Mechanic:
 Axolotl:
 	Tick:
-		Effect:
+		Effect: If exposed to water; Speed, Lv1, Infinite.
 		Mechanic: Regenerate Air.
 	Event:
-		Effect:
-		Mechanic:
+		Effect: When damaged by an entity, gain Restoration (Lv 1) for 5 seconds.
+		Mechanic: When damaged by an entity, prevent that entity from targeting the wearer for 2 seconds.
 Cat:
 	Tick:
 		Effect:
@@ -492,7 +492,7 @@ Horse:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Step up 1-high. (How do I do this????????????)
 Llama:
 	Tick:
 		Effect:

@@ -1,6 +1,5 @@
 package io.github.shinyumbreon197.mobheadsv3.tool;
 
-import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;

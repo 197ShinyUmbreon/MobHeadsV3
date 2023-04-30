@@ -1,8 +1,8 @@
 package io.github.shinyumbreon197.mobheadsv3.head.hostile;
 
 import io.github.shinyumbreon197.mobheadsv3.Data;
-import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.Trophies;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;

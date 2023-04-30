@@ -1,8 +1,8 @@
 package io.github.shinyumbreon197.mobheadsv3.tool;
 
 import io.github.shinyumbreon197.mobheadsv3.Data;
-import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -45,6 +45,13 @@ public class HeadUtil {
     public static ItemStack customHead(String headName, UUID uuid, URL texture) {
         PlayerProfile pp = customPlayerProfile(headName, uuid, texture);
         return customHead(headName, uuid, pp);
+    }
+
+    public static MobHead getHeadFromUUID(UUID uuid){
+        return getHeadFromUUID(uuid.toString());
+    }
+    public static MobHead getHeadFromUUID(String uuid){
+        return Data.mobHeadByUUID.get(UUID.fromString(uuid));
     }
 
     public static UUID getHeadUUID(ItemStack input){
@@ -128,7 +135,7 @@ public class HeadUtil {
         return mobHead;
     }
 
-    public static ItemStack GetHeadItemFromEntity(Entity entity){
+    public static ItemStack getHeadItemFromEntity(Entity entity){
         if (!Data.entityTypes.contains(entity.getType()))return null;
         EntityType entityType = entity.getType();
         String variant = getVariantFromEntity(entity);

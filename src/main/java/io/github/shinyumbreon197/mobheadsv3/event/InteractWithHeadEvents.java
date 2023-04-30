@@ -1,9 +1,9 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.Data;
+import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
-import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,7 +20,9 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class InteractWithHeadEvents implements Listener {
 

@@ -1,6 +1,5 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.effect.WornMechanics;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Material;

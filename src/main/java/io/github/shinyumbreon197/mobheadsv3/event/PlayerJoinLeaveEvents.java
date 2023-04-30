@@ -1,6 +1,5 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -95,6 +95,21 @@ public class Data {
             EntityType.ZOGLIN, EntityType.DROWNED, EntityType.PHANTOM
     );
 
+    public static List<Material> goatBreakable = Arrays.asList(
+            Material.DIRT, Material.DIRT_PATH, Material.COARSE_DIRT, Material.ROOTED_DIRT, Material.GRASS_BLOCK, Material.GRASS, Material.TALL_GRASS,
+            Material.FERN, Material.LARGE_FERN, Material.VINE, Material.CAVE_VINES, Material.TWISTING_VINES, Material.WEEPING_VINES,
+            Material.ACACIA_LEAVES, Material.BIRCH_LEAVES, Material.AZALEA_LEAVES, Material.JUNGLE_LEAVES, Material.FLOWERING_AZALEA_LEAVES,
+            Material.DARK_OAK_LEAVES, Material.MANGROVE_LEAVES, Material.OAK_LEAVES, Material.SPRUCE_LEAVES, Material.CHERRY_LEAVES,
+            Material.STONE, Material.COAL_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.DIAMOND_ORE, Material.REDSTONE_ORE,
+            Material.EMERALD_ORE, Material.DEEPSLATE, Material.DEEPSLATE_COAL_ORE, Material.DEEPSLATE_IRON_ORE,
+            Material.DEEPSLATE_GOLD_ORE, Material.DEEPSLATE_DIAMOND_ORE, Material.DEEPSLATE_EMERALD_ORE, Material.GRAVEL, Material.SAND,
+            Material.SANDSTONE, Material.RED_SAND, Material.RED_SANDSTONE, Material.CACTUS, Material.SUGAR_CANE, Material.ICE,
+            Material.FROSTED_ICE, Material.MUSHROOM_STEM, Material.BROWN_MUSHROOM_BLOCK, Material.RED_MUSHROOM_BLOCK,
+            Material.LAPIS_ORE, Material.DEEPSLATE_LAPIS_ORE, Material.NETHERRACK, Material.NETHER_QUARTZ_ORE, Material.NETHER_GOLD_ORE,
+            Material.COPPER_ORE, Material.DEEPSLATE_COPPER_ORE, Material.RAW_IRON_BLOCK, Material.RAW_COPPER_BLOCK,
+            Material.RAW_GOLD_BLOCK, Material.SOUL_SAND, Material.SOUL_SOIL, Material.BASALT, Material.BAMBOO
+    );
+
     // Replace foodMats with a list populated with Materials.values().isEdible() that populates on runtime
 //    public static final List<Material> foodMats = Arrays.asList(
 //            Material.APPLE, Material.BAKED_POTATO, Material.BEETROOT, Material.BEETROOT_SOUP, Material.BREAD, Material.CARROT,

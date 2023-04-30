@@ -34,6 +34,7 @@ public class MovementEvents implements Listener {
                 switch (mobHead.getEntityType()){
                     default -> {}
                     case FROG -> {WornMechanics.frogJump(player);}
+                    case GOAT -> {WornMechanics.goatRam(player);}
                 }
             }
         }

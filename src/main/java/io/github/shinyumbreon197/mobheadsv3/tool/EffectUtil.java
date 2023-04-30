@@ -4,14 +4,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class EffectUtil {
 
@@ -188,6 +186,70 @@ public class EffectUtil {
         Random random = new Random();
         double floor = (variation/2)*-1;
         return floor + random.nextDouble(variation);
+    }
+
+    public static List<Block> getFacingBlocks(Location location, BlockFace facing, int height, int depth){
+        List<Block> blocks = new ArrayList<>();
+        World world = location.getWorld();
+        if (world == null)return blocks;
+        Block currentBlock = location.getBlock();
+        Vector direction = location.getDirection();
+        double x = direction.getX();
+        double z = direction.getZ();
+        //System.out.println("direction: "+direction); //debug
+        if (x > 0.15 && x <= 0.85 && z > -0.85 && z <= -0.15){
+            facing = BlockFace.NORTH_EAST;
+        }else if (x > 0.15 && x <= 0.85 && z > 0.15 && z <= 0.85){
+            facing = BlockFace.SOUTH_EAST;
+        }else if (x > -0.85 && x <= -0.15 && z > 0.15 && z <= 0.85){
+            facing = BlockFace.SOUTH_WEST;
+        }else if (x > -0.85 && x <= -0.15 && z > -0.85 && z <= -0.15){
+            facing = BlockFace.NORTH_WEST;
+        }
+
+        List<BlockFace> cardinalFaces = List.of(
+                BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
+        );
+        List<BlockFace> ordinalFaces = List.of(
+                BlockFace.NORTH_EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST, BlockFace.NORTH_WEST
+        );
+        List<BlockFace> interOrdinalFaces = List.of(
+                BlockFace.NORTH_NORTH_EAST, BlockFace.EAST_NORTH_EAST, BlockFace.EAST_SOUTH_EAST,
+                BlockFace.SOUTH_SOUTH_EAST, BlockFace.SOUTH_SOUTH_WEST, BlockFace.WEST_SOUTH_WEST,
+                BlockFace.WEST_NORTH_WEST, BlockFace.NORTH_NORTH_WEST
+        );
+        Map<BlockFace, BlockFace> interToOrdinalMap = new HashMap<>();
+        interToOrdinalMap.put(BlockFace.NORTH_NORTH_EAST, BlockFace.NORTH_EAST);
+        interToOrdinalMap.put(BlockFace.EAST_NORTH_EAST, BlockFace.NORTH_EAST);
+        interToOrdinalMap.put(BlockFace.EAST_SOUTH_EAST, BlockFace.SOUTH_EAST);
+        interToOrdinalMap.put(BlockFace.SOUTH_SOUTH_EAST, BlockFace.SOUTH_EAST);
+        interToOrdinalMap.put(BlockFace.SOUTH_SOUTH_WEST, BlockFace.SOUTH_WEST);
+        interToOrdinalMap.put(BlockFace.WEST_SOUTH_WEST, BlockFace.SOUTH_WEST);
+        interToOrdinalMap.put(BlockFace.WEST_NORTH_WEST, BlockFace.NORTH_WEST);
+        interToOrdinalMap.put(BlockFace.NORTH_NORTH_WEST, BlockFace.NORTH_WEST);
+
+        if (interOrdinalFaces.contains(facing)) facing = interToOrdinalMap.get(facing);
+        boolean cardinal = cardinalFaces.contains(facing);
+        //System.out.println("facing: "+facing); //debug
+        if (cardinal) {
+            Block block = currentBlock.getRelative(facing);
+            for (int i = -depth; i < depth+height; i++) {
+                blocks.add(world.getBlockAt(block.getLocation().add(0, i,0)));
+            }
+        }else{
+            List<BlockFace> chosen = new ArrayList<>();
+            for (BlockFace blockFace:cardinalFaces){
+                if (facing.toString().contains(blockFace.toString())) chosen.add(blockFace);
+            }
+            //System.out.println("chosen: "+chosen); //debug
+            for (BlockFace blockFace:chosen){
+                Block block = currentBlock.getRelative(blockFace);
+                for (int i = -depth; i < depth+height; i++) {
+                    blocks.add(world.getBlockAt(block.getLocation().add(0, i,0)));
+                }
+            }
+        }
+        return blocks;
     }
 
 }

@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import io.github.shinyumbreon197.mobheadsv3.command.SpawnHeadedEntity;
 import io.github.shinyumbreon197.mobheadsv3.command.openHeadSpawnGUI;
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.*;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
@@ -78,6 +79,9 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new InteractWithEntityEvent(), this);
         pm.registerEvents(new TeleportEvents(), this);
         pm.registerEvents(new UseItemEvents(), this);
+        pm.registerEvents(new Summon(), this);
+
+        //pm.registerEvents(new Packets(), this);
     }
 
     private void initializeHeads(){

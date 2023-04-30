@@ -2,14 +2,9 @@ package io.github.shinyumbreon197.mobheadsv3.effect;
 
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.ParrotHead;
-import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
@@ -74,6 +69,14 @@ public class AVFX {
         playSummonEffect(location);
     }
 
+    public static void playGoatRamBeginEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        Particle.DustTransition dustTransition = new Particle.DustTransition(Color.GRAY, Color.WHITE, 1.0f);
+        world.spawnParticle(Particle.DUST_COLOR_TRANSITION, location.add(0, 0.3, 0), 8, 0.3, 0.1, 0.3, dustTransition);
+        world.playSound(location,Sound.ENTITY_GOAT_LONG_JUMP, 1.2f, 0.8f);
+    }
+
     public static void playFrogJumpEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
@@ -131,11 +134,7 @@ public class AVFX {
 
 
     //SOUND EFFECTS -------------------------------------------------------------------------------------
-    public static void playHeadHurtSound(LivingEntity livingEntity){
-        assert livingEntity.getEquipment() != null;
-        ItemStack headItem = livingEntity.getEquipment().getHelmet();
-        MobHead mobHead = HeadUtil.getMobHeadFromHeadItem(headItem);
-        if (mobHead == null)return;
+    public static void playHeadHurtSound(LivingEntity livingEntity, MobHead mobHead){
         EntityType entityType = mobHead.getEntityType();
         Sound hurtSound = null;
         float volume = 0.6F;
@@ -220,11 +219,7 @@ public class AVFX {
         }
     }
 
-    public static void playHeadDeathSound(LivingEntity livingEntity){
-        assert livingEntity.getEquipment() != null;
-        ItemStack headItem = livingEntity.getEquipment().getHelmet();
-        MobHead mobHead = HeadUtil.getMobHeadFromHeadItem(headItem);
-        if (mobHead == null)return;
+    public static void playHeadDeathSound(LivingEntity livingEntity, MobHead mobHead){
         EntityType entityType = mobHead.getEntityType();
 
         Sound deathSound = null;
@@ -324,6 +319,29 @@ public class AVFX {
         if (eatenDeathSound != null) world.playSound(location,eatenDeathSound, 0.8F, 1.0F);
     }
 
+    public static void playGoatRamHitSound(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.ENTITY_GOAT_RAM_IMPACT, 1.2f, 0.8f);
+    }
+    public static void playGoatInvulnerableSound(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.ITEM_SHIELD_BLOCK, 1.2f, 1.6f);
+    }
+    public static void playGoatBreakBlockSound(Location location, List<Material> blockMats, List<Location> blockLocs){
+        World world = location.getWorld();
+        if (world == null)return;
+        playGoatRamHitSound(location);
+        int i = 0;
+        for (Material material:blockMats){
+            Sound breakSound = material.createBlockData().getSoundGroup().getBreakSound();
+            //System.out.println("breakSound: "+breakSound); //debug
+            world.playSound(blockLocs.get(i), breakSound, 1.0f, 1.0f);
+            i++;
+        }
+    }
+
     public static void playEndermanTeleportSound(Location location){
         World world = location.getWorld();
         if (world == null)return;
@@ -336,11 +354,23 @@ public class AVFX {
         world.playSound(location, Sound.ITEM_CHORUS_FRUIT_TELEPORT,0.5f, 1.5f);
     }
 
+    public static void playLlamaSpitSound(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+    }
+
     //PARTICLE EFFECTS -----------------------------------------------------------------------------------
     public static void playImpostorParticles(Location location){
         World world = location.getWorld();
         if (world == null)return;
         world.spawnParticle(Particle.VILLAGER_ANGRY,location,3, 0.5, 0, 0.5,null);
+    }
+
+    public static void playGoatRamTrail(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        Particle.DustTransition dustTransition = new Particle.DustTransition(Color.GRAY, Color.WHITE, 1.0f);
+        world.spawnParticle(Particle.REDSTONE, location.add(0, 0.9, 0), 2, 0.4, 0.8, 0.4, dustTransition);
     }
 
     //SOUND BUILDERS --------------------------------------------------------------------------------------

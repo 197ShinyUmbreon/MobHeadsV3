@@ -1,8 +1,8 @@
 package io.github.shinyumbreon197.mobheadsv3.gui;
 
 import io.github.shinyumbreon197.mobheadsv3.Data;
-import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

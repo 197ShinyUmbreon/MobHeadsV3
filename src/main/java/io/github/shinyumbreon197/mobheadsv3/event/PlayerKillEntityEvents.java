@@ -1,8 +1,9 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import io.github.shinyumbreon197.mobheadsv3.DecollationSmith;
 import io.github.shinyumbreon197.mobheadsv3.Data;
+import io.github.shinyumbreon197.mobheadsv3.DecollationSmith;
 import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.FrogHead;
 import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.Bukkit;
@@ -25,6 +26,10 @@ public class PlayerKillEntityEvents implements Listener {
     @EventHandler
     public void onPlayerKillEntity(EntityDeathEvent e){
         LivingEntity killed = e.getEntity();
+        if (Summon.isSummon(killed)){
+            e.getDrops().clear();
+            return;
+        }
         Player player = e.getEntity().getKiller();
         boolean frogKill = false;
         boolean headDropEligible = true;
@@ -89,7 +94,7 @@ public class PlayerKillEntityEvents implements Listener {
         }
         success = guaranteed || roll < chance;
         if (success){
-            ItemStack headItem = HeadUtil.GetHeadItemFromEntity(killed);
+            ItemStack headItem = HeadUtil.getHeadItemFromEntity(killed);
             if (headItem != null) drop = headItem;
         }
         return drop;

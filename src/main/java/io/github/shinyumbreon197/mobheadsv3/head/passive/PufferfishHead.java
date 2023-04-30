@@ -8,7 +8,8 @@ import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.*;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionType;
 
 import java.net.MalformedURLException;
 import java.net.URL;

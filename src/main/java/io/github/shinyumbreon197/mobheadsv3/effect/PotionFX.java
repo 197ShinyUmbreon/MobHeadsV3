@@ -7,6 +7,9 @@ import org.bukkit.potion.PotionEffectType;
 
 public class PotionFX {
 
+    public static void applyPotionEffect(LivingEntity livingEntity, PotionEffect potionEffect){
+        applyPotionEffect(livingEntity, potionEffect.getType(), potionEffect.getDuration(), potionEffect.getAmplifier(), potionEffect.hasParticles());
+    }
     public static void applyPotionEffect(LivingEntity livingEntity, PotionEffectType pet, int duration, int amplifier, boolean showBubbles){
         applyPotionEffect(livingEntity, pet, duration, amplifier, showBubbles, false);
     }
@@ -103,6 +106,18 @@ public class PotionFX {
     public static PotionEffect jump(int dur, int amp, boolean particles){
         return new PotionEffect(
                 PotionEffectType.JUMP, dur,
+                amp,false, particles, true
+        );
+    }
+    public static PotionEffect regen(int dur, int amp, boolean particles){
+        return new PotionEffect(
+                PotionEffectType.REGENERATION, dur,
+                amp,false, particles, true
+        );
+    }
+    public static PotionEffect darkness(int dur, int amp, boolean particles){
+        return new PotionEffect(
+                PotionEffectType.DARKNESS, dur,
                 amp,false, particles, true
         );
     }

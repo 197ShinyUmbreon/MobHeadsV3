@@ -13,7 +13,7 @@ import java.util.List;
 
 public class WornEffects {
 
-    public static void applyNewPotionEffects(List<LivingEntity> wearingList){
+    public static void applyNewPotionTickEffects(List<LivingEntity> wearingList){
         for (LivingEntity livingEntity:wearingList){
             if (livingEntity.getEquipment() == null || HeadUtil.getMobHeadFromHeadItem(livingEntity.getEquipment().getHelmet()) == null){
                 removeInfinitePotionEffects(List.of(livingEntity));
@@ -78,7 +78,7 @@ public class WornEffects {
             case WITHER_SKELETON -> {effects.add(PotionFX.wither(-1, 0, false));}
             case CHICKEN -> {effects.add(PotionFX.slowFall(-1, 0, false));}
             case DOLPHIN -> {effects.addAll(dolphinEffects(wearer));}
-            case COD, SALMON, PUFFERFISH, TROPICAL_FISH, SQUID, TADPOLE -> {effects.addAll(fishEffects(wearer));}
+            case COD, SALMON, PUFFERFISH, TROPICAL_FISH, SQUID, TADPOLE, AXOLOTL -> {effects.addAll(fishEffects(wearer));}
             case SKELETON_HORSE -> {effects.add(PotionFX.speed(-1, 0, false));}
             case ZOMBIE_HORSE -> {effects.add(PotionFX.hunger(-1, 0, false)); effects.add(PotionFX.speed(-1, 0, false));}
             case GLOW_SQUID -> {effects.addAll(glowSquidEffects(wearer)); effects.addAll(fishEffects(wearer));}
@@ -91,6 +91,7 @@ public class WornEffects {
             case PARROT -> {effects.add(PotionFX.slowFall(-1, 0, false));}
             case RABBIT -> {effects.add(PotionFX.speed(-1, 0, false)); effects.add(PotionFX.jump(-1, 0, false));}
             case FROG -> {effects.add(PotionFX.jump(-1, 0, false));}
+            case WARDEN -> {effects.add(PotionFX.darkness(-1, 0, false)); effects.add(PotionFX.nightVision(-1, 0, false));}
         }
         return effects;
     }

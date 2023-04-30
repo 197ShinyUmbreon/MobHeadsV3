@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.effect;
 
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
@@ -8,6 +9,7 @@ import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
@@ -67,7 +69,7 @@ public class WornMechanics {
                 case TADPOLE -> {regenerateAir(livingEntity);}
                 case DROWNED -> {regenerateAir(livingEntity);}
                 case AXOLOTL -> {regenerateAir(livingEntity);}
-                case FROG -> {regenerateAir(livingEntity);}
+                case FROG -> {regenerateAir(livingEntity); if (livingEntity instanceof Player)frogGlowEdible((Player) livingEntity);}
                 case ENDERMAN -> {damageFromWater(livingEntity);}
                 case GUARDIAN, ELDER_GUARDIAN -> {regenerateAir(livingEntity);}
             }
@@ -82,8 +84,45 @@ public class WornMechanics {
         if (newAir > maxAir) newAir = maxAir;
         livingEntity.setRemainingAir(newAir);
     }
-    public static void damageFromWater(LivingEntity livingEntity){
+    private static void damageFromWater(LivingEntity livingEntity){
         if (isExposedToWater(livingEntity)) livingEntity.damage(1);
+    }
+    private static final Map<Player, List<LivingEntity>> frogEdibleMapList = new HashMap<>();
+    private static void frogGlowEdible(Player player){
+        //System.out.println("frogGlowEdible"); //debug
+        List<Entity> nearby = player.getNearbyEntities(10,10,10);
+
+        for (Entity entity:nearby){
+            if (!entity.equals(player) && entity instanceof LivingEntity && frogIsEdible(entity)){
+                //System.out.println("is edible!"); //debug
+                //Packets.frogEdibleUpdatePacket1(player, (LivingEntity) entity);
+            }
+        }
+
+//        List<LivingEntity> frogList;
+//        if (frogEdibleMapList.containsKey(player)){
+//            frogList = new ArrayList<>(frogEdibleMapList.get(player));
+//        }else frogList = new ArrayList<>();
+//
+//        for (LivingEntity livingEntity:frogList){
+//            if (!nearby.contains(livingEntity)){
+//
+//            }
+//        }
+//
+//        for (Entity entity:nearby){
+//            boolean onList = frogList.contains(entity);
+//            if (!(entity instanceof LivingEntity) || entity.equals(player))continue;
+//            if (!onList && frogIsEdible(entity)){
+//                System.out.println("!onList && isEdible"); //debug
+//                Packets.frogEdibleUpdatePacket(player, (LivingEntity) entity);
+//                frogList.add((LivingEntity) entity);
+//            }else {
+//                Packets.frogEdibleRemovePacket(player, (LivingEntity) entity);
+//                frogList.remove((LivingEntity) entity);
+//            }
+//        }
+//        frogEdibleMapList.put(player,frogList);
     }
 
     //Event Triggered --------------------------------------------------------------------------------------
@@ -118,6 +157,15 @@ public class WornMechanics {
     }
 
     //EntityDamagedByEntityEvent --------------------------------------------------------------------------
+    public static void gainEffectsOnDamagedByEntity(LivingEntity damaged, EntityType headType){
+        if (damaged.isDead())return;
+        switch(headType){
+            default -> {}
+            case RABBIT -> {PotionFX.applyPotionEffect(damaged,PotionEffectType.SPEED, 10*20,1, false);}
+            case AXOLOTL -> {PotionFX.applyPotionEffect(damaged, PotionEffectType.REGENERATION, 5*20, 0, true);}
+        }
+    }
+
     public static void summonReinforcements(LivingEntity defender, LivingEntity attacker, EntityType summonType){
         if (defender.isDead())return;
         Summon.summon(defender, attacker, summonType);
@@ -142,20 +190,64 @@ public class WornMechanics {
                         distance*0.2)
                 );
                 llamaSpit.setShooter(defender);
+                AVFX.playLlamaSpitSound(origin);
                 world.playSound(origin, Sound.ENTITY_LLAMA_SPIT,0.8F, 1.0F);
             }
         }.runTaskLater(MobHeadsV3.getPlugin(),5);
     }
-    public static void gainEffectsOnDamagedByEntity(LivingEntity damaged, EntityType headType){
-        if (damaged.isDead())return;
-        switch(headType){
-            default -> {}
-            case RABBIT -> {PotionFX.applyPotionEffect(damaged,PotionEffectType.SPEED, 10*20,1, false);}
+
+    public static boolean goatInvuln(EntityDamageEvent.DamageCause cause, LivingEntity damaged){
+        if (!(damaged instanceof Player))return false;
+        List<EntityDamageEvent.DamageCause> causes = List.of(EntityDamageEvent.DamageCause.CONTACT, EntityDamageEvent.DamageCause.ENTITY_ATTACK);
+        Vector velocity = damaged.getVelocity();
+        double speed = Math.abs(velocity.getX()) + Math.abs(velocity.getZ());
+        boolean invulnerable = speed > 0.2 && causes.contains(cause) && goatRammingPlayers.contains((Player) damaged);
+        if (invulnerable) AVFX.playGoatInvulnerableSound(damaged.getLocation());
+        return invulnerable;
+    }
+
+    private static final Map<LivingEntity, List<Mob>> axolotlAttackMap = new HashMap<>();
+    private static void addToAxolotlMap(LivingEntity damaged, Mob attacker){
+        List<Mob> mobs = new ArrayList<>();
+        if (isOnAxolotlMap(damaged, attacker)) mobs.addAll(axolotlAttackMap.get(damaged));
+        if (!mobs.contains(attacker)) mobs.add(attacker);
+        axolotlAttackMap.put(damaged, mobs);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                removeFromAxolotlMap(damaged, attacker);
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(), 2*20);
+    }
+    private static void removeFromAxolotlMap(LivingEntity damaged, Mob attacker){
+        if (!isOnAxolotlMap(damaged, attacker))return;
+        List<Mob> mobs = new ArrayList<>(axolotlAttackMap.get(damaged));
+        mobs.remove(attacker);
+        if (mobs.size() == 0){
+            axolotlAttackMap.remove(damaged);
+        }else axolotlAttackMap.put(damaged, mobs);
+    }
+    private static boolean isOnAxolotlMap(LivingEntity damaged, Mob attacker){
+        if (!axolotlAttackMap.containsKey(damaged))return false;
+        for (Mob mob:axolotlAttackMap.get(damaged)){
+            if (mob.equals(attacker))return true;
+        }
+        return false;
+    }
+    public static void axolotlRemoveTarget(LivingEntity damaged, LivingEntity attacker){
+        if (!(attacker instanceof Mob))return;
+        Mob mob = (Mob) attacker;
+        LivingEntity target = mob.getTarget();
+        if (isOnAxolotlMap(damaged, mob))return;
+        addToAxolotlMap(damaged, mob);
+        if (target != null && target.equals(damaged)){
+            mob.setTarget(null);
         }
     }
 
     //PlayerStatisticIncrementEvent -------------------------------------------------------------------------
     public static void frogJump(Player player){
+        if (player == null)return;
         if (!player.isSneaking())return;
         Vector velocity = player.getVelocity();
         Vector direction = player.getLocation().getDirection();
@@ -167,6 +259,137 @@ public class WornMechanics {
         velocity.setZ(z);
         player.setVelocity(velocity);
         AVFX.playFrogJumpEffect(player.getLocation());
+    }
+
+    private static final List<Player> goatRamCooldown = new ArrayList<>();
+    private static final List<Player> goatRammingPlayers = new ArrayList<>();
+    private static final Map<Player, List<LivingEntity>> goatRamHitMap = new HashMap<>();
+    public static void goatRam(Player player){
+        if (player == null || !player.isSneaking())return;
+        boolean onList = goatRamCooldown.contains(player);
+        if (!onList){
+            goatRamCooldown.add(player);
+            if (!goatRammingPlayers.contains(player)) goatRammingPlayers.add(player);
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    goatRamCooldown.remove(player);
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(), 20);
+            ItemStack chest = player.getInventory().getChestplate();
+            boolean hasElytra = chest != null && chest.getType().equals(Material.ELYTRA);
+            player.setGliding(hasElytra);
+            Vector velocity = player.getVelocity();
+            Location location = player.getLocation();
+            //if (player.isGliding()) location = location.add(location.getDirection().multiply(0.5));
+            World world = location.getWorld();
+            if (world == null)return;
+            Vector direction = location.getDirection();
+            location.setY(Math.floor(location.getY()));
+            //player.teleport(location);
+            double x = velocity.getX() + (direction.getX());
+            double y;
+            if (player.isGliding()){
+                y = 0.3;
+            }else y = 0.1;
+            double z = velocity.getZ() + (direction.getZ());
+            velocity.setX(x);
+            velocity.setY(y);
+            velocity.setZ(z);
+            player.setVelocity(velocity);
+            AVFX.playGoatRamBeginEffect(location);
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    //System.out.println("tick.."+new Random().nextInt()); //debug
+                    double speed = Math.abs(player.getVelocity().getX()) + Math.abs(player.getVelocity().getZ());
+                    //System.out.println("speed: "+speed); //debug
+                    if (!goatRamCooldown.contains(player) && !player.isGliding()){
+                        goatRammingPlayers.remove(player);
+                        cancel();
+                        return;
+                    }
+                    Location scanLoc = player.getLocation();
+                    double playerVelMult;
+                    if (hasElytra){
+                        playerVelMult = 0.9;
+                    }else playerVelMult = 0.7;
+                    Vector playerVelocity = player.getVelocity().multiply(playerVelMult);
+
+                    Vector hitVelocity = player.getVelocity().setY(0.5);
+                    if (speed > 0.3) AVFX.playGoatRamTrail(player.getLocation());
+
+                    List<Entity> inFront = new ArrayList<>(world.getNearbyEntities(scanLoc, 1, 2, 1));
+                    for (Entity entity:inFront){
+                        if (entity.equals(player))continue;
+                        if (!(entity instanceof LivingEntity))continue;
+                        LivingEntity livingEntity = (LivingEntity) entity;
+                        if (livingEntity.isDead())continue;
+                        if (goatRamHitMap.containsKey(player) && goatRamHitMap.get(player).contains(livingEntity))continue;
+
+                        int velocityMult;
+                        if (player.isGliding()){
+                            velocityMult = 9;
+                        }else velocityMult = 3;
+                        hitVelocity.setX(hitVelocity.getX()*velocityMult).setZ(hitVelocity.getZ()*velocityMult);
+                        livingEntity.setVelocity(hitVelocity);
+                        player.setVelocity(playerVelocity);
+
+                        double maxDamage;
+                        if (player.isGliding()){
+                            maxDamage = 8;
+                        }else maxDamage = 4;
+                        double damage = Math.floor(speed * 4.5);
+                        if (damage > maxDamage) damage = maxDamage;
+                        if (damage != 0) livingEntity.damage(damage, player);
+
+                        List<LivingEntity> hits;
+                        if (!goatRamHitMap.containsKey(player)){
+                            hits = new ArrayList<>();
+                        }else hits = goatRamHitMap.get(player);
+                        if (!hits.contains(livingEntity)) hits.add(livingEntity);
+                        goatRamHitMap.put(player, hits);
+
+                        AVFX.playGoatRamHitSound(livingEntity.getLocation());
+                        new BukkitRunnable(){
+                            @Override
+                            public void run() {
+                                List<LivingEntity> list;
+                                if (!goatRamHitMap.containsKey(player)){
+                                    return;
+                                }else list = goatRamHitMap.get(player);
+                                list.removeAll(hits);
+                                goatRamHitMap.put(player, list);
+                            }
+                        }.runTaskLater(MobHeadsV3.getPlugin(), 20);
+                    }
+                    int height;
+                    if (player.isGliding()){
+                        height = 2;
+                    }else height = 3;
+                    boolean hit = false;
+                    List<Material> brokenMats = new ArrayList<>();
+                    List<Location> brokenLocs = new ArrayList<>();
+                    for (Block block: getFacingBlocks(player.getLocation(),player.getFacing(), height, 0)){
+                        //System.out.println("block: "+block); //debug
+                        if (Data.goatBreakable.contains(block.getType()) && speed > 0.3){
+                            //System.out.println("isBreakable"); //debug
+                            hit = true;
+                            brokenMats.add(block.getType());
+                            brokenLocs.add(block.getLocation().add(0.5, 0.5, 0.5));
+                            block.breakNaturally(new ItemStack(Material.DIAMOND_PICKAXE));
+                        }
+                    }
+                    if (hit){
+                        player.setVelocity(playerVelocity.multiply(-0.5));
+                        goatRammingPlayers.remove(player);
+                        AVFX.playGoatBreakBlockSound(player.getLocation(), brokenMats, brokenLocs);
+                        cancel();
+                        return;
+                    }
+                }
+            }.runTaskTimer(MobHeadsV3.getPlugin(),0,1);
+        }
     }
 
     //EntityDamageEvent ------------------------------------------------------------------------------------
@@ -344,7 +567,7 @@ public class WornMechanics {
             AttributeInstance maxHealthAttribute = livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
             if (maxHealthAttribute == null)return false;
             double maxHealth = maxHealthAttribute.getValue();
-            if (livingEntity.getHealth() <= 4 || livingEntity.getHealth() <= maxHealth*0.2) return true;
+            if (livingEntity.getHealth() <= 6 || livingEntity.getHealth() <= maxHealth*0.2) return true;
             switch (livingEntity.getType()){
                 case SLIME -> {
                     assert entity instanceof Slime;
@@ -488,6 +711,7 @@ public class WornMechanics {
             }
         }.runTaskLater(MobHeadsV3.getPlugin(), 60*20);
     }
+
     public static void onTargetWearer(EntityTargetLivingEntityEvent e, LivingEntity wearer, Mob targeting, MobHead mobHead){
         EntityType headType = mobHead.getEntityType();
         boolean sameType = targeting.getType().equals(headType);
@@ -499,6 +723,9 @@ public class WornMechanics {
                 EntityTargetEvent.TargetReason.CLOSEST_PLAYER,
                 EntityTargetEvent.TargetReason.RANDOM_TARGET
         );
+        if (headType.equals(EntityType.AXOLOTL)){
+            e.setCancelled(isOnAxolotlMap(wearer, targeting));
+        }
         if (sameType && headType.equals(EntityType.ENDERMAN) && wearer instanceof Player){
             Enderman enderman = (Enderman) targeting;
             boolean onMap = endermanAggroMap.containsKey(enderman.getUniqueId()) && endermanAggroMap.get(enderman.getUniqueId()).equals(wearer);
@@ -523,7 +750,7 @@ public class WornMechanics {
             }
         }
 
-        System.out.println("Canceled: "+e.isCancelled()); //debug
+        //System.out.println("Canceled: "+e.isCancelled()); //debug
     }
 
 }

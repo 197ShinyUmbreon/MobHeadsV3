@@ -139,3 +139,38 @@ public static void unregisterPlayers(List<Player> players){
         double z = velocity.getZ()*10;
         if (x > 0.5) x = 0.5; if (x < -0.5) x = -0.5;
         if (z > 0.5) z = 0.5; if (z < -0.5) z = -0.5;
+
+private static void runStandby(){
+        new BukkitRunnable(){
+@Override
+public void run() {
+        List<Mob> remove = new ArrayList<>();
+        List<Mob> foundTarget = new ArrayList<>();
+        for (Mob summon:standby){
+        if (summon == null)continue;
+        if (summon.isDead()) {
+        remove.add(summon);
+        continue;
+        }
+        if (summon.getTarget() != null){
+        foundTarget.add(summon);
+        continue;
+        }
+        LivingEntity owner = (LivingEntity) getSummonOwner(summon);
+        if (owner == null){
+        remove.add(summon);
+        continue;
+        }
+        LivingEntity target = findNewTarget(owner,summon);
+        if (target == null){
+        remove.add(summon);
+        continue;
+        }else foundTarget.add(summon);
+        }
+        for (Mob found:foundTarget){
+        standby.remove(found);
+        }
+        removeSummons(remove);
+        }
+        }.runTaskLater(MobHeadsV3.getPlugin(), 20);
+        }
