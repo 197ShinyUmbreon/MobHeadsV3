@@ -137,14 +137,14 @@ public class AVFX {
     public static void playHeadHurtSound(LivingEntity livingEntity, MobHead mobHead){
         EntityType entityType = mobHead.getEntityType();
         Sound hurtSound = null;
-        float volume = 0.6F;
+        float volume = 0.5F;
         switch (entityType) {
             case PLAYER -> {hurtSound = Sound.ENTITY_PLAYER_HURT;}
             case AXOLOTL -> {hurtSound = Sound.ENTITY_AXOLOTL_HURT; volume = 1.2F;}
             case PIG -> hurtSound = Sound.ENTITY_PIG_HURT;
-            case COW, MUSHROOM_COW -> {hurtSound = Sound.ENTITY_COW_HURT; volume = 0.6F;}
+            case COW, MUSHROOM_COW -> {hurtSound = Sound.ENTITY_COW_HURT;}
             case CHICKEN -> hurtSound = Sound.ENTITY_CHICKEN_HURT;
-            case WOLF -> {hurtSound = Sound.ENTITY_WOLF_HURT; volume = 0.6F;}
+            case WOLF -> {hurtSound = Sound.ENTITY_WOLF_HURT;}
             case DONKEY -> hurtSound = Sound.ENTITY_DONKEY_HURT;
             case MULE -> hurtSound = Sound.ENTITY_MULE_HURT;
             case DOLPHIN -> hurtSound = Sound.ENTITY_DOLPHIN_HURT;
@@ -153,7 +153,7 @@ public class AVFX {
             case PUFFERFISH -> hurtSound = Sound.ENTITY_PUFFER_FISH_HURT;
             case TROPICAL_FISH -> hurtSound = Sound.ENTITY_TROPICAL_FISH_HURT;
             case TURTLE -> hurtSound = Sound.ENTITY_TURTLE_HURT;
-            case STRIDER -> hurtSound = Sound.ENTITY_STRIDER_HURT;
+            case STRIDER -> {hurtSound = Sound.ENTITY_STRIDER_HURT; volume = 0.8f;}
             case GOAT -> hurtSound = Sound.ENTITY_GOAT_SCREAMING_HURT;
             case SQUID -> hurtSound = Sound.ENTITY_SQUID_HURT;
             case BEE -> hurtSound = Sound.ENTITY_BEE_HURT;
@@ -189,7 +189,7 @@ public class AVFX {
             case SPIDER, CAVE_SPIDER -> hurtSound = Sound.ENTITY_SPIDER_HURT;
             case ENDERMAN -> hurtSound = Sound.ENTITY_ENDERMAN_HURT;
             case ENDERMITE -> hurtSound = Sound.ENTITY_ENDERMITE_HURT;
-            case GHAST -> {hurtSound = Sound.ENTITY_GHAST_HURT; volume = 0.6F;}
+            case GHAST -> {hurtSound = Sound.ENTITY_GHAST_HURT; volume = 0.4F;}
             case BLAZE -> hurtSound = Sound.ENTITY_BLAZE_HURT;
             case MAGMA_CUBE -> hurtSound = Sound.ENTITY_MAGMA_CUBE_HURT;
             case SLIME -> hurtSound = Sound.ENTITY_SLIME_HURT;
@@ -223,12 +223,12 @@ public class AVFX {
         EntityType entityType = mobHead.getEntityType();
 
         Sound deathSound = null;
-        float volume = 0.6F;
+        float volume = 0.5F;
         switch (entityType) {
             case PLAYER -> {deathSound = Sound.ENTITY_PLAYER_DEATH;}
             case AXOLOTL -> {deathSound = Sound.ENTITY_AXOLOTL_DEATH;volume = 1.0F;}
             case PIG -> deathSound = Sound.ENTITY_PIG_DEATH;
-            case COW, MUSHROOM_COW -> {deathSound = Sound.ENTITY_COW_DEATH;volume = 0.6F;}
+            case COW, MUSHROOM_COW -> {deathSound = Sound.ENTITY_COW_DEATH;}
             case CHICKEN -> deathSound = Sound.ENTITY_CHICKEN_DEATH;
             case WOLF -> deathSound = Sound.ENTITY_WOLF_DEATH;
             case DONKEY -> deathSound = Sound.ENTITY_DONKEY_DEATH;
@@ -239,7 +239,7 @@ public class AVFX {
             case PUFFERFISH -> deathSound = Sound.ENTITY_PUFFER_FISH_DEATH;
             case TROPICAL_FISH -> deathSound = Sound.ENTITY_TROPICAL_FISH_DEATH;
             case TURTLE -> deathSound = Sound.ENTITY_TURTLE_DEATH;
-            case STRIDER -> deathSound = Sound.ENTITY_STRIDER_DEATH;
+            case STRIDER -> {deathSound = Sound.ENTITY_STRIDER_DEATH; volume = 0.8f;}
             case GOAT -> deathSound = Sound.ENTITY_GOAT_SCREAMING_DEATH;
             case SQUID -> deathSound = Sound.ENTITY_SQUID_DEATH;
             case BEE -> deathSound = Sound.ENTITY_BEE_DEATH;
@@ -254,7 +254,7 @@ public class AVFX {
             case WANDERING_TRADER -> deathSound = Sound.ENTITY_WANDERING_TRADER_DEATH;
             case IRON_GOLEM -> deathSound = Sound.ENTITY_IRON_GOLEM_DEATH;
             case GLOW_SQUID -> deathSound = Sound.ENTITY_GLOW_SQUID_DEATH;
-            case SILVERFISH -> {deathSound = Sound.ENTITY_SILVERFISH_DEATH; volume = 0.6F;}
+            case SILVERFISH -> {deathSound = Sound.ENTITY_SILVERFISH_DEATH;}
             case STRAY -> deathSound = Sound.ENTITY_STRAY_DEATH;
             case SHULKER -> deathSound = Sound.ENTITY_SHULKER_DEATH;
             case PHANTOM -> deathSound = Sound.ENTITY_PHANTOM_DEATH;
@@ -275,7 +275,7 @@ public class AVFX {
             case SPIDER, CAVE_SPIDER -> deathSound = Sound.ENTITY_SPIDER_DEATH;
             case ENDERMAN -> deathSound = Sound.ENTITY_ENDERMAN_DEATH;
             case ENDERMITE -> deathSound = Sound.ENTITY_ENDERMITE_DEATH;
-            case GHAST -> {deathSound = Sound.ENTITY_GHAST_DEATH; volume = 0.6F;}
+            case GHAST -> {deathSound = Sound.ENTITY_GHAST_DEATH; volume = 0.4F;}
             case BLAZE -> deathSound = Sound.ENTITY_BLAZE_DEATH;
             case MAGMA_CUBE -> deathSound = Sound.ENTITY_MAGMA_CUBE_DEATH;
             case SLIME -> deathSound = Sound.ENTITY_SLIME_DEATH;
@@ -294,7 +294,7 @@ public class AVFX {
             case ZOMBIE -> deathSound = Sound.ENTITY_ZOMBIE_DEATH;
             case SKELETON -> deathSound = Sound.ENTITY_SKELETON_DEATH;
             case CREEPER -> deathSound = Sound.ENTITY_CREEPER_DEATH;
-            case ENDER_DRAGON -> {deathSound = Sound.ENTITY_ENDER_DRAGON_DEATH; volume = 0.4F;}
+            case ENDER_DRAGON -> {deathSound = Sound.ENTITY_ENDER_DRAGON_DEATH; volume = 0.3F;}
             case WARDEN -> {deathSound = Sound.ENTITY_WARDEN_DEATH;}
             case ALLAY -> {deathSound = Sound.ENTITY_ALLAY_DEATH;}
             case FROG -> {deathSound = Sound.ENTITY_FROG_DEATH;}

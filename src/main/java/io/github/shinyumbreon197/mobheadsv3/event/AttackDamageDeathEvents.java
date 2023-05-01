@@ -100,6 +100,7 @@ public class AttackDamageDeathEvents implements Listener {
                         double damage = Math.floor(ede.getDamage()*0.5);
                         if (damage != 0){
                             ede.setDamage(damage);
+                            WornMechanics.goatBreakBlock((Player) damaged);
                         }else canceled = true;
                     }}
                 }

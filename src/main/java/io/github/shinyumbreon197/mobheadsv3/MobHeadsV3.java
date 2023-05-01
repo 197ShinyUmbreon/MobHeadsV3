@@ -25,8 +25,14 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringJoiner;
+
 public final class MobHeadsV3 extends JavaPlugin {
 
+    private static String version;
+    public static String getVersion(){return version;}
     private static MobHeadsV3 plugin;
     public static MobHeadsV3 getPlugin(){return plugin;}
     public static PlayerRegistry playerRegistry;
@@ -39,6 +45,8 @@ public final class MobHeadsV3 extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
+        version = defineVersion();
+        System.out.println("Server Version: "+version); //debug
         pluginNSK = new NamespacedKey(plugin,"mobheadsv3");
         playerRegistry = new PlayerRegistry();
         playerRegistry.saveDefaultPlayerRegistry();
@@ -82,6 +90,27 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new Summon(), this);
 
         //pm.registerEvents(new Packets(), this);
+    }
+
+    private String defineVersion(){
+        String version = this.getServer().getVersion();
+        List<Character> chars = new ArrayList<>();
+        boolean hit = false;
+        for (char c:version.toCharArray()){
+            if (c == '('){
+                hit = true;
+                continue;
+            }else if (c == ')')continue;
+            if (hit){
+                List<Character> ex = List.of('M', 'C', ':', ' ');
+                if (!ex.contains(c)) chars.add(c);
+            }
+        }
+        char[] charArray = new char[chars.size()];
+        for (int i = 0; i < chars.size(); i++) {
+            charArray[i] = chars.get(i);
+        }
+        return String.copyValueOf(charArray);
     }
 
     private void initializeHeads(){

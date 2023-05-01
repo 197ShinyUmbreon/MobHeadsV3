@@ -131,18 +131,17 @@ public class WornMechanics {
         if (entity instanceof LivingEntity && entity.isDead())return;
         Location eLoc = entity.getLocation();
         Location dest = randomTeleportLoc(eLoc, entity, 8, 1, true);
-        if (dest != null){
-            entity.teleport(dest, PlayerTeleportEvent.TeleportCause.COMMAND);
-            entity.setVelocity(new Vector(0,0,0));
-            World world = eLoc.getWorld();
-            if (world == null)return;
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    AVFX.playEndermanTeleportSound(eLoc);
-                }
-            }.runTaskLater(MobHeadsV3.getPlugin(), 1);
-        }
+        if (dest == null)return;
+        entity.teleport(dest, PlayerTeleportEvent.TeleportCause.COMMAND);
+        entity.setVelocity(new Vector(0,0,0));
+        World world = eLoc.getWorld();
+        if (world == null)return;
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                AVFX.playEndermanTeleportSound(eLoc);
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(), 1);
     }
 
     //PlayerTeleportEvent ---------------------------------------------------------------------------------------
@@ -266,130 +265,140 @@ public class WornMechanics {
     private static final Map<Player, List<LivingEntity>> goatRamHitMap = new HashMap<>();
     public static void goatRam(Player player){
         if (player == null || !player.isSneaking())return;
-        boolean onList = goatRamCooldown.contains(player);
-        if (!onList){
-            goatRamCooldown.add(player);
-            if (!goatRammingPlayers.contains(player)) goatRammingPlayers.add(player);
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    goatRamCooldown.remove(player);
+        if (goatRamCooldown.contains(player))return;
+        goatRamCooldown.add(player);
+        if (!goatRammingPlayers.contains(player)) goatRammingPlayers.add(player);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                goatRamCooldown.remove(player);
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(), 20);
+        ItemStack chest = player.getInventory().getChestplate();
+        boolean hasElytra = chest != null && chest.getType().equals(Material.ELYTRA);
+        player.setGliding(hasElytra);
+        Vector velocity = player.getVelocity();
+        Location location = player.getLocation();
+        //if (player.isGliding()) location = location.add(location.getDirection().multiply(0.5));
+        World world = location.getWorld();
+        if (world == null)return;
+        Vector direction = location.getDirection();
+        location.setY(Math.floor(location.getY()));
+        //player.teleport(location);
+        double x = velocity.getX()*0.25 + (direction.getX());
+        double y;
+        if (player.isGliding()){
+            y = 0.3 + (direction.getY()*0.3);
+        }else y = 0.1;
+        double z = velocity.getZ()*0.25 + (direction.getZ());
+        velocity.setX(x);
+        velocity.setY(y);
+        velocity.setZ(z);
+        player.setVelocity(velocity);
+        AVFX.playGoatRamBeginEffect(location);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                //System.out.println("tick.."+new Random().nextInt()); //debug
+                double speed = Math.abs(player.getVelocity().getX()) + Math.abs(player.getVelocity().getZ());
+                boolean fast = speed > 0.65;
+                System.out.println("speed: "+speed); //debug
+                if (!goatRamCooldown.contains(player) && !player.isGliding()){
+                    goatRammingPlayers.remove(player);
+                    cancel();
+                    return;
                 }
-            }.runTaskLater(MobHeadsV3.getPlugin(), 20);
-            ItemStack chest = player.getInventory().getChestplate();
-            boolean hasElytra = chest != null && chest.getType().equals(Material.ELYTRA);
-            player.setGliding(hasElytra);
-            Vector velocity = player.getVelocity();
-            Location location = player.getLocation();
-            //if (player.isGliding()) location = location.add(location.getDirection().multiply(0.5));
-            World world = location.getWorld();
-            if (world == null)return;
-            Vector direction = location.getDirection();
-            location.setY(Math.floor(location.getY()));
-            //player.teleport(location);
-            double x = velocity.getX() + (direction.getX());
-            double y;
-            if (player.isGliding()){
-                y = 0.3;
-            }else y = 0.1;
-            double z = velocity.getZ() + (direction.getZ());
-            velocity.setX(x);
-            velocity.setY(y);
-            velocity.setZ(z);
-            player.setVelocity(velocity);
-            AVFX.playGoatRamBeginEffect(location);
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    //System.out.println("tick.."+new Random().nextInt()); //debug
-                    double speed = Math.abs(player.getVelocity().getX()) + Math.abs(player.getVelocity().getZ());
-                    //System.out.println("speed: "+speed); //debug
-                    if (!goatRamCooldown.contains(player) && !player.isGliding()){
-                        goatRammingPlayers.remove(player);
-                        cancel();
-                        return;
-                    }
-                    Location scanLoc = player.getLocation();
-                    double playerVelMult;
-                    if (hasElytra){
-                        playerVelMult = 0.9;
-                    }else playerVelMult = 0.7;
-                    Vector playerVelocity = player.getVelocity().multiply(playerVelMult);
+                Location scanLoc = player.getLocation();
+                double playerVelMult;
+                if (hasElytra){
+                    playerVelMult = 0.9;
+                }else playerVelMult = 0.7;
+                Vector playerVelocity = player.getVelocity().multiply(playerVelMult);
 
-                    Vector hitVelocity = player.getVelocity().setY(0.5);
-                    if (speed > 0.3) AVFX.playGoatRamTrail(player.getLocation());
+                Vector hitVelocity = player.getVelocity().setY(0.5);
+                if (fast) AVFX.playGoatRamTrail(player.getLocation());
 
-                    List<Entity> inFront = new ArrayList<>(world.getNearbyEntities(scanLoc, 1, 2, 1));
-                    for (Entity entity:inFront){
-                        if (entity.equals(player))continue;
-                        if (!(entity instanceof LivingEntity))continue;
-                        LivingEntity livingEntity = (LivingEntity) entity;
-                        if (livingEntity.isDead())continue;
-                        if (goatRamHitMap.containsKey(player) && goatRamHitMap.get(player).contains(livingEntity))continue;
+                List<Entity> inFront = new ArrayList<>(world.getNearbyEntities(scanLoc, 1, 2, 1));
+                for (Entity entity:inFront){
+                    if (entity.equals(player))continue;
+                    if (!(entity instanceof LivingEntity))continue;
+                    LivingEntity livingEntity = (LivingEntity) entity;
+                    if (livingEntity.isDead())continue;
+                    if (goatRamHitMap.containsKey(player) && goatRamHitMap.get(player).contains(livingEntity))continue;
 
-                        int velocityMult;
-                        if (player.isGliding()){
-                            velocityMult = 9;
-                        }else velocityMult = 3;
-                        hitVelocity.setX(hitVelocity.getX()*velocityMult).setZ(hitVelocity.getZ()*velocityMult);
-                        livingEntity.setVelocity(hitVelocity);
-                        player.setVelocity(playerVelocity);
-
-                        double maxDamage;
-                        if (player.isGliding()){
-                            maxDamage = 8;
-                        }else maxDamage = 4;
-                        double damage = Math.floor(speed * 4.5);
-                        if (damage > maxDamage) damage = maxDamage;
-                        if (damage != 0) livingEntity.damage(damage, player);
-
-                        List<LivingEntity> hits;
-                        if (!goatRamHitMap.containsKey(player)){
-                            hits = new ArrayList<>();
-                        }else hits = goatRamHitMap.get(player);
-                        if (!hits.contains(livingEntity)) hits.add(livingEntity);
-                        goatRamHitMap.put(player, hits);
-
-                        AVFX.playGoatRamHitSound(livingEntity.getLocation());
-                        new BukkitRunnable(){
-                            @Override
-                            public void run() {
-                                List<LivingEntity> list;
-                                if (!goatRamHitMap.containsKey(player)){
-                                    return;
-                                }else list = goatRamHitMap.get(player);
-                                list.removeAll(hits);
-                                goatRamHitMap.put(player, list);
-                            }
-                        }.runTaskLater(MobHeadsV3.getPlugin(), 20);
-                    }
-                    int height;
+                    int velocityMult;
+                    double maxDamage;
                     if (player.isGliding()){
-                        height = 2;
-                    }else height = 3;
-                    boolean hit = false;
-                    List<Material> brokenMats = new ArrayList<>();
-                    List<Location> brokenLocs = new ArrayList<>();
-                    for (Block block: getFacingBlocks(player.getLocation(),player.getFacing(), height, 0)){
-                        //System.out.println("block: "+block); //debug
-                        if (Data.goatBreakable.contains(block.getType()) && speed > 0.3){
-                            //System.out.println("isBreakable"); //debug
-                            hit = true;
-                            brokenMats.add(block.getType());
-                            brokenLocs.add(block.getLocation().add(0.5, 0.5, 0.5));
-                            block.breakNaturally(new ItemStack(Material.DIAMOND_PICKAXE));
-                        }
+                        velocityMult = 6;
+                        maxDamage = 8;
+                    }else{
+                        velocityMult = 3;
+                        maxDamage = 4;
                     }
-                    if (hit){
-                        player.setVelocity(playerVelocity.multiply(-0.5));
-                        goatRammingPlayers.remove(player);
-                        AVFX.playGoatBreakBlockSound(player.getLocation(), brokenMats, brokenLocs);
+                    hitVelocity.setX(hitVelocity.getX()*velocityMult).setZ(hitVelocity.getZ()*velocityMult);
+                    livingEntity.setVelocity(hitVelocity);
+                    player.setVelocity(playerVelocity);
+                    double damage = Math.floor(speed * 4.5);
+                    if (damage > maxDamage) damage = maxDamage;
+                    if (damage != 0) livingEntity.damage(damage, player);
+
+                    List<LivingEntity> hits;
+                    if (!goatRamHitMap.containsKey(player)){
+                        hits = new ArrayList<>();
+                    }else hits = goatRamHitMap.get(player);
+                    if (!hits.contains(livingEntity)) hits.add(livingEntity);
+                    goatRamHitMap.put(player, hits);
+
+                    AVFX.playGoatRamHitSound(livingEntity.getLocation());
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            List<LivingEntity> list;
+                            if (!goatRamHitMap.containsKey(player)){
+                                return;
+                            }else list = goatRamHitMap.get(player);
+                            list.removeAll(hits);
+                            goatRamHitMap.put(player, list);
+                        }
+                    }.runTaskLater(MobHeadsV3.getPlugin(), 20);
+                }
+                if (!player.isGliding() && fast){
+                    boolean brokenBlock = goatBreakBlock(player);
+                    if (brokenBlock){
+                        //player.setVelocity(playerVelocity.multiply(-0.25).setY(0.3));
                         cancel();
                         return;
                     }
                 }
-            }.runTaskTimer(MobHeadsV3.getPlugin(),0,1);
+            }
+        }.runTaskTimer(MobHeadsV3.getPlugin(),0,1);
+    }
+
+    public static boolean goatBreakBlock(Player player){
+        int height= 2;
+        boolean hit = false;
+        List<Material> brokenMats = new ArrayList<>();
+        List<Location> brokenLocs = new ArrayList<>();
+        for (Block block: getFacingBlocks(player.getLocation(),player.getFacing(), height, 0)){
+            //System.out.println("block: "+block); //debug
+            if (Data.goatBreakable.contains(block.getType())){
+                //System.out.println("isBreakable"); //debug
+                hit = true;
+                brokenMats.add(block.getType());
+                brokenLocs.add(block.getLocation().add(0.5, 0.5, 0.5));
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        block.breakNaturally(new ItemStack(Material.DIAMOND_PICKAXE));
+                    }
+                }.runTaskLater(MobHeadsV3.getPlugin(), 2);
+            }
         }
+        if (hit){
+            AVFX.playGoatBreakBlockSound(player.getLocation(), brokenMats, brokenLocs);
+            goatRammingPlayers.remove(player);
+        }
+        return hit;
     }
 
     //EntityDamageEvent ------------------------------------------------------------------------------------

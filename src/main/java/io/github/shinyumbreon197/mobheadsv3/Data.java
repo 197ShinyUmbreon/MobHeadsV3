@@ -96,8 +96,7 @@ public class Data {
     );
 
     public static List<Material> goatBreakable = Arrays.asList(
-            Material.DIRT, Material.DIRT_PATH, Material.COARSE_DIRT, Material.ROOTED_DIRT, Material.GRASS_BLOCK, Material.GRASS, Material.TALL_GRASS,
-            Material.FERN, Material.LARGE_FERN, Material.VINE, Material.CAVE_VINES, Material.TWISTING_VINES, Material.WEEPING_VINES,
+            Material.DIRT, Material.DIRT_PATH, Material.COARSE_DIRT, Material.ROOTED_DIRT, Material.GRASS_BLOCK,
             Material.ACACIA_LEAVES, Material.BIRCH_LEAVES, Material.AZALEA_LEAVES, Material.JUNGLE_LEAVES, Material.FLOWERING_AZALEA_LEAVES,
             Material.DARK_OAK_LEAVES, Material.MANGROVE_LEAVES, Material.OAK_LEAVES, Material.SPRUCE_LEAVES, Material.CHERRY_LEAVES,
             Material.STONE, Material.COAL_ORE, Material.IRON_ORE, Material.GOLD_ORE, Material.DIAMOND_ORE, Material.REDSTONE_ORE,
@@ -107,7 +106,9 @@ public class Data {
             Material.FROSTED_ICE, Material.MUSHROOM_STEM, Material.BROWN_MUSHROOM_BLOCK, Material.RED_MUSHROOM_BLOCK,
             Material.LAPIS_ORE, Material.DEEPSLATE_LAPIS_ORE, Material.NETHERRACK, Material.NETHER_QUARTZ_ORE, Material.NETHER_GOLD_ORE,
             Material.COPPER_ORE, Material.DEEPSLATE_COPPER_ORE, Material.RAW_IRON_BLOCK, Material.RAW_COPPER_BLOCK,
-            Material.RAW_GOLD_BLOCK, Material.SOUL_SAND, Material.SOUL_SOIL, Material.BASALT, Material.BAMBOO
+            Material.RAW_GOLD_BLOCK, Material.SOUL_SAND, Material.SOUL_SOIL, Material.BASALT, Material.BAMBOO, Material.END_STONE,
+            Material.CHORUS_PLANT, Material.CHORUS_FRUIT, Material.CHORUS_FLOWER, Material.NETHER_WART_BLOCK, Material.WARPED_WART_BLOCK,
+            Material.CRIMSON_NYLIUM, Material.WARPED_NYLIUM
     );
 
     // Replace foodMats with a list populated with Materials.values().isEdible() that populates on runtime

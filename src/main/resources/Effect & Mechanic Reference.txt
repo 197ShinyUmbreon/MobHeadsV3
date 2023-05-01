@@ -149,7 +149,7 @@ Goat:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: On Crouch-Jump, ram into entities in front of you, damaging and sending them flying. Enhanced by Elytra.
 Squid: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
@@ -548,8 +548,7 @@ Frog:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Regenerate air. Eat low health creatures for health, hunger, and effects.
-		    Jump higher and further when crouching.
+		Mechanic: Regenerate air. Eat low health creatures for health, hunger, and effects. Jump higher and further when crouch-jumping.
 Villager:
 	Tick:
 		Effect:

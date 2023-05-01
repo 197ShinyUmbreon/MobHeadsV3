@@ -51,6 +51,7 @@ public class InteractWithHeadEvents implements Listener {
             UUID uuid = UUID.fromString(uuidString);
             mobHead = Data.mobHeadByUUID.get(uuid);
         }
+        if (mobHead == null)return;
         player.swingOffHand();
         interactCooldown(player, clickedBlock);
         interactEffects(mobHead, e);
