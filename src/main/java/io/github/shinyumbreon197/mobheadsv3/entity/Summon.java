@@ -1,333 +1,308 @@
 package io.github.shinyumbreon197.mobheadsv3.entity;
 
-import io.github.shinyumbreon197.mobheadsv3.AVFX;
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
-import io.github.shinyumbreon197.mobheadsv3.data.Key;
-import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
-import io.github.shinyumbreon197.mobheadsv3.function.Util;
+import io.github.shinyumbreon197.mobheadsv3.effect.AVFX;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class Summon {
+public class Summon implements Listener {
 
-    public static void startSummonThread(){
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                watchSummoners();
-                cleanupItems();
-            }
-        }.runTaskTimer(MobHeadsV3.getPlugin(),0,20);
-    }
-    private static final NamespacedKey summonerKey = Key.summoner;
-    private static final NamespacedKey lifeKey = Key.summonLife;
-    private static final NamespacedKey targetKey = Key.summonTarget;
-    private static int getSummonLifeRemaining(Mob summon){
-        Integer i = 0;
-        if (summon == null) return i;
-        PersistentDataContainer data = summon.getPersistentDataContainer();
-        if (data.has(lifeKey,PersistentDataType.INTEGER)) i = data.get(lifeKey,PersistentDataType.INTEGER);
-        if (i == null) i = 0;
-        return i;
-    }
-    private static void updateSummonLifeRemaining(Mob summon, int life){
-        PersistentDataContainer data = summon.getPersistentDataContainer();
-        data.set(lifeKey,PersistentDataType.INTEGER,life);
-    }
-    public static LivingEntity getSummonerFromSummon(Mob summon){
-        String uuidString = null;
-        PersistentDataContainer data = summon.getPersistentDataContainer();
-        if (data.has(summonerKey,PersistentDataType.STRING)) uuidString = data.get(summonerKey,PersistentDataType.STRING);
-        if (uuidString == null)return null;
-        Entity matchedEnt = Bukkit.getEntity(UUID.fromString(uuidString));
-        if (!(matchedEnt instanceof LivingEntity))return null;
-        return (LivingEntity) matchedEnt;
-    }
-    private static void updateSummonTarget(Mob summon, LivingEntity target){
-        summon.setTarget(target);
-        UUID targetUUID = target.getUniqueId();
-        PersistentDataContainer data = summon.getPersistentDataContainer();
-        data.set(targetKey,PersistentDataType.STRING,targetUUID.toString());
-    }
-    private static boolean reaffirmSummonTarget(Mob summon){
-        LivingEntity currentTarget = summon.getTarget();
-        PersistentDataContainer data = summon.getPersistentDataContainer();
-        String stringUUID = null;
-        if (data.has(targetKey, PersistentDataType.STRING)) stringUUID = data.get(targetKey,PersistentDataType.STRING);
-        if (currentTarget == null || stringUUID == null || !currentTarget.getUniqueId().toString().matches(stringUUID)){
-            return findNewTarget(summon);
-        }
-        return true;
-    }
+    private static final NamespacedKey ownerNSK = new NamespacedKey(MobHeadsV3.getPlugin(),"owner");
+    private static final NamespacedKey targetNSK = new NamespacedKey(MobHeadsV3.getPlugin(),"target");
+    private static final NamespacedKey headItemNSK = new NamespacedKey(MobHeadsV3.getPlugin(), "display");
+    private static final List<Mob> summons = new ArrayList<>();
+    private static final List<Item> headItems = new ArrayList<>();
+    private static final Map<Entity, Integer> summonLifeTimerMap = new HashMap<>();
+    private static final Map<LivingEntity, Integer> summonCooldownTimerMap = new HashMap<>();
 
-    private static boolean findNewTarget(Mob summon){
-        LivingEntity summoner = getSummonerFromSummon(summon);
-        if (summoner == null)return false;
-        List<Mob> nearbyMobs = summon.getNearbyEntities(30,15,30).stream()
-                .filter(entity -> entity instanceof Mob)
-                .map(Mob.class::cast)
-                .collect(Collectors.toList()
-        );
-        List<Mob> validTargets = new ArrayList<>();
-        for (Mob nearbyMob:nearbyMobs){
-            if (nearbyMob.isDead() || nearbyMob.equals(summoner))continue;
-            LivingEntity target = nearbyMob.getTarget();
-            if (target != null && target.equals(summoner)) validTargets.add(nearbyMob);
-        }
-        if (validTargets.size() == 0)return false;
-        Random random = new Random();
-        updateSummonTarget(summon, validTargets.get(random.nextInt(0,validTargets.size())));
-        return true;
-    }
-
-    private static final List<EntityType> summonTypes = List.of(EntityType.WOLF,EntityType.BEE,EntityType.SILVERFISH, EntityType.VEX);
-    public static List<EntityType> getSummonTypes(){
-        return summonTypes;
-    }
-
-    private static final Map<LivingEntity,List<Mob>> summoners = new HashMap<>();
-    private static void addSummonToSummoner(LivingEntity summoner, Mob summon){
-        List<Mob> summons;
-        if (summoners.containsKey(summoner)){
-            summons = summoners.get(summoner);
-        }else summons = new ArrayList<>();
-        summons.add(summon);
-        summoners.put(summoner,summons);
-    }
-    public static void dispelSummon(Mob remove){
-        for (LivingEntity summoner:summoners.keySet()){
-            List<Mob> toKeep = new ArrayList<>();
-            boolean hit = false;
-            for (Mob summon:summoners.get(summoner)){
-                if (summon.equals(remove)){
-                    hit = true;
-                }else{
-                    toKeep.add(summon);
+    @EventHandler
+    public static void onUnloadSummon(ChunkUnloadEvent e){
+        for (Entity entity:e.getChunk().getEntities()){
+            if (isSummon(entity)){
+                for (Entity passenger: entity.getPassengers()){
+                    if (passenger instanceof Item){
+                        headItems.remove(passenger);
+                        passenger.remove();
+                    }
                 }
+                summons.remove(entity);
+                entity.remove();
             }
-            if (hit){
-                summoners.put(summoner,toKeep);
+        }
+    }
+
+    @EventHandler
+    public static void onSummonTarget(EntityTargetLivingEntityEvent e){
+        if (!isSummon(e.getEntity()))return;
+        Mob summon = (Mob) e.getEntity();
+        LivingEntity target = e.getTarget();
+        if (target == null)return;
+        LivingEntity owner = getSummonOwner(summon);
+        if (owner == null)return;
+        boolean canceled = false;
+        if (target.equals(owner) || target.equals(summon) || owner.isDead() || target.isDead() || (owner instanceof Player) && ((Player) owner).isSneaking()){
+            canceled = true;
+        }else if (target instanceof Mob){
+            LivingEntity targetOwner = getSummonOwner((Mob) target);
+            if (targetOwner == null)return;
+            if (!targetOwner.equals(owner))return;
+            canceled = true;
+        }
+        e.setCancelled(canceled);
+    }
+
+    public static Entity getSummonTarget(Mob summon){
+        if (!isSummon(summon))return null;
+        PersistentDataContainer data = summon.getPersistentDataContainer();
+        String targetUUIDString = data.get(targetNSK, PersistentDataType.STRING);
+        if (targetUUIDString == null)return null;
+        UUID targetUUID = UUID.fromString(targetUUIDString);
+        return Bukkit.getEntity(targetUUID);
+    }
+
+    public static LivingEntity getSummonOwner(Mob summon){
+        if (!isSummon(summon))return null;
+        PersistentDataContainer data = summon.getPersistentDataContainer();
+        String ownerUUIDString = data.get(ownerNSK, PersistentDataType.STRING);
+        if (ownerUUIDString == null)return null;
+        UUID ownerUUID = UUID.fromString(ownerUUIDString);
+        return (LivingEntity) Bukkit.getEntity(ownerUUID);
+    }
+
+    public static boolean isSummon(Entity summon){
+        if (summon == null)return false;
+        PersistentDataContainer data = summon.getPersistentDataContainer();
+        return data.has(ownerNSK, PersistentDataType.STRING);
+    }
+
+    public static Location getSafeSummonLocation(Location summonerLoc, BlockFace facing){
+        List<Material> airMats = List.of(Material.AIR, Material.CAVE_AIR, Material.WATER);
+        List<Material> unsafeMats = List.of(Material.LAVA, Material.FIRE, Material.SOUL_FIRE, Material.CAMPFIRE, Material.SOUL_CAMPFIRE, Material.SWEET_BERRY_BUSH);
+        World world = summonerLoc.getWorld();
+        //summonerLoc = summonerLoc.add(0,1,0);
+        if (world == null)return summonerLoc;
+        Block source = world.getBlockAt(summonerLoc);
+        Block above = source.getRelative(BlockFace.UP);
+        Block below = source.getRelative(BlockFace.DOWN);
+        List<Block> surround = new ArrayList<>();
+        List<BlockFace> blockFaces = List.of(
+                BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST,
+                BlockFace.NORTH_EAST, BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST
+                );
+        List<BlockFace> blockFacesToCheck = new ArrayList<>();
+        for (BlockFace blockFace:blockFaces){
+            if (blockFace.equals(facing))continue;
+            blockFacesToCheck.add(blockFace);
+        }
+        blockFacesToCheck.add(facing);
+        for (BlockFace blockFace:blockFacesToCheck){
+            if (!blockFaces.contains(blockFace))continue;
+            surround.add(source.getRelative(blockFace));
+        }
+        for (BlockFace blockFace:blockFacesToCheck){
+            if (!blockFaces.contains(blockFace))continue;
+            surround.add(above.getRelative(blockFace));
+        }
+        for (BlockFace blockFace:blockFacesToCheck){
+            if (!blockFaces.contains(blockFace))continue;
+            surround.add(below.getRelative(blockFace));
+        }
+        Location summonLoc = summonerLoc;
+        for (Block block:surround){
+            Material beneathMat = block.getRelative(BlockFace.DOWN).getType();
+            Material sourceMat = block.getType();
+            if (airMats.contains(sourceMat) && !unsafeMats.contains(beneathMat)){
+                summonLoc = block.getLocation().add(0.5, 0, 0.5);
+                //System.out.println("Found summon spot at "+summonLoc); //debug
                 break;
             }
-        }
-        removeSummon(remove);
-    }
-    private static void watchSummoners(){
-        Map<LivingEntity,List<Mob>> newMap = new HashMap<>();
-        List<Mob> toRemove = new ArrayList<>();
-        for (LivingEntity summoner:summoners.keySet()){
-            List<Mob> summons = summoners.get(summoner);
-            if (summons.size() == 0)continue;
-            List<Mob> toKeep = new ArrayList<>();
-            for (Mob summon:summons){
-                int life = getSummonLifeRemaining(summon);
-                boolean validTarget = reaffirmSummonTarget(summon);
-                if (!validTarget || summon.isDead() || life == 0){
-                    toRemove.add(summon);
-                    continue;
-                }
-                life--;
-                updateSummonLifeRemaining(summon,life);
-                toKeep.add(summon);
-            }
-            if (toKeep.size() == 0)continue;
-            newMap.put(summoner,toKeep);
-        }
-        for (Mob remove:toRemove){
-            AVFX.playSummonDispelEffect(remove.getLocation());
-            removeSummon(remove);
-        }
-        summoners.clear();
-        summoners.putAll(newMap);
-    }
-    private static void cleanupItems(){
-        List<Entity> toRemove = new ArrayList<>();
-        for (World world:Bukkit.getWorlds()){
-            for (Entity entity: world.getEntities()){
-                if (!(entity instanceof Item) || entity.getVehicle() != null)continue;
-                PersistentDataContainer data = entity.getPersistentDataContainer();
-                if (data.has(summonerKey,PersistentDataType.STRING)){
-                    toRemove.add(entity);
-                }
-            }
-        }
-        for (Entity entity:toRemove) entity.remove();
-    }
-    private static void removeSummon(Mob summon){
-        for (Entity passenger:summon.getPassengers()){
-            if (passenger instanceof Item) passenger.remove();
-        }
-        summon.remove();
-    }
-
-    private static final List<LivingEntity> summonerCooldown = new ArrayList<>();
-    private static boolean onCooldown(LivingEntity owner){
-        return summonerCooldown.contains(owner);
-    }
-    private static void putOnCooldown(LivingEntity summoner, int seconds){
-        if (onCooldown(summoner))return;
-        summonerCooldown.add(summoner);
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                summonerCooldown.remove(summoner);
-            }
-        }.runTaskLater(MobHeadsV3.getPlugin(), seconds * 20L);
-    }
-
-    public static void spawnSummon(Location location, EntityType entityType, LivingEntity summoner, Entity target){
-        if (onCooldown(summoner) || !(target instanceof LivingEntity))return;
-        LivingEntity livingTarget = (LivingEntity) target;
-        World world = location.getWorld();
-        if (world == null)return;
-
-        Location summonLoc = getSummoningLoc(summoner,entityType);
-
-        Mob summon = specializeSummon((Mob) world.spawnEntity(summonLoc,entityType));
-        summon.setTarget(livingTarget);
-        summon.setRemoveWhenFarAway(true);
-        summon.setCanPickupItems(false);
-        summon.setLootTable(null);
-        summon.setPersistent(false);
-
-        Vector velocity = getSummoningVelocity(summoner, entityType);
-        summon.setVelocity(velocity);
-
-        Item ownerHeadItem = getOwnerHeadItem(summoner, summon.getLocation());
-        summon.addPassenger(ownerHeadItem);
-
-        PersistentDataContainer data = summon.getPersistentDataContainer();
-        data.set(summonerKey, PersistentDataType.STRING, summoner.getUniqueId().toString());
-        data.set(targetKey,PersistentDataType.STRING,livingTarget.getUniqueId().toString());
-        data.set(lifeKey,PersistentDataType.INTEGER,getSummonTypeLifespan(entityType));
-        AVFX.playSummonEffect(summonLoc,entityType);
-        //addSummon(new Summon(summon,summoner,livingTarget,getSummonTypeLifespan(entityType),getSummonTypeCooldown(entityType)));
-        addSummonToSummoner(summoner,summon);
-        putOnCooldown(summoner,getSummonTypeCooldown(entityType));
-    }
-
-    private static Location getSummoningLoc(LivingEntity owner, EntityType summonType){
-        Location summonLoc = owner.getLocation();
-        switch (summonType){
-            case WOLF, SILVERFISH -> {summonLoc = Util.getSafeTeleportLoc(owner.getLocation(),2,2,2);}
-            case BEE -> {summonLoc = owner.getEyeLocation().add(0,0.3,0);}
-            case VEX -> {summonLoc = owner.getEyeLocation();}
         }
         return summonLoc;
     }
 
-    private static Vector getSummoningVelocity(LivingEntity owner, EntityType summonType){
-        Vector velocity = new Vector();
-        Vector facing = owner.getLocation().getDirection();
-        facing.setY(0);
-        switch (summonType){
-            case WOLF -> {}
-            case BEE -> {velocity = velocity.add(facing).multiply(-0.6).add(new Vector(0,0.25,0));}
-            case SILVERFISH -> {}
-            case VEX -> {velocity = facing.clone().multiply(-0.3);}
-        }
-        return velocity;
-    }
-
-    public static boolean entityIsSummon(Entity entity){
-        PersistentDataContainer data = entity.getPersistentDataContainer();
-        return data.has(summonerKey,PersistentDataType.STRING);
-    }
-
-    private static Item getOwnerHeadItem(LivingEntity owner, Location spawnLoc){
-        ItemStack headItem = new ItemStack(Material.PLAYER_HEAD);
-        MobHead mobHead = MobHead.getMobHeadOfEntity(owner);
-        if (mobHead != null) headItem = mobHead.getHeadItemStack();
-        World world = owner.getWorld();
-        Item item = world.dropItem(spawnLoc,headItem);
-        PersistentDataContainer data = item.getPersistentDataContainer();
-        data.set(summonerKey, PersistentDataType.STRING, owner.getUniqueId().toString());
-        item.setPickupDelay(99999);
-        item.setCustomName(ChatColor.RED + owner.getName());
-        item.setCustomNameVisible(true);
-        return item;
-    }
-    public static PotionEffect getSummonAfflictionEffect(EntityType summonType){
-        switch (summonType){
-            default -> {
-                return null;
+    private static void manageDisplays(){
+        List<Item> toRemove = new ArrayList<>();
+        for (Item item: headItems){
+            Entity vehicle = item.getVehicle();
+            PersistentDataContainer data = item.getPersistentDataContainer();
+            boolean isSummonDisplay = data.has(Summon.headItemNSK, PersistentDataType.STRING);
+            if (!isSummonDisplay)continue;
+            if (vehicle == null){
+                toRemove.add(item);
+                item.remove();
+            }else{
+                float yaw = vehicle.getLocation().getYaw();
+                float pitch = vehicle.getLocation().getPitch();
+                item.setRotation(yaw, pitch);
             }
+        }
+        headItems.removeAll(toRemove);
+    }
+
+    public static void manageSummons(){
+        manageDisplays();
+        List<LivingEntity> toRemoveFromCooldown = new ArrayList<>();
+        for (LivingEntity owner:summonCooldownTimerMap.keySet()){
+            int timer = summonCooldownTimerMap.get(owner);
+            timer = timer - 10;
+            if (timer <= 0){
+                toRemoveFromCooldown.add(owner);
+            }else summonCooldownTimerMap.put(owner, timer);
+        }
+        for (LivingEntity toRemove:toRemoveFromCooldown){
+            summonCooldownTimerMap.remove(toRemove);
+        }
+        List<Entity> summonsToBeRemoved = new ArrayList<>();
+        for (Mob summon:summons){
+            if (summonLifeTimerMap.containsKey(summon)){
+                int timer = summonLifeTimerMap.get(summon);
+                timer = timer - 10;
+                if (timer <= 0 || (summon instanceof LivingEntity && summon.isDead())){
+                    summonLifeTimerMap.remove(summon);
+                    summonsToBeRemoved.add(summon);
+                }else summonLifeTimerMap.put(summon, timer);
+            }
+            PersistentDataContainer data = summon.getPersistentDataContainer();
+            String ownerUUIDString = data.get(ownerNSK,PersistentDataType.STRING);
+            String targetUUIDString = data.get(targetNSK,PersistentDataType.STRING);
+            if (ownerUUIDString == null || targetUUIDString == null){
+                summonsToBeRemoved.add(summon);
+                continue;
+            }
+            UUID ownerUUID = UUID.fromString(ownerUUIDString);
+            UUID targetUUID = UUID.fromString(targetUUIDString);
+            LivingEntity owner = (LivingEntity) Bukkit.getEntity(ownerUUID);
+            LivingEntity target = (LivingEntity) Bukkit.getEntity(targetUUID);
+            if (owner == null){
+                summonsToBeRemoved.add(summon);
+                continue;
+            }
+            if (target == null || target.isDead() || target.equals(summon) || target.equals(owner)){
+                target = findNewTarget(owner, summon);
+                if (target == null || target.isDead() || target.equals(summon)){
+                    summonsToBeRemoved.add(summon);
+                    continue;
+                }
+            }
+            EntityType summonType = summon.getType();
+            summon.setTarget(target);
+        }
+        for (Entity toRemove:summonsToBeRemoved){
+            summons.remove(toRemove);
+            AVFX.playSummonEffect(toRemove.getLocation());
+            if (toRemove.getPassengers().size() != 0){
+                for (Entity passenger:toRemove.getPassengers()){
+                    PersistentDataContainer data = passenger.getPersistentDataContainer();
+                    if (data.has(headItemNSK,PersistentDataType.STRING)) passenger.remove();
+                }
+            }
+            toRemove.remove();
+        }
+    }
+
+    private static LivingEntity findNewTarget(LivingEntity owner, Mob summon){
+        PersistentDataContainer data = summon.getPersistentDataContainer();
+        List<Entity> nearbyOwner = owner.getNearbyEntities(15, 5, 15);
+        for (Entity nearby:nearbyOwner){
+            if (!(nearby instanceof Mob))continue;
+            Mob mobNearby = (Mob) nearby;
+            LivingEntity mobTarget = mobNearby.getTarget();
+            if (mobTarget != null && mobTarget.equals(owner)){
+                data.set(targetNSK, PersistentDataType.STRING, mobNearby.getUniqueId().toString());
+                return mobNearby;
+            }
+        }
+        return null;
+    }
+
+    public static void summon(LivingEntity owner, LivingEntity target, EntityType summonType){
+        List<EntityType> whitelistedSummons = List.of(EntityType.WOLF, EntityType.SILVERFISH, EntityType.BEE);
+        if (!whitelistedSummons.contains(summonType))return;
+        if (summonCooldownTimerMap.get(owner) != null)return;
+        Random random = new Random();
+        Location location = owner.getLocation();
+        World world = location.getWorld();
+        if (world == null || target == null)return;
+        int lifeTimer = 60*20;
+        int cooldownTimer = 10*20;
+        switch (summonType){
+            case BEE -> {location = owner.getEyeLocation(); lifeTimer = 30*20; cooldownTimer = 2*20;}
+            case SILVERFISH -> {location = getSafeSummonLocation(owner.getLocation(), owner.getFacing()); cooldownTimer = 20;}
+            case WOLF -> {location = getSafeSummonLocation(owner.getLocation(), owner.getFacing());}
+        }
+        Mob summon = (Mob) world.spawnEntity(location, summonType);
+
+        summons.add(summon);
+        summonLifeTimerMap.put(summon, lifeTimer);
+        summonCooldownTimerMap.put(owner, cooldownTimer);
+
+        PersistentDataContainer data = summon.getPersistentDataContainer();
+        data.set(ownerNSK, PersistentDataType.STRING, owner.getUniqueId().toString());
+        data.set(targetNSK, PersistentDataType.STRING, target.getUniqueId().toString());
+
+        switch (summonType){
             case BEE -> {
-                return PotionEffectManager.buildSimpleEffect(PotionEffectType.POISON,1,5*20);
+                Bee bee = (Bee) summon;
+                bee.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, lifeTimer, 0, false));
+                bee.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, lifeTimer,1,false));
+                bee.setAnger(99);
+                bee.setHealth(3.0);
+                Vector direction = owner.getLocation().getDirection();
+                direction.setX(direction.getX()*-0.3);
+                direction.setZ(direction.getZ()*-0.3);
+                direction.setY(0);
+                bee.setVelocity(bee.getVelocity().setY(0.15).add(direction));
+                AVFX.playBeeSummonEffect(location);
             }
-        }
-    }
-
-    private static Mob specializeSummon(Mob summon){
-        switch (summon.getType()){
             case WOLF -> {
-                Wolf wolfSummon = (Wolf) summon;
-                wolfSummon.setAngry(true);
-                wolfSummon.setCollarColor(DyeColor.BLACK);
-                wolfSummon.addPotionEffects(List.of(
-                        new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,9999,0,false),
-                        new PotionEffect(PotionEffectType.SPEED,9999,0,false)
-                ));
-            }
-            case BEE -> {
-                Bee beeSummon = (Bee) summon;
-                beeSummon.setAnger(1);
-                beeSummon.setCannotEnterHiveTicks(9999);
-                beeSummon.setHealth(6);
-                beeSummon.addPotionEffects(List.of(
-                        new PotionEffect(PotionEffectType.INCREASE_DAMAGE,9999,0,false),
-                        new PotionEffect(PotionEffectType.SPEED,9999,0,false)
-                ));
+                Wolf wolf = (Wolf) summon;
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, lifeTimer,1,false));
+                wolf.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, lifeTimer,1,false));
+                wolf.setAngry(true);
+                wolf.setCollarColor(DyeColor.BLACK);
+                AVFX.playWolfSummonEffect(location);
             }
             case SILVERFISH -> {
-                Silverfish silverfishSummon = (Silverfish) summon;
-                silverfishSummon.addPotionEffects(List.of(
-                        new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,9999,0,false),
-                        new PotionEffect(PotionEffectType.INCREASE_DAMAGE,9999,0,false),
-                        new PotionEffect(PotionEffectType.SPEED,9999,0,false)
-                ));
-            }
-            case VEX -> {
-                Vex vexSummon = (Vex) summon;
-                vexSummon.setBound(vexSummon.getLocation());
-                vexSummon.setHealth(4);
-                vexSummon.addPotionEffects(List.of(
-                        new PotionEffect(PotionEffectType.WEAKNESS,9999,0,false)
-                ));
+                summon.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, lifeTimer,0,false));
+                summon.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, lifeTimer,1,false));
+                AVFX.playSummonEffect(location);
             }
         }
-        return summon;
-    }
 
-    private static int getSummonTypeCooldown(EntityType summonType){
-        switch (summonType){
-            case WOLF -> {return 5;}
-            case BEE, VEX -> {return 1;}
-            case SILVERFISH -> {return 0;}
+        ItemStack ownerHeadItem = HeadUtil.getHeadItemFromEntity(owner);
+        if (owner instanceof Player){
+            MobHead ownerHead = HeadUtil.getHeadFromUUID(owner.getUniqueId());
+            if (ownerHead != null) ownerHeadItem = ownerHead.getHeadItem();
         }
-        return -1;
+
+        Item item = world.dropItem(location, new ItemStack(Material.PLAYER_HEAD));
+        if (ownerHeadItem != null) item.setItemStack(ownerHeadItem);
+        item.setPickupDelay(Integer.MAX_VALUE);
+        item.setCustomName(ChatColor.RED+owner.getName());
+        item.setCustomNameVisible(true);
+
+        PersistentDataContainer itemData = item.getPersistentDataContainer();
+        itemData.set(headItemNSK, PersistentDataType.STRING, summon.getUniqueId().toString());
+
+        summon.addPassenger(item);
+        summon.setTarget(target);
+        summon.setRemoveWhenFarAway(true);
     }
-
-    private static int getSummonTypeLifespan(EntityType summonType){
-        switch (summonType){
-            case WOLF -> {return 60*20;}
-            case BEE -> {return 30*20;}
-            case SILVERFISH, VEX -> {return 15*20;}
-        }
-        return -1;
-    }
-
-
 
 }

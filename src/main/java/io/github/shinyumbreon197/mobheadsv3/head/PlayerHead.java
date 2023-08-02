@@ -1,10 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.head;
 
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
-import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadItemStack;
+import io.github.shinyumbreon197.mobheadsv3.tool.HeadUtil;
 import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,25 +15,27 @@ import org.bukkit.profile.PlayerProfile;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
-
 public class PlayerHead {
+
+    private static final Sound interactSound = Sound.ENTITY_PLAYER_HURT;
 
     public static void registerOnlinePlayers(){
         List<Player> toRegister = new ArrayList<>(Bukkit.getOnlinePlayers());
         for (Player player:toRegister){
-            if (debug) System.out.println("Checking Register for " + player.getDisplayName()); //debug
-            if (!MobHead.isUUIDRegistered(player.getUniqueId())){
-                if (debug) System.out.println("New player. Registering " + player.getDisplayName()); //debug
+            if (!Data.mobHeadByUUID.containsKey(player.getUniqueId())){
                 writeNewPlayerToFile(player);
             }
         }
     }
 
+    public static boolean isNewPlayer(Player player){
+        return !Data.mobHeadByUUID.containsKey(player.getUniqueId());
+    }
+
     public static void writeNewPlayerToFile(Player player){
         MobHead newPlayerHead = buildPlayerHead(player);
-        MobHead.addMobHead(newPlayerHead);
-        MobHeadsV3.playerRegistry.addToRegistry(Serializer.serializeItemStack(newPlayerHead.getHeadItemStack()));
+        Data.registerHead(newPlayerHead);
+        MobHeadsV3.playerRegistry.addToRegistry(Serializer.serializeItemStack(newPlayerHead.getHeadItem()));
     }
 
     public static void registerPlayerHistory(){
@@ -40,30 +43,30 @@ public class PlayerHead {
         MobHeadsV3.playerRegistry.updateRegistryFromFile();
         for (String string:MobHeadsV3.playerRegistry.getRegistry()){
             MobHead mobHead = rebuildPlayerHead(Serializer.deserializeItemStack(string));
-            System.out.println("Registering "+mobHead.getDisplayName()+", "+mobHead.getUuid().toString()+"...");
-            MobHead.addMobHead(mobHead);
+            System.out.println("Registering "+mobHead.getName()+", "+mobHead.getUuid().toString()+"...");
+            Data.registerHead(mobHead);
         }
     }
 
     public static MobHead buildPlayerHead(Player player){
         String headName = player.getName()+"'s Head";
         ItemStack playerHead = buildPlayerHeadItem(player);
-        return new MobHead(player.getUniqueId(),headName,EntityType.PLAYER,playerHead,null,List.of());
+        return new MobHead(EntityType.PLAYER, null, headName, playerHead, null, player.getUniqueId(), interactSound);
     }
 
     public static ItemStack buildPlayerHeadItem(Player player){
         String headName = player.getName()+"'s Head";
-        return HeadItemStack.customHead(headName,player.getUniqueId(),player.getPlayerProfile(), List.of());
+        return HeadUtil.customHead(headName, player.getUniqueId(), player.getPlayerProfile());
     }
 
     public static MobHead rebuildPlayerHead(ItemStack headItem){
-        MobHead mobHead = null;
+        MobHead mobHead = new MobHead();
         SkullMeta skullMeta = (SkullMeta) headItem.getItemMeta();
         if (skullMeta != null){
             PlayerProfile pp = skullMeta.getOwnerProfile();
             if (pp != null){
                 String headName = pp.getName()+"'s Head";
-                mobHead = new MobHead(pp.getUniqueId(),headName,EntityType.PLAYER,headItem,null,List.of());
+                mobHead = new MobHead(EntityType.PLAYER, null, headName, headItem, null, pp.getUniqueId(), interactSound);
             }
         }
         return mobHead;
