@@ -1,7 +1,7 @@
 name: MobHeadsV3
 version: '${project.version}'
 main: io.github.shinyumbreon197.mobheadsv3.MobHeadsV3
-api-version: 1.19
+api-version: '1.20'
 softdepend: [ ProtocolLib ]
 authors: [ 197ShinyUmbreon ]
 description: All creatures have a chance to drop their head when killed by a Player, and those heads have many effects.
@@ -12,3 +12,5 @@ commands:
   summonheaded:
     description: Summons an Entity with a MobHead in their Helmet slot
     usage: /summonheaded <entityname>
+  center:
+    description: test

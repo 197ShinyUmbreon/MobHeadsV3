@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.tool;
 
-import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -21,7 +21,7 @@ public class StringBuilder {
         }else{
             EntityType entityType = mobHead.getEntityType();
             if (entityType.equals(EntityType.PLAYER)){
-                String headName = mobHead.getName().replace("'s Head", "");
+                String headName = mobHead.getDisplayName().replace("'s Head", "");
                 newName = player.getName() + " (" + headName + ")";
             }else{
                 newName = player.getName() + " (" + friendlyEntityTypeName(entityType) + ")";
