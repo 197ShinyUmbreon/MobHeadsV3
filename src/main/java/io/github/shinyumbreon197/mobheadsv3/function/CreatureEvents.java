@@ -250,6 +250,7 @@ public class CreatureEvents {
     }
 
     // Spider / Cave Spider --------------------------------------------------------------------------------------------
+    
 
     // Rabbit ----------------------------------------------------------------------------------------------------------
     private static final PotionEffect rabbitSpeedEffect = PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,2,200);

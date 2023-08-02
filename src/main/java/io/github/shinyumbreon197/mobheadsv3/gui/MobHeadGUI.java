@@ -1,8 +1,12 @@
 package io.github.shinyumbreon197.mobheadsv3.gui;
 
-import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.Data;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
-import org.bukkit.*;
+import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -35,36 +39,45 @@ public class MobHeadGUI implements Listener {
         String title = e.getView().getTitle();
         if (!title.contains(headGUIName))return;
         Player player = (Player) e.getWhoClicked();
-        ItemStack clickedItem = e.getCurrentItem();
+        boolean illegalAction = false;
         if (e.getClickedInventory() == null){
             e.setCancelled(true); close(player); return;
-        }else if (clickedItem != null && e.getClickedInventory().equals(e.getView().getTopInventory())){
-            Material clickedItemMaterial = clickedItem.getType();
-            int pageIndex;
-            try{
-                pageIndex = Integer.parseInt(""+title.charAt(title.length()-1)) -1;
-            }catch (NumberFormatException ex){
-                ex.printStackTrace();
-                pageIndex = 0;
-            }
-            switch (clickedItemMaterial){
-                case BARRIER: player.closeInventory(); break;
-                case STONE_BUTTON:
-                    player.openInventory(headInvs().get(pageIndex-1));
-                    break;
-                case POLISHED_BLACKSTONE_BUTTON:
-                    player.openInventory(headInvs().get(pageIndex+1));
-                    break;
-                case PLAYER_HEAD, ZOMBIE_HEAD, SKELETON_SKULL, WITHER_SKELETON_SKULL, CREEPER_HEAD, DRAGON_HEAD:
-                    if (player.isOp() || player.getGameMode().equals(GameMode.CREATIVE)){
-                        if (argsMap.containsKey(player)){
-                            spawnHeadedEntity(player, clickedItem);
-                        }else{
-                            addHeadItem(player, clickedItem, e.getClick());
-                        }
+        }
+        if (!e.getClickedInventory().getType().equals(InventoryType.CHEST)) illegalAction = true;
+        ItemStack clickedItem = e.getCurrentItem();
+        if (clickedItem == null){
+            e.setCancelled(true); close(player); return;
+        }
+        if (!whitelistedMats.contains(e.getCurrentItem().getType())) illegalAction = true;
+        Material clickedItemMaterial = clickedItem.getType();
+        if (illegalAction){
+            e.setCancelled(true); close(player); return;
+        }
+        int pageIndex;
+        try{
+            pageIndex = Integer.parseInt(""+title.charAt(title.length()-1)) -1;
+        }catch (NumberFormatException ex){
+            ex.printStackTrace();
+            pageIndex = 0;
+        }
+        switch (clickedItemMaterial){
+            case BARRIER:
+            default: player.closeInventory(); break;
+            case STONE_BUTTON:
+                player.openInventory(headInvs().get(pageIndex-1));
+                break;
+            case POLISHED_BLACKSTONE_BUTTON:
+                player.openInventory(headInvs().get(pageIndex+1));
+                break;
+            case PLAYER_HEAD, ZOMBIE_HEAD, SKELETON_SKULL, WITHER_SKELETON_SKULL, CREEPER_HEAD, DRAGON_HEAD:
+                if (player.isOp()){
+                    if (argsMap.containsKey(player)){
+                        spawnHeadedEntity(player, clickedItem);
+                    }else{
+                        addHeadItem(player, clickedItem, e.getClick());
                     }
-                    break;
-            }
+                }
+                break;
         }
         e.setCancelled(true);
     }
@@ -165,11 +178,11 @@ public class MobHeadGUI implements Listener {
         List<ItemStack> items = new ArrayList<>();
         int index = 0;
         int headIndex = 0;
-        for (MobHead mobHead: MobHead.getMobHeads()){
-            ItemStack headItem = mobHead.getHeadItemStack();
+        for (MobHead mobHead: Data.getMobHeads()){
+            ItemStack headItem = mobHead.getHeadItem();
             items.add(index, headItem);
             index++;
-            if (index > 50 | headIndex == MobHead.getMobHeads().size()-1){
+            if (index > 50 | headIndex == Data.getMobHeads().size()-1){
                 Inventory inv = Bukkit.createInventory(
                         null, 54, headGUIName+" Page: "+(invs.size()+1)
                 );
@@ -182,7 +195,7 @@ public class MobHeadGUI implements Listener {
                 if (headIndex > 54){
                     inv.setItem(51, invPrevButton());
                 }
-                if (headIndex != MobHead.getMobHeads().size()-1){
+                if (headIndex != Data.getMobHeads().size()-1){
                     inv.setItem(52, invNextButton());
                 }
                 inv.setItem(53, invCloseButton());
