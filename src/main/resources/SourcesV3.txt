@@ -97,6 +97,12 @@ http://textures.minecraft.net/texture/e1c59dccde4b8535500dcf6794ca450663f607290e
 Tadpole: X
 19412602-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/6cc9b9740bd3adeba52e0ce0a77b3dfdef8d3a40555a4e8bb67d200cd62770d0
+Sniffer: 
+2dacfa00-20f2-11ee-be56-0242ac120002
+http://textures.minecraft.net/texture/87ad920a66e38cc3426a5bff084667e8772116915e298098567c139f222e2c42
+Camel:
+2dacfe06-20f2-11ee-be56-0242ac120002
+http://textures.minecraft.net/texture/ba4c95bfa0b61722255389141b505cf1a38bad9b0ef543de619f0cc9221ed974
 
 Single-Skin Hostiles
 

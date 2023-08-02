@@ -7,48 +7,55 @@ Common
 		Mechanic: Online Player list will display currently worn head.
 	Event:
 		Effect:
-		Mechanic: No sight-line aggro if wearer is of same type. Nearby of same type aggro on attack.
-		
+		Mechanic: No sight-line aggro if wearer is of same type or group. Nearby of same type and group aggro on attack.
+	Enchantments:
 
 Vanilla Mob Heads
 
 Zombie: 
 	Tick:
 		Effect: Hunger, Lv1, Infinite. Slowness, Lv1, Infinite.
+			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic: No hunger depletion under 19/20.
 	Event:
 		Effect:
 			Affliction: Hunger, Lv1, 10 Sec.
 		Mechanic:
+	Enchantments:
 Skeleton: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
-		Effect:
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
 		Mechanic:
+	Enchantments: Projectile Protection, Lv3.
 Creeper: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Right-Click while holding Gunpowder to create a small explosion, damaging and sending anything nearby flying.
+	Enchantments: Explosion Resist, Lv4.
 Wither Skeleton: 
 	Tick:
-		Effect: Wither, Lv1, Infinite.
+		Effect: Wither, Lv1, Infinite. 
+			Removal Penalty: Wither, Lv1, 4 Sec.
 		Mechanic: Immune to Wither damage.
 	Event:
-		Effect:
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
 			Affliction: Wither, Lv2, 4 Sec.
 		Mechanic:
+	Enchantments:
 Ender Dragon: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: On Sneak-Jump with an Elytra equipped, gain vertical and forward momentum. Half-Damage from flying into wall.
+	Enchantments:
 
 Single-Skin Passives
 
@@ -58,7 +65,8 @@ Cow:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: You can be milked when right-clicked with an empty bucket or an empty hand.
+	Enchantments:
 Pig: 
 	Tick:
 		Effect:
@@ -66,6 +74,7 @@ Pig:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Chicken: 
 	Tick:
 		Effect: Feather Falling, Lv1, Infinite.
@@ -73,6 +82,7 @@ Chicken:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Wolf: 
 	Tick:
 		Effect:
@@ -80,132 +90,155 @@ Wolf:
 	Event:
 		Effect:
 		Mechanic: Summons wolf ally on damage from entity.
+	Enchantments:
 Donkey: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Mountable by other Players. Step up 1-high.
+	Enchantments:
 Mule: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Mountable by other Players. Step up 1-high.
+	Enchantments:
 Dolphin: 
 	Tick:
-		Effect: If exposed to water; Dolphin's Grace, Lv1, Infinite. Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Effect: Dolphin's Grace, Lv1, Infinite. 
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Cod: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Salmon: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Pufferfish: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
+			Retaliation: Poison, Lv1, 3 Sec.
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Tropical Fish: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Turtle: 
 	Tick:
-		Effect:
-		Mechanic: Regenerate Air.
+		Effect: Resistance, Lv1, Infinite. If not exposed to water; Slowness, Lv1, Infinite; 
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Strider: 
 	Tick:
-		Effect:
+		Effect: Fire Resistance, Lv1, Infinite;
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Mountable by other Players
+	Enchantments: Fire Resistance, Lv3.
 Goat: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: On Crouch-Jump, ram into entities in front of you, damaging and sending them flying. Enhanced by Elytra.
+		Mechanic: On Crouch-Jump, ram into entities in front of you, damaging and sending them flying. Enhanced by Elytra. Breaks some natural blocks. Half-Damage from Kinetic.
+	Enchantments:
 Squid: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Bee: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+			Affliction: Poison, Lv1, 5 Sec.
+		Mechanic: On damage from enemy, summon a Bee that will sting them and give them Poison 1 for 5 seconds.
+	Enchantments:
 Bat: 
 	Tick:
-		Effect:
-		Mechanic:
+		Effect: Blindness, Lv1, Infinite;
+		Mechanic: (Packet) Shows all nearby Entities as Glowing. NYI
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Ocelot: 
 	Tick:
-		Effect:
+		Effect: Speed, Lv1, Infinite; Jump, Lv1, Infinite;
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Halve damage from falls.
+	Enchantments:
 Snowman: 
 	Tick:
-		Effect:
+		Effect: If exposed to Snowfall; Regeneration, Lv1, Infinite; Speed, Lv1, Infinite; If exposed to Water; Wither, Lv1, Infinite;
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic:
+		Effect: 
+			Affliction: If snowball; Slowness, Lv2, 5 Seconds.
+		Mechanic: Increases damage of Snowballs. (NYI)
+	Enchantments:
 Polar Bear: 
 	Tick:
-		Effect:
+		Effect: If on snow/ice; Speed, Lv1, Infinite. (NYI)
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: 
+	Enchantments:
 Skeleton Horse: 
 	Tick:
-		Effect:
-		Mechanic: Regenerate Air.
-	Event:
-		Effect:
+		Effect: Speed, Lv2, Infinite.
 		Mechanic:
+	Event:
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv3, 5 min. (NYI)
+		Mechanic: Mountable by other Players. Step up 1-high.
+	Enchantments: Water Breathing, Lv3.
 Zombie Horse: 
 	Tick:
-		Effect: Hunger, Lv1, Infinite. Speed, Lv1, Infinite.
+		Effect: Hunger, Lv1, Infinite. Speed, Lv2, Infinite.
+			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: No hunger depletion under 19/20.
+		Effect: 
+		Mechanic: No hunger depletion under 19/20. Mountable by other Players. Step up 1-high.
+	Enchantments:
 Wandering Trader: 
 	Tick:
 		Effect:
@@ -213,20 +246,23 @@ Wandering Trader:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Iron Golem: 
 	Tick:
-		Effect:
+		Effect: Resistance, Lv2, Infinite. Slow, Lv3, Infinite. Attack, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Glow Squid: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite. Night Vision, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Allay: 
 	Tick:
 		Effect:
@@ -234,13 +270,31 @@ Allay:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Tadpole: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
+Sniffer:
+    Tick:
+        Effect:
+        Mechanic: (Packet) Suspicious blocks emit faint particles.
+    Event:
+        Effect:
+        Mechanic:
+	Enchantments:
+Camel:
+    Tick:
+        Effect: If on sandy block; Speed, Lv1, Infinite.
+        Mechanic: 
+    Event:
+        Effect:
+        Mechanic: Mountable by other Players. Sneak-Jump to dash. (Same distance, height and cooldown as Camel)
+	Enchantments:
 
 Single-Skin Hostiles
 
@@ -250,58 +304,69 @@ Silverfish:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: When attacked, summons a Silverfish ally.
+	Enchantments:
 Stray: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
-		Effect:
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
+			Affliction: Slow, Lv1, 3 Sec.
 		Mechanic:
+	Enchantments: Projectile Protection, Lv3.
 Shulker: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
-		Effect:
+		Effect: If not on the ground, Sneaking will give Levitation III for up to 20 seconds.
+			Affliction: Levitation, Lv1, 1 Sec.
 		Mechanic:
+	Enchantments: Protection 2.
 Phantom: 
 	Tick:
-		Effect:
+		Effect: NightVision, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: No hunger depletion under 19/20.
+		Mechanic: 
+	Enchantments:
 Husk: 
 	Tick:
-		Effect: Hunger, Lv1, Infinite. Slow, Lv1, Infinite.
+		Effect: Hunger, Lv1, Infinite. If not standing on Sand; Slow, Lv1, Infinite.
+			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Fire Resistance, Lv1.
 Drowned: 
 	Tick:
-		Effect: Hunger, Lv1, Infinite. 
-			If exposed to water; Strength, Lv1, Infinite. Haste, Lv1, Infinite. 
-			If not exposed to water; Slow, Lv1, Infinite.
-		Mechanic: Regenerate Air. No hunger depletion under 19/20.
+		Effect: Hunger, Lv1, Infinite. If exposed to water; Strength, Lv1, Infinite. Haste, Lv1, Infinite. If not exposed to water; Slow, Lv1, Infinite.
+			Removal Penalty: Hunger, Lv1, 5 Sec.
+		Mechanic: No hunger depletion under 19/20.
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
 Hoglin: 
 	Tick:
-		Effect:
+		Effect: Attack Up, Lv1, Infinite;
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Fire Resistance, Lv2.
 Zoglin: 
 	Tick:
-		Effect: Hunger, Lv1, Infinite.
+		Effect: Hunger, Lv1, Infinite. Attack Up, Lv1, Infinite;
+			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic: No hunger depletion under 19/20.
+	Enchantments: Fire Resistance, Lv2.
 Piglin: 
 	Tick:
 		Effect:
@@ -309,6 +374,7 @@ Piglin:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Fire Resistance, Lv2.
 Piglin Brute: 
 	Tick:
 		Effect:
@@ -316,6 +382,7 @@ Piglin Brute:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Fire Resistance, Lv2.
 Witch: 
 	Tick:
 		Effect:
@@ -323,13 +390,15 @@ Witch:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Guardian: 
 	Tick:
-		Effect: If exposed to water; Speed
-		Mechanic: Regenerate Air.
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3. Thorns, Lv2.
 Ravager: 
 	Tick:
 		Effect:
@@ -337,6 +406,7 @@ Ravager:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Vex: 
 	Tick:
 		Effect:
@@ -344,6 +414,7 @@ Vex:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Evoker: 
 	Tick:
 		Effect:
@@ -351,6 +422,7 @@ Evoker:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Spider: 
 	Tick:
 		Effect:
@@ -358,6 +430,7 @@ Spider:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Enderman: 
 	Tick:
 		Effect:
@@ -365,56 +438,67 @@ Enderman:
 	Event:
 		Effect:
 		Mechanic: Can look Enderman in the eyes without aggro. Allergic to water. Immune to projectile attack.
-		    Teleports after certain damage types. Can use pearls without damage and has a 90% chance to keep the pearl.
+		    Teleports after being attacked or touching water. Can use pearls without damage and has a 75% chance to keep the pearl.
+	Enchantments:
 Ghast: 
 	Tick:
-		Effect:
+		Effect: Slow Fall, Lv1, Infinite. Fire Resist, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: On sneak-jump, gain Levitation 2 for up to 10 seconds with the option to descend by holding sneak.
+	Enchantments: Fire Resistance, Lv2.
 Blaze: 
 	Tick:
-		Effect:
-		Mechanic:
+		Effect: Slow Fall, Lv1, Infinite. Fire Resistance, Lv1, Infinite.
+		Mechanic: Shoot fireballs while holding a Blaze Rod. Small chance for Rod to burn up on use. NYI
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments: Fire Resistance, Lv4.
 Cave Spider: 
 	Tick:
-		Effect:
+		Effect: Poison, Lv2, Infinite;
+			Removal Penalty: Poison, Lv1, 3 Sec.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+			Affliction: Poison, Lv1, 10 Seconds.
+		Mechanic: Immunity to Poison. NYI
+	Enchantments:
 Magma Cube: 
 	Tick:
-		Effect:
+		Effect: Fire Resistance, Lv1, Infinite. Jump, Lv1, Infinite;
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Upon landing, bounce and gain speed. Crouch to cancel.
+	Enchantments: Fire Resistance, Lv4.
 Zombified Piglin: 
 	Tick:
-		Effect:
+		Effect: Hunger, Lv1, Infinite;
+			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic: No hunger depletion under 19/20.
+	Enchantments:
 Slime: 
 	Tick:
-		Effect:
+		Effect: Jump, Lv1, Infinite;
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic:
+		Effect: 
+		Mechanic: Upon landing, bounce and gain speed. Crouch to cancel.
+	Enchantments:
 Endermite: 
 	Tick:
-		Effect:
-		Mechanic:
+		Effect: 
+		Mechanic: Nearby Enderman will aggro you.
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Use EnderPearls for free and take no teleport damage. Take half damage from Endermen.
+	Enchantments:
 Pillager: 
 	Tick:
 		Effect:
@@ -422,6 +506,7 @@ Pillager:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Vindicator: 
 	Tick:
 		Effect:
@@ -429,6 +514,7 @@ Vindicator:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 Illusioner: 
 	Tick:
 		Effect:
@@ -436,32 +522,38 @@ Illusioner:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 
 Boss Mobs
 
 Elder Guardian: 
 	Tick:
-		Effect:
-		Mechanic: Regenerate Air.
+		Effect: If exposed to water; Speed, Lv1, Infinite.
+		Mechanic:
 	Event:
 		Effect:
+			Affliction: If Player; Mining Fatigue, Lv4, 5 Sec. + Sound
 		Mechanic:
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3. Thorns, Lv3.
 Wither: 
 	Tick:
         Effect: Wither, Lv2, Infinite.
+			Removal Penalty: Wither, Lv2, 3 Sec.
 		Mechanic: Immune to Wither damage.
 			Affliction: Wither, Lv3, 3 Sec.
 	Event:
-		Effect:
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
 		Mechanic:
+	Enchantments:
 Warden: 
 	Tick:
 		Effect: Darkness, Lv1, Infinite. Night Vision, Lv1, Infinite.
 		Mechanic: Sends the wearing Player glow packets for nearby creatures in a wide radius. (NYI)
-			Affliction: Darkness, Lv1, 5 Sec.
 	Event:
 		Effect:
+			Affliction: Darkness, Lv1, 10 Sec. Blindness, Lv1, 2 Sec. 
 		Mechanic:
+	Enchantments:
 
 Multi-Skin Passives
 
@@ -471,28 +563,32 @@ Rabbit:
 		Mechanic:
 	Event:
 		Effect: On damage from attack, gain Speed 2 for 10 seconds.
-		Mechanic:
+		Mechanic: Sneak-Jump to shoot into the air. Halve fall damage.
+	Enchantments:
 Axolotl:
 	Tick:
-		Effect: If exposed to water; Speed, Lv1, Infinite.
-		Mechanic: Regenerate Air.
+		Effect: If exposed to water; Attack Up, Lv1, Infinite.
+		Mechanic:
 	Event:
-		Effect: When damaged by an entity, gain Restoration (Lv 1) for 5 seconds.
-		Mechanic: When damaged by an entity, prevent that entity from targeting the wearer for 2 seconds.
+		Effect: When damaged by an entity, gain Restoration (Lv 1) for 10 seconds.
+		Mechanic: 
+	Enchantments:
 Cat:
 	Tick:
-		Effect:
+		Effect: Speed, Lv1, Infinite; Jump, Lv1, Infinite;
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Halve damage from falls.
+	Enchantments:
 Horse:
 	Tick:
-		Effect: Speed, Lv1, Infinite.
+		Effect: Speed, Lv2, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Step up 1-high. (How do I do this????????????)
+		Mechanic: Step up 1-high. Mountable by other Players.
+	Enchantments:
 Llama:
 	Tick:
 		Effect:
@@ -500,6 +596,7 @@ Llama:
 	Event:
 		Effect:
 		Mechanic: On damage from entity, spits at attacker.
+	Enchantments:
 Trader Llama:
 	Tick:
 		Effect:
@@ -507,48 +604,56 @@ Trader Llama:
 	Event:
 		Effect:
 		Mechanic: On damage from entity, spits at attacker.
+	Enchantments:
 Parrot:
 	Tick:
 		Effect: Feather Falling, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: When a monster targets the Player, plays the mimic sound of the targeting monster. 
+	Enchantments:
 Fox:
 	Tick:
 		Effect:
-		Mechanic:
+		Mechanic: (Packet) Nearby items will glow.
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Immunity to Berry Bushes.
+	Enchantments:
 Panda:
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
-		Effect:
+		Effect: When hunger is below 19/20, eat bamboo automatically out of your inventory up to once every two seconds, leaving at least one.
 		Mechanic:
+	Enchantments:
 Sheep:
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Eat grass and other grass types to restore hunger and saturation, and gain other effects. NYI
+	Enchantments:
 Mooshroom:
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: You can be milked for soup when right-clicked with a bowl. (If Brown and in proximity to a flower, make the stew sus (NYI))
+	Enchantments:
 Frog:
 	Tick:
 		Effect: Jump, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Regenerate air. Eat low health creatures for health, hunger, and effects. Jump higher and further when crouch-jumping.
+		Mechanic: Eat low health creatures for hunger, air, and effects. Jump higher and further when sneak-jumping. (Packet) Nearby edible entities glow.
+				  Eating a Magma Cube will award a Frog Light of the color corrisponding to the type of Frog being worn.
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv2.
 Villager:
 	Tick:
 		Effect:
@@ -556,13 +661,16 @@ Villager:
 	Event:
 		Effect:
 		Mechanic:
+	Enchantments:
 
 Multi-Skin Hostiles
 
-Zombie Villagers:
+Zombie Villager:
 	Tick:
-		Effect:
+		Effect: Hunger, Lv1, Infinite;
+			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic: No hunger depletion under 19/20.
+	Enchantments:

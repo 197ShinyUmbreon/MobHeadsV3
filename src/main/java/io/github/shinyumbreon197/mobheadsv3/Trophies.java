@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
+import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -39,7 +40,7 @@ public class Trophies {
         ItemMeta trophyMeta = trophyItem.getItemMeta();
         if (trophyMeta == null)return null;
         PersistentDataContainer data = trophyMeta.getPersistentDataContainer();
-        String uuidString = data.get(MobHeadsV3.getPluginNSK(),PersistentDataType.STRING);
+        String uuidString = data.get(Key.master,PersistentDataType.STRING);
         if (uuidString == null)return null;
         return UUID.fromString(uuidString);
     }
@@ -55,7 +56,7 @@ public class Trophies {
         LeatherArmorMeta chestMeta = (LeatherArmorMeta) chest.getItemMeta();
         assert chestMeta != null;
         PersistentDataContainer data = chestMeta.getPersistentDataContainer();
-        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, guardianChestUUID.toString());
+        data.set(Key.master, PersistentDataType.STRING, guardianChestUUID.toString());
         chestMeta.setColor(Color.fromRGB(0x68efbe));
         chestMeta.setDisplayName(ChatColor.AQUA+"Guardian's Repellent");
         chestMeta.addEnchant(Enchantment.DURABILITY, 2, false);
@@ -77,7 +78,7 @@ public class Trophies {
         ItemMeta axeMeta = axe.getItemMeta();
         assert axeMeta != null;
         PersistentDataContainer data = axeMeta.getPersistentDataContainer();
-        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, bruteAxeUUID.toString());
+        data.set(Key.master, PersistentDataType.STRING, bruteAxeUUID.toString());
         axeMeta.setDisplayName(ChatColor.AQUA+"Brute's Axe");
         axeMeta.addEnchant(Enchantment.DURABILITY,2, false);
         axeMeta.addEnchant(Enchantment.DAMAGE_ALL, 3, false);
@@ -98,7 +99,7 @@ public class Trophies {
         ItemMeta swordMeta = sword.getItemMeta();
         assert swordMeta != null;
         PersistentDataContainer data = swordMeta.getPersistentDataContainer();
-        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, vexSwordUUID.toString());
+        data.set(Key.master, PersistentDataType.STRING, vexSwordUUID.toString());
         swordMeta.setDisplayName(ChatColor.AQUA+"Vex's Sword");
         swordMeta.addEnchant(Enchantment.DURABILITY, 1, false);
         swordMeta.addEnchant(Enchantment.DAMAGE_ALL, 2, false);
@@ -119,7 +120,7 @@ public class Trophies {
         ItemMeta swordMeta = sword.getItemMeta();
         assert swordMeta != null;
         PersistentDataContainer data = swordMeta.getPersistentDataContainer();
-        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, zombiePiglinSwordUUID.toString());
+        data.set(Key.master, PersistentDataType.STRING, zombiePiglinSwordUUID.toString());
         swordMeta.setDisplayName(ChatColor.AQUA+"Zombie Piglin's Sword");
         swordMeta.addEnchant(Enchantment.DURABILITY, 2, false);
         swordMeta.addEnchant(Enchantment.DAMAGE_UNDEAD, 4, false);
@@ -140,7 +141,7 @@ public class Trophies {
         ItemMeta axeMeta = axe.getItemMeta();
         assert axeMeta != null;
         PersistentDataContainer data = axeMeta.getPersistentDataContainer();
-        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, vindicatorAxeUUID.toString());
+        data.set(Key.master, PersistentDataType.STRING, vindicatorAxeUUID.toString());
         axeMeta.setDisplayName(ChatColor.AQUA+"Vindicator's Axe");
         axeMeta.addEnchant(Enchantment.DURABILITY, 1, false);
         axeMeta.addEnchant(Enchantment.DAMAGE_ALL, 3, false);
@@ -161,7 +162,7 @@ public class Trophies {
         PotionMeta potionMeta = (PotionMeta) arrows.getItemMeta();
         assert potionMeta != null;
         PersistentDataContainer data = potionMeta.getPersistentDataContainer();
-        data.set(MobHeadsV3.getPluginNSK(), PersistentDataType.STRING, blindnessArrowUUID.toString());
+        data.set(Key.master, PersistentDataType.STRING, blindnessArrowUUID.toString());
         potionMeta.setDisplayName(ChatColor.AQUA+"Arrow of Blindness");
         potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20*20,0), true);
         arrows.setItemMeta(potionMeta);

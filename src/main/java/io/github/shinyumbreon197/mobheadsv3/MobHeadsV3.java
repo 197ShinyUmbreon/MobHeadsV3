@@ -1,24 +1,18 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
+import io.github.shinyumbreon197.mobheadsv3.command.OpenHeadSpawnGUI;
 import io.github.shinyumbreon197.mobheadsv3.command.SpawnHeadedEntity;
-import io.github.shinyumbreon197.mobheadsv3.command.openHeadSpawnGUI;
+import io.github.shinyumbreon197.mobheadsv3.command.TestCommands;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.*;
+import io.github.shinyumbreon197.mobheadsv3.event.main.MainThread;
+import io.github.shinyumbreon197.mobheadsv3.event.world.Furnace;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
-import io.github.shinyumbreon197.mobheadsv3.head.MobHead;
-import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
-import io.github.shinyumbreon197.mobheadsv3.head.hostile.*;
-import io.github.shinyumbreon197.mobheadsv3.head.hostile.ElderGuardianHead;
-import io.github.shinyumbreon197.mobheadsv3.head.hostile.WardenHead;
-import io.github.shinyumbreon197.mobheadsv3.head.hostile.WitherHead;
-import io.github.shinyumbreon197.mobheadsv3.head.hostile.multi.ZombieVillagerHead;
-import io.github.shinyumbreon197.mobheadsv3.head.passive.*;
-import io.github.shinyumbreon197.mobheadsv3.head.passive.multi.*;
-import io.github.shinyumbreon197.mobheadsv3.head.vanilla.*;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
@@ -27,36 +21,36 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 public final class MobHeadsV3 extends JavaPlugin {
+
+    public static boolean debug = false;
 
     private static String version;
     public static String getVersion(){return version;}
     private static MobHeadsV3 plugin;
     public static MobHeadsV3 getPlugin(){return plugin;}
     public static PlayerRegistry playerRegistry;
-    private static NamespacedKey pluginNSK;
-    public static NamespacedKey getPluginNSK(){return pluginNSK;}
     private static final String pluginName = "[MobHeadsV3] ";
     public static String getPluginName(){return pluginName;}
     public static String getPluginNameColored(){return ChatColor.YELLOW+pluginName+ChatColor.RESET+"";}
+    public static boolean protocolLibEnabled = false;
 
     @Override
     public void onEnable() {
         plugin = this;
         version = defineVersion();
-        System.out.println("Server Version: "+version); //debug
-        pluginNSK = new NamespacedKey(plugin,"mobheadsv3");
+        System.out.println("Server Version: "+getVersion()); //debug
+        initPtcLib();
         playerRegistry = new PlayerRegistry();
         playerRegistry.saveDefaultPlayerRegistry();
         registerCommands();
         registerEvents();
-        initializeHeads();
-        Data.initialize();
+        MobHead.initialize();
         registerRecipes();
 
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, ScheduledEvents::run10TickEvents,0, 10);
+        Summon.startSummonThread();
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
     }
 
     @Override
@@ -64,44 +58,66 @@ public final class MobHeadsV3 extends JavaPlugin {
         // Plugin shutdown logic
     }
 
+    private void initPtcLib(){
+        if (getServer().getPluginManager().getPlugin("ProtocolLib") != null){
+            protocolLibEnabled = true;
+            Packets.initialize();
+        }else{
+            System.out.println("\n"+
+                    "/////////////////////////////////////\n"+
+                    "ProtocolLib is not installed.\n" +
+                    "Some functionality will be missing.\n"+
+                    "/////////////////////////////////////\n"
+            );
+        }
+    }
+
     private void registerCommands(){
-        getCommand("mobheads").setExecutor(new openHeadSpawnGUI());
-        getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
+        getCommand("mobheads").setExecutor(new OpenHeadSpawnGUI());
+        if (debug) getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
+        if (debug) getCommand("center").setExecutor(new TestCommands());
     }
 
     private void registerEvents(){
         PluginManager pm = getServer().getPluginManager();
-        //pm.registerEvents(new TestEvents(), this); //debug
-        pm.registerEvents(new MobHeadGUI(), this);
-        pm.registerEvents(new PlayerJoinLeaveEvents(), this);
-        pm.registerEvents(new PlaceAndBreakHeadEvents(), this);
-        pm.registerEvents(new InteractWithHeadEvents(), this);
-        pm.registerEvents(new PlayerKillEntityEvents(), this);
-        pm.registerEvents(new DecollationSmith(), this);
-        pm.registerEvents(new AttackDamageDeathEvents(), this);
-        pm.registerEvents(new HungerChangeEvent(), this);
-        pm.registerEvents(new MovementEvents(), this);
-        pm.registerEvents(new FurnaceEvents(), this);
-        pm.registerEvents(new InteractWithEntityEvent(), this);
-        pm.registerEvents(new EntityTargetEntityEvents(), this);
-        pm.registerEvents(new InteractWithEntityEvent(), this);
-        pm.registerEvents(new TeleportEvents(), this);
-        pm.registerEvents(new UseItemEvents(), this);
-        pm.registerEvents(new Summon(), this);
+
+        pm.registerEvents(new MobHeadGUI(),this);
+        pm.registerEvents(new Decollation(),this);
+        //pm.registerEvents(new Summon(), this);
+
+        pm.registerEvents(new MobHead(),this);
+        pm.registerEvents(new PlayerJoinServer(),this);
+        pm.registerEvents(new EntityDeath(),this);
+        pm.registerEvents(new EntityDamage(),this);
+        pm.registerEvents(new EntityTargetLivingEntity(),this);
+        pm.registerEvents(new PlayerHungerSaturation(),this);
+        pm.registerEvents(new PlayerInteractEvents(),this);
+        pm.registerEvents(new BlockPlaceAndBreak(),this);
+        pm.registerEvents(new ItemSpawn(),this);
+        pm.registerEvents(new InventoryEvents(),this);
+        pm.registerEvents(new ProjectileLand(),this);
+        pm.registerEvents(new IncrementStatistic(),this);
+        pm.registerEvents(new PlayerMove(),this);
+        pm.registerEvents(new PlayerToggleSneak(),this);
+        pm.registerEvents(new PickUpItem(),this);
+        pm.registerEvents(new PrepareCraft(),this);
+        pm.registerEvents(new ToggleGliding(),this);
+        pm.registerEvents(new ChunkUnload(),this);
+        pm.registerEvents(new Furnace(),this);
 
         //pm.registerEvents(new Packets(), this);
     }
 
-    private String defineVersion(){
+    private String defineVersion() {
         String version = this.getServer().getVersion();
         List<Character> chars = new ArrayList<>();
         boolean hit = false;
-        for (char c:version.toCharArray()){
-            if (c == '('){
+        for (char c : version.toCharArray()) {
+            if (c == '(') {
                 hit = true;
                 continue;
-            }else if (c == ')')continue;
-            if (hit){
+            } else if (c == ')') continue;
+            if (hit) {
                 List<Character> ex = List.of('M', 'C', ':', ' ');
                 if (!ex.contains(c)) chars.add(c);
             }
@@ -113,107 +129,20 @@ public final class MobHeadsV3 extends JavaPlugin {
         return String.copyValueOf(charArray);
     }
 
-    private void initializeHeads(){
-        //Player Heads -------------------------------------------------------------------------------------------------
-        PlayerHead.registerPlayerHistory();
-        PlayerHead.registerOnlinePlayers();
-        //Vanilla Mob Heads --------------------------------------------------------------------------------------------
-        ZombieHead.initialize();
-        SkeletonHead.initialize();
-        CreeperHead.initialize();
-        WitherSkeletonHead.initialize();
-        EnderDragonHead.initialize();
-        //Single-skin Passives -----------------------------------------------------------------------------------------
-        CowHead.initialize();
-        PigHead.initialize();
-        ChickenHead.initialize();
-        WolfHead.initialize();
-        DonkeyHead.initialize();
-        MuleHead.initialize();
-        DolphinHead.initialize();
-        CodHead.initialize();
-        SalmonHead.initialize();
-        PufferfishHead.initialize();
-        TropicalFishHead.initialize();
-        TurtleHead.initialize();
-        StriderHead.initialize();
-        GoatHead.initialize();
-        SquidHead.initialize();
-        BeeHead.initialize();
-        BatHead.initialize();
-        OcelotHead.initialize();
-        SnowmanHead.initialize();
-        PolarBearHead.initialize();
-        SkeletonHorseHead.initialize();
-        ZombieHorseHead.initialize();
-        WanderingTraderHead.initialize();
-        IronGolemHead.initialize();
-        GlowSquidHead.initialize();
-        AllayHead.initialize();
-        TadpoleHead.initialize();
-        //Single-skin Hostiles -----------------------------------------------------------------------------------------
-        SilverfishHead.initialize();
-        StrayHead.initialize();
-        ShulkerHead.initialize();
-        PhantomHead.initialize();
-        HuskHead.initialize();
-        DrownedHead.initialize();
-        HoglinHead.initialize();
-        ZoglinHead.initialize();
-        PiglinHead.initialize();
-        PiglinBruteHead.initialize();
-        WitchHead.initialize();
-        GuardianHead.initialize();
-        RavagerHead.initialize();
-        VexHead.initialize();
-        EvokerHead.initialize();
-        SpiderHead.initialize();
-        EndermanHead.initialize();
-        GhastHead.initialize();
-        BlazeHead.initialize();
-        CaveSpiderHead.initialize();
-        MagmaCubeHead.initialize();
-        ZombifiedPiglinHead.initialize();
-        SlimeHead.initialize();
-        EndermiteHead.initialize();
-        PillagerHead.initialize();
-        VindicatorHead.initialize();
-        IllusionerHead.initialize();
-        //Boss Mobs ----------------------------------------------------------------------------------------------------
-        ElderGuardianHead.initialize();
-        WitherHead.initialize();
-        WardenHead.initialize();
-        //Multi-skin Passives ------------------------------------------------------------------------------------------
-        RabbitHead.initialize();
-        AxolotlHead.initialize();
-        CatHead.initialize();
-        HorseHead.initialize();
-        LlamaHead.initialize();
-        TraderLlamaHead.initialize();
-        ParrotHead.initialize();
-        FoxHead.initialize();
-        PandaHead.initialize();
-        SheepHead.initialize();
-        MooshroomHead.initialize();
-        FrogHead.initialize();
-        VillagerHead.initialize();
-        //Multi-skin Hostiles ------------------------------------------------------------------------------------------
-        ZombieVillagerHead.initialize();
-    }
-
     private void registerRecipes(){
-        DecollationSmith.registerSmithingRecipes();
-        for (MobHead mobHead: Data.getMobHeads()){
-            ItemStack lootItem = mobHead.getLootItem();
+        Decollation.registerSmithingRecipes();
+        for (MobHead mobHead: MobHead.getMobHeads()){
+            ItemStack lootItem = mobHead.getHeadLootItemStack();
             if (lootItem == null) continue;
-            ItemStack headItem = mobHead.getHeadItem();
+            ItemStack headItem = mobHead.getHeadItemStack();
             RecipeChoice.ExactChoice rc = new RecipeChoice.ExactChoice(headItem);
-            String name = mobHead.getName();
+            String name = mobHead.getDisplayName();
             if (name == null) name = headItem.getType().name();
             NamespacedKey nsk = new NamespacedKey(MobHeadsV3.getPlugin(), StringBuilder.toSimplifiedString(name));
             ShapedRecipe recipe = new ShapedRecipe(nsk, lootItem);
             recipe.shape("H");
             recipe.setIngredient('H', rc);
+            //if (debug) System.out.println("registerRecipes() " + name); //debug
             getServer().addRecipe(recipe);
         }
     }
@@ -224,6 +153,14 @@ public final class MobHeadsV3 extends JavaPlugin {
 
     public static String nameColored(String output){
         return ChatColor.YELLOW+getPluginName()+ChatColor.RESET+""+output;
+    }
+
+    public static void messagePlayer(Player player, String message){
+        player.sendMessage(ChatColor.YELLOW + getPluginName() + "" + ChatColor.RESET + message);
+    }
+
+    public static void cOut(String message){
+        System.out.println(pluginName + message);
     }
 
 }
