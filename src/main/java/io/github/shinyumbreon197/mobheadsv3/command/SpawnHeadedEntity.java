@@ -12,6 +12,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
+
 public class SpawnHeadedEntity implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {

@@ -22,6 +22,7 @@ public class PlayerToggleSneak implements Listener {
         switch (mobHead.getEntityType()){
             case SHULKER -> {if (sneaking) CreatureEvents.startShulkerLevitation(player);}
             case CHICKEN -> {if (sneaking) CreatureEvents.startChickenIncubation(player);}
+            case OCELOT, CAT -> {CreatureEvents.catJumpFive(player, sneaking);}
         }
     }
 

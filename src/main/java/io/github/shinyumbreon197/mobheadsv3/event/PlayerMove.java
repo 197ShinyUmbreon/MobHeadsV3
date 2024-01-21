@@ -2,18 +2,20 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
-import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.Packets;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerMove implements Listener {
 
     @EventHandler
     public static void onMove(PlayerMoveEvent pme){
+
+        //Packets.autoFish(pme.getPlayer());
+
         Player player = pme.getPlayer();
         MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
         if (mobHead == null)return;

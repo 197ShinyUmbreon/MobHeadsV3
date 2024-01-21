@@ -31,7 +31,7 @@ public class SkullInteract {
         MobHead mobHead = MobHead.getMobHeadFromUUID(UUID.fromString(uuidString));
         //if (debug) System.out.println("mobHead: " + mobHead); //debug
         if (mobHead == null)return;
-        if (debug) System.out.println("mobHead: displayName " + mobHead.getDisplayName()); //debug
+        if (debug) System.out.println("mobHead: displayName " + mobHead.getHeadName()); //debug
         WorldEvents.mobHeadSkullInteract(mobHead,pie);
         pie.getPlayer().swingMainHand();
     }

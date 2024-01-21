@@ -24,48 +24,105 @@ public class HeadData {
     }
     private static List<MobHead> allHeads(){
         List<MobHead> list = new ArrayList<>();
-        list.addAll(vanillaHeads);
-        list.addAll(singleSkinPassiveHeads);
-        list.addAll(bossMonsterHeads);
-        list.addAll(singleSkinHostileHeads);
-        list.addAll(multiSkinPassiveHeads());
-        list.addAll(multiSkinHostileHeads());
-        return list;
-    }
-    private static final List<MobHead> vanillaHeads = List.of(Creeper(), EnderDragon(), Skeleton(), WitherSkeleton(), Zombie());
-    private static final List<MobHead> singleSkinPassiveHeads = List.of(
-            Allay(),Bat(),Bee(),Chicken(),Cod(),Cow(),Dolphin(),Donkey(),GlowSquid(),Goat(),IronGolem(),Mule(),Ocelot(),
-            Pig(),PolarBear(),Pufferfish(),Salmon(),SkeletonHorse(),Snowman(),Squid(),Strider(),Tadpole(),TropicalFish(),
-            Turtle(),WanderingTrader(),Wolf(),ZombieHorse(),Sniffer(),Camel()
-    );
-    private static final List<MobHead> bossMonsterHeads = List.of(ElderGuardian(),Warden(),Wither());
-    private static final List<MobHead> singleSkinHostileHeads = List.of(
-            Blaze(),CaveSpider(),Drowned(),Enderman(),Endermite(),Evoker(),Ghast(),Guardian(),Hoglin(),Husk(),
-            Illusioner(),MagmaCube(),Phantom(),PiglinBrute(),Piglin(),Pillager(),Ravager(),Shulker(),Silverfish(),
-            Slime(),Spider(),Stray(),Vex(),Vindicator(),Witch(),Zoglin(),ZombifiedPiglin()
-    );
-    private static List<MobHead> multiSkinPassiveHeads(){
-        List<MobHead> list = new ArrayList<>();
-        list.addAll(Axolotls());
-        list.addAll(Cats());
-        list.addAll(Foxes());
-        list.addAll(Frogs());
-        list.addAll(Horses());
-        list.addAll(Llamas());
+        // Overworld ----------------
+        // Passive
+        list.add(Pig());
+        list.add(Chicken());
+        list.add(Cow());
         list.addAll(Mooshrooms());
-        list.addAll(Pandas());
-        list.addAll(Parrots());
-        list.addAll(Rabbits());
         list.addAll(Sheepies());
-        list.addAll(TraderLlama());
+        list.add(Wolf());
+        list.add(Allay());
+        list.add(Snowman());
+        list.add(IronGolem());
+        list.addAll(Horses());
+        list.add(Donkey());
+        list.add(Mule());
+        list.add(SkeletonHorse());
+        list.add(ZombieHorse());
+        list.addAll(Llamas());
+        list.addAll(TraderLlamas());
+        list.add(Bee());
+        list.add(Bat());
+        list.addAll(Rabbits());
+        list.addAll(Foxes());
+        list.add(Goat());
+        list.addAll(Cats());
+        list.add(Ocelot());
+        list.addAll(Parrots());
+        list.add(Camel());
+        list.add(Sniffer());
+        list.add(PolarBear());
+        list.addAll(Pandas());
         list.addAll(Villagers());
+        list.add(WanderingTrader());
+
+        // Aquatic
+        list.add(Cod());
+        list.add(Salmon());
+        list.add(Pufferfish());
+        list.add(TropicalFish());
+        list.add(Squid());
+        list.add(GlowSquid());
+        list.add(Dolphin());
+        list.add(Turtle());
+        list.add(Tadpole());
+        list.addAll(Frogs());
+        list.addAll(Axolotls());
+        list.add(Guardian());
+
+        // Hostile
+        list.add(Creeper());
+        list.add(Skeleton());
+        list.add(Stray());
+        list.add(Zombie());
+        list.add(Drowned());
+        list.add(Husk());
+        list.addAll(ZombieVillagers());
+        list.add(Spider());
+        list.add(CaveSpider());
+        list.add(Silverfish());
+        list.add(Slime());
+        list.add(Phantom());
+
+        // Pillagers
+        list.add(Pillager());
+        list.add(Vindicator());
+        list.add(Witch());
+        list.add(Evoker());
+        list.add(Vex());
+        list.add(Illusioner());
+        list.add(Ravager());
+
+        // Nether ---------------
+        // Passive
+        list.add(Strider());
+
+        // Hostile
+        list.add(MagmaCube());
+        list.add(WitherSkeleton());
+        list.add(Piglin());
+        list.add(PiglinBrute());
+        list.add(ZombifiedPiglin());
+        list.add(Hoglin());
+        list.add(Zoglin());
+        list.add(Blaze());
+        list.add(Ghast());
+
+        // The End ----------------
+        list.add(Endermite());
+        list.add(Enderman());
+        list.add(Shulker());
+
+        // Bosses -----------------
+        list.add(EnderDragon());
+        list.add(Wither());
+        list.add(ElderGuardian());
+        list.add(Warden());
+
         return list;
     }
-    private static List<MobHead> multiSkinHostileHeads(){
-        List<MobHead> list = new ArrayList<>();
-        list.addAll(ZombieVillager());
-        return list;
-    }
+
 
     // Vanilla ---------------------------------------------------------------------------------------------------------
     public static MobHead Creeper(){
@@ -181,7 +238,7 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Blindness I & Speed I.", "See Creatures and Items through", "walls for a moderate distance."
+                "Gain Blindness I, Speed I.", "& Night Vision I.", "See Creatures and Items through", "walls for a moderate distance."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.BAT, head, new ItemStack(Material.DEEPSLATE_COAL_ORE, 6), lore);
@@ -243,7 +300,10 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Other Players can milk you!", "They can use a bucket, or get",
+                "some straight from the source."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.COW, head, new ItemStack(Material.LEATHER, 12), lore);
     }
@@ -340,7 +400,7 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of("Gain Speed I", "Gain Jump V when crouched.", "80% Fall damage reduction.");
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.OCELOT, head, new ItemStack(Material.COCOA_BEANS, 6), lore);
     }
@@ -412,7 +472,7 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of("Gain Speed II.");
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.OXYGEN, 3);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.SKELETON_HORSE, head, new ItemStack(Material.BONE_BLOCK, 16), lore, null,enchants);
@@ -560,7 +620,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Sniff out sus blocks nearby."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.SNIFFER, head, new ItemStack(Material.TORCHFLOWER_SEEDS, 4), lore);
     }
@@ -605,7 +667,8 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Darkness I, Blindness I,", "Speed II & Night Vision I.", "See Creatures and Items through", "walls for a great distance."
+                "Gain Darkness I & Night Vision I.", "See Creatures and Items through", "walls for a great distance.",
+                "Afflict targets with Darkness I", "for 10 seconds."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.WARDEN, head, new ItemStack(Material.SCULK_SHRIEKER, 1), lore);
@@ -619,7 +682,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Wither II.", "Immune to Wither damage.", "Afflict Wither III for", "3 seconds on melee attack."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.WITHER, head, new ItemStack(Material.WITHER_ROSE, 8), lore);
     }
@@ -634,7 +699,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Feather Falling I", "& Fire Resistance I"
+        );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.BLAZE, head, new ItemStack(Material.BLAZE_ROD, 8), lore,null,enchants);
@@ -648,7 +715,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Poison I.", "Immune to Poison.", "Afflict Poison I for 10 seconds."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.CAVE_SPIDER, head, new ItemStack(Material.MILK_BUCKET, 1), lore);
     }
@@ -1137,12 +1206,12 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.STRING, 1);
         List<MobHead> heads = new ArrayList<>();
+        List<String> lore = List.of("Gain Speed I.", "Gain Jump V when crouched.", "80% Fall damage reduction.");
         for (int i = 0; i < uuids.size(); i++) {
             UUID uuid = uuids.get(i);
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            List<String> lore = List.of();
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
             heads.add(new MobHead(uuid,name,EntityType.CAT,head,loot,lore,variant));
         }
@@ -1170,7 +1239,7 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.SWEET_BERRIES, 16);
         List<String> lore = List.of(
-                "Immune to Berry Bush pricking."
+                "Immune to Berry Bush pricking.", "Sneak-Jump to pounce and make a shockwave!"
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1210,7 +1279,7 @@ public class HeadData {
         ItemStack loot = new ItemStack(Material.SLIME_BALL, 8);
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 2);
         List<String> lore = List.of(
-                "Sneak-Jump to launch towards where you are looking.", "Sneak-Right Clicking on a creature will attempt",
+                "Sneak-Jump to launch towards where you are looking.", "Sneak-Right-Clicking on a creature will attempt",
                 "to eat them.", "Eating creatures can restore your Hunger, Saturation", "and Air, as well as gain you various Potion effects.",
                 "Nearby creatures that can be eaten will Glow.", "Reduced fall damage."
         );
@@ -1267,12 +1336,12 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.HAY_BLOCK, 1);
         List<MobHead> heads = new ArrayList<>();
+        List<String> lore = List.of("Gain Speed II.");
         for (int i = 0; i < uuids.size(); i++) {
             UUID uuid = uuids.get(i);
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            List<String> lore = List.of();
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
             heads.add(new MobHead(uuid,name,EntityType.HORSE,head,loot,lore,variant));
         }
@@ -1430,12 +1499,15 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.FEATHER, 4);
         List<MobHead> heads = new ArrayList<>();
+        List<String> lore = List.of(
+                "Gain Feather Falling I.", "When targeted by a hostile creature,",
+                "their sound plays in the direction", "of the hostile creature."
+        );
         for (int i = 0; i < uuids.size(); i++) {
             UUID uuid = uuids.get(i);
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            List<String> lore = List.of();
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
             heads.add(new MobHead(uuid,name,EntityType.PARROT,head,loot,lore,variant));
         }
@@ -1479,7 +1551,7 @@ public class HeadData {
         );
         ItemStack loot = HeadLootItemStack.rabbitLoot();
         List<String> lore = List.of(
-                "Gain Jump II.", "Gain Speed II ", "Sneak-Jump to shoot into the air.", "Half-damage from Falling."
+                "Gain Jump II.", "Gain Speed II for 10 seconds", "when attacked.", "Sneak-Jump to shoot into the air.", "Half-damage from Falling."
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1599,7 +1671,7 @@ public class HeadData {
         }
         return heads;
     }
-    public static List<MobHead> TraderLlama(){
+    public static List<MobHead> TraderLlamas(){
         List<UUID> uuids = List.of(
                 UUID.fromString("19419632-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("1941975e-5fac-11ed-9b6a-0242ac120002"),
@@ -1697,7 +1769,7 @@ public class HeadData {
     }
 
     // Multi-Skin Hostiles ---------------------------------------------------------------------------------------------
-    public static List<MobHead> ZombieVillager(){
+    public static List<MobHead> ZombieVillagers(){
         List<UUID> uuids = List.of(
                 UUID.fromString("766c8a9c-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c8cd6-5fe3-11ed-9b6a-0242ac120002"),

@@ -1,21 +1,12 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
-import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
-import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class Hud { // listener is for debug
 

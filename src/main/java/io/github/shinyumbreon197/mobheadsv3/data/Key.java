@@ -15,6 +15,9 @@ public class Key {
     // Targeting -------------------------------------------------------------------------------------------------------
     public static NamespacedKey lastHeadedTarget = new NamespacedKey(plugin,"lastHeadedTarget");
 
+    // Decoy -----------------------------------------------------------------------------------------------------------
+    public static NamespacedKey decoy = new NamespacedKey(plugin,"decoy");
+
     // Damage Tracking -------------------------------------------------------------------------------------------------
     public static NamespacedKey abilityProjectile = new NamespacedKey(plugin,"abilityProjectile");
     public static NamespacedKey tookAbilityDamage = new NamespacedKey(plugin,"tookAbilityDamage");

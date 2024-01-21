@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.function;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.Decollation;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -56,7 +57,7 @@ public class HeadItemDrop {
                 return;
             }else if (killer.getType().equals(EntityType.CREEPER)){
                 Creeper creeper = (Creeper) killer;
-                boolean chargedKill = creeper.isPowered() && creeper.getFuseTicks() == creeper.getMaxFuseTicks();
+                boolean chargedKill = !Data.vanillaHeadEntTypes.contains(killed.getType()) && creeper.isPowered() && creeper.getFuseTicks() == creeper.getMaxFuseTicks();
                 if (chargedKill){
                     success = true;
                 }else return;

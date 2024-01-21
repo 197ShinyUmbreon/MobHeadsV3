@@ -7,7 +7,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
+import java.net.URL;
 import java.util.UUID;
 
 public class PlayerJoinServer implements Listener {
@@ -16,7 +20,10 @@ public class PlayerJoinServer implements Listener {
     public void onPlayerJoinServer(org.bukkit.event.player.PlayerJoinEvent e){
         Player player = e.getPlayer();
         UUID uuid = player.getUniqueId();
-        if (!MobHead.isUUIDRegistered(uuid)){
+        MobHead mobHead = MobHead.getMobHeadFromUUID(uuid);
+        if (mobHead != null){
+            PlayerHead.updatePlayerFile(player, mobHead);
+        }else{
             PlayerHead.writeNewPlayerToFile(player);
         }
         MobHeadsV3.messagePlayer(player,

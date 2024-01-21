@@ -1,0 +1,18 @@
+# MobHeadsV3 config
+# By 197ShinyUmbreon (Eclipse)
+
+# Core Features
+heads_drop: true
+potion_effects_when_worn: true
+potion_effect_afflictions: true
+potion_effect_retaliations: true
+event_mechanics_when_worn: true
+
+# Minor Features
+charged_creeper_explosions_drop_heads: true
+head_decollation_smithing_recipes: true
+head_decollation_functionality: true
+
+# Individual Heads
+
+

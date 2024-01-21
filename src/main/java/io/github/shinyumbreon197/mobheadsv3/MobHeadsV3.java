@@ -2,7 +2,6 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import io.github.shinyumbreon197.mobheadsv3.command.OpenHeadSpawnGUI;
 import io.github.shinyumbreon197.mobheadsv3.command.SpawnHeadedEntity;
-import io.github.shinyumbreon197.mobheadsv3.command.TestCommands;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.*;
 import io.github.shinyumbreon197.mobheadsv3.event.main.MainThread;
@@ -40,14 +39,16 @@ public final class MobHeadsV3 extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         version = defineVersion();
-        System.out.println("Server Version: "+getVersion()); //debug
-        initPtcLib();
+        if (debug) cOut("Server Version: "+getVersion());
+        initConfig();
         playerRegistry = new PlayerRegistry();
         playerRegistry.saveDefaultPlayerRegistry();
         registerCommands();
         registerEvents();
         MobHead.initialize();
         registerRecipes();
+
+        initPtcLib();
 
         Summon.startSummonThread();
         getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
@@ -58,9 +59,15 @@ public final class MobHeadsV3 extends JavaPlugin {
         // Plugin shutdown logic
     }
 
+    private void initConfig(){
+        getConfig().options().copyDefaults();
+        saveDefaultConfig();
+    }
+
     private void initPtcLib(){
         if (getServer().getPluginManager().getPlugin("ProtocolLib") != null){
             protocolLibEnabled = true;
+            cOut("ProtocolLib Found!");
             Packets.initialize();
         }else{
             System.out.println("\n"+
@@ -75,7 +82,7 @@ public final class MobHeadsV3 extends JavaPlugin {
     private void registerCommands(){
         getCommand("mobheads").setExecutor(new OpenHeadSpawnGUI());
         if (debug) getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
-        if (debug) getCommand("center").setExecutor(new TestCommands());
+        //if (debug) getCommand("center").setExecutor(new TestCommands());
     }
 
     private void registerEvents(){
@@ -104,6 +111,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new ToggleGliding(),this);
         pm.registerEvents(new ChunkUnload(),this);
         pm.registerEvents(new Furnace(),this);
+        pm.registerEvents(new PlayerFish(), this);
 
         //pm.registerEvents(new Packets(), this);
     }
@@ -136,7 +144,7 @@ public final class MobHeadsV3 extends JavaPlugin {
             if (lootItem == null) continue;
             ItemStack headItem = mobHead.getHeadItemStack();
             RecipeChoice.ExactChoice rc = new RecipeChoice.ExactChoice(headItem);
-            String name = mobHead.getDisplayName();
+            String name = mobHead.getHeadName();
             if (name == null) name = headItem.getType().name();
             NamespacedKey nsk = new NamespacedKey(MobHeadsV3.getPlugin(), StringBuilder.toSimplifiedString(name));
             ShapedRecipe recipe = new ShapedRecipe(nsk, lootItem);

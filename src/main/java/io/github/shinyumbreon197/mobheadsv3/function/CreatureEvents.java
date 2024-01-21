@@ -5,22 +5,28 @@ import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.data.Groups;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
+import net.minecraft.world.item.ItemFishingRod;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.loot.LootContext;
+import org.bukkit.loot.LootTable;
+import org.bukkit.loot.LootTables;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -40,7 +46,7 @@ public class CreatureEvents {
     private static final MobHeadsV3 plugin = MobHeadsV3.getPlugin();
 
     // Global ----------------------------------------------------------------------------------------------------------
-    private static final List<LivingEntity> creatureWasGliding = new ArrayList<>();
+    private static final Set<LivingEntity> creatureWasGliding = new HashSet<>();
     public static boolean wasCreatureGliding(LivingEntity livingEntity){
         return creatureWasGliding.contains(livingEntity);
     }
@@ -48,7 +54,7 @@ public class CreatureEvents {
         creatureWasGliding.remove(livingEntity);
     }
     public static void addToCreatureWasGliding(LivingEntity livingEntity){
-        if (!wasCreatureGliding(livingEntity)) creatureWasGliding.add(livingEntity);
+        creatureWasGliding.add(livingEntity);
     }
     public static void damageTypeResistance(EntityType headType, EntityDamageEvent ede){
         LivingEntity damaged = (LivingEntity) ede.getEntity();
@@ -67,7 +73,27 @@ public class CreatureEvents {
         switch (headType){
             case WITHER, WITHER_SKELETON -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
             case CAVE_SPIDER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.POISON)) canceled = true;}
-            case SLIME, MAGMA_CUBE -> {if (damageCause.equals(EntityDamageEvent.DamageCause.FALL))canceled = true;}
+            case SLIME, MAGMA_CUBE -> {
+                switch (damageCause){
+                    case FALL -> {
+                        if (ede.getEntity() instanceof Player){
+                            Player player = (Player) ede.getEntity();
+                            if (wasCreatureGliding(player)){
+                                if (debug) System.out.println("Slime was gliding"); //debug
+                                CreatureEvents.slimeRicochet(player,ede.getDamage(), true);
+                            }
+                        }
+                        canceled = true;
+                    }
+                    case FLY_INTO_WALL -> {
+                        canceled = true;
+                        if (ede.getEntity() instanceof Player){
+                            double damage = ede.getDamage();
+                            CreatureEvents.slimeRicochet((Player) ede.getEntity(), damage, false);
+                        }
+                    }
+                }
+            }
             case FROG -> {
                 if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){
                     double damage = (ede.getDamage() - 4) * 0.5;
@@ -95,49 +121,34 @@ public class CreatureEvents {
             }
             case CAT, OCELOT -> {
                 if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){
-                    double newDamage = incomingDamage * 0.5;
+                    double newDamage = incomingDamage * 0.2;
                     if (newDamage < 1){
                         canceled = true;
                     }else ede.setDamage(newDamage);
                 }
             }
+            case RABBIT -> {
+                if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){
+                    double damage = ede.getDamage() * 0.5;
+                    if (damage < 1){
+                        ede.setCancelled(true);
+                    }else ede.setDamage(damage);
+                }
+            }
+            case ENDERMITE -> {
+                if (damageCause.equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK) && ede instanceof EntityDamageByEntityEvent
+                        && ((EntityDamageByEntityEvent)ede).getDamager() instanceof Enderman){
+                    double damage = ede.getDamage()*0.5;
+                    if (damage < 1){
+                        ede.setCancelled(true);
+                    }else ede.setDamage(damage);
+                }
+            }
             case FOX -> {
-                if (damageCause.equals(EntityDamageEvent.DamageCause.CONTACT)){
-                    LivingEntity livingEntity = (LivingEntity) ede.getEntity();
-                    Block source = livingEntity.getLocation().getBlock();
-                    if (source.getType().equals(Material.SWEET_BERRY_BUSH)){
-                        canceled = true;
-                    }else{
-                        List<Block> surround = List.of(
-                                source.getRelative(BlockFace.NORTH), source.getRelative(BlockFace.SOUTH),
-                                source.getRelative(BlockFace.EAST), source.getRelative(BlockFace.WEST),
-                                source.getRelative(BlockFace.NORTH_EAST), source.getRelative(BlockFace.SOUTH_EAST),
-                                source.getRelative(BlockFace.SOUTH_WEST), source.getRelative(BlockFace.NORTH_WEST)
-                        );
-                        List<Block> berryBushes = new ArrayList<>();
-                        for (Block block:surround){if (block.getType().equals(Material.SWEET_BERRY_BUSH))berryBushes.add(block);}
-                        if (debug) System.out.println("Fox: berryBushes.size() " + berryBushes.size()); //debug
-                        if (berryBushes.size() == 0)return;
-                        Location entLoc = livingEntity.getLocation();
-                        double entX = entLoc.getX();
-                        double entZ = entLoc.getZ();
-                        double contactDist = 0.3125;
-                        for (Block bush:berryBushes){
-                            double bushX = bush.getX();
-                            double bushZ = bush.getZ();
-                            double xDist = Math.abs(entX - bushX);
-                            double zDist = Math.abs(entZ - bushZ);
-                            double xOffDist = Math.abs(entX - (bushX + 1));
-                            double zOffDist = Math.abs(entZ - (bushZ + 1));
-                            if (debug) System.out.println(
-                                    "xDist: " + xDist + "\nzDist: " + zDist + "\nxOffDist: " + xOffDist + "\nzOffDist: " + zOffDist
-                            ); //debug
-                            if (xDist < contactDist || zDist < contactDist || xOffDist < contactDist || zOffDist < contactDist){
-                                canceled = true;
-                                break;
-                            }
-                        }
-                    }
+                if (damageCause.equals(EntityDamageEvent.DamageCause.FALL) || damageCause.equals(EntityDamageEvent.DamageCause.FLY_INTO_WALL)){
+                    if (ede.getEntity() instanceof Player && CreatureEvents.foxIsPlayerPouncing((Player) ede.getEntity())) canceled = true;
+                }else if (damageCause.equals(EntityDamageEvent.DamageCause.CONTACT)){
+                    canceled = foxIsInBerryBush((LivingEntity) ede.getEntity());
                 }
             }
         }
@@ -158,13 +169,8 @@ public class CreatureEvents {
         if (Util.hasTakenAbilityDamage(target)) cause = EntityDamageEvent.DamageCause.CUSTOM;
         switch (damagedHeadType){
             case RABBIT -> {
-                if (attackCauses.contains(cause)){
+                if (attackCauses.contains(cause)) {
                     CreatureEvents.rabbitSpeed(target);
-                }else if (cause.equals(EntityDamageEvent.DamageCause.FALL)){
-                    double damage = ede.getDamage() * 0.5;
-                    if (damage < 1){
-                        ede.setCancelled(true);
-                    }else ede.setDamage(damage);
                 }
             }
             case GOAT -> {
@@ -181,15 +187,6 @@ public class CreatureEvents {
             case ENDERMAN -> {
                 if ((cause.equals(EntityDamageEvent.DamageCause.CUSTOM) || attackCauses.contains(cause))){
                     CreatureEvents.endermanTeleportNearby(target,false);
-                }
-            }
-            case ENDERMITE -> {
-                if (cause.equals(EntityDamageEvent.DamageCause.ENTITY_ATTACK) && ede instanceof EntityDamageByEntityEvent
-                    && ((EntityDamageByEntityEvent)ede).getDamager() instanceof Enderman){
-                    double damage = ede.getDamage()*0.5;
-                    if (damage < 1){
-                        ede.setCancelled(true);
-                    }else ede.setDamage(damage);
                 }
             }
         }
@@ -220,7 +217,8 @@ public class CreatureEvents {
 
     public static void nearbyTargetImposter(Mob targeter, LivingEntity targeted, EntityType targetedHeadType){
         List<Entity> nearby = targeter.getNearbyEntities(10,5,10)
-                .stream().filter(entity -> entity instanceof Mob).collect(Collectors.toList());
+                .stream().filter(entity -> entity instanceof Mob).collect(Collectors.toList()
+        );
         List<Mob> nearbyNeutral = new ArrayList<>(List.of(targeter));
         for (Entity ent:nearby){
             if (ent.equals(targeter))continue;
@@ -249,7 +247,236 @@ public class CreatureEvents {
         Summon.spawnSummon(damagedLivEnt.getLocation(),headType,damagedLivEnt,attacker);
     }
 
+    // Fish (Cod, Salmon, Tropical, Puffer) ----------------------------------------------------------------------------
+
+//    private static final Set<Player> fishingPlayers = new HashSet<>();
+//    private static void fishSetFishing(Player player){
+//        fishingPlayers.add(player);
+//    }
+//    private static void fishRemoveFishing(Player player){
+//        fishingPlayers.remove(player);
+//    }
+//    private static boolean fishIsFishing(Player player){
+//        return fishingPlayers.contains(player);
+//    }
+    public static void fishAutoFish(Player player, PlayerFishEvent pfe){
+        if (debug) System.out.println("fishAutoFish()"); //debug
+
+
+
+    }
+
+    // Fox -------------------------------------------------------------------------------------------------------------
+    private static boolean foxIsInBerryBush(LivingEntity livingEntity){
+        Block source = livingEntity.getLocation().getBlock();
+        if (source.getType().equals(Material.SWEET_BERRY_BUSH)){
+            return true;
+        }else{
+            List<Block> surround = List.of(
+                    source.getRelative(BlockFace.NORTH), source.getRelative(BlockFace.SOUTH),
+                    source.getRelative(BlockFace.EAST), source.getRelative(BlockFace.WEST),
+                    source.getRelative(BlockFace.NORTH_EAST), source.getRelative(BlockFace.SOUTH_EAST),
+                    source.getRelative(BlockFace.SOUTH_WEST), source.getRelative(BlockFace.NORTH_WEST)
+            );
+            List<Block> berryBushes = new ArrayList<>();
+            for (Block block:surround){if (block.getType().equals(Material.SWEET_BERRY_BUSH))berryBushes.add(block);}
+            if (debug) System.out.println("Fox: berryBushes.size() " + berryBushes.size()); //debug
+            if (berryBushes.size() == 0)return false;
+            Location entLoc = livingEntity.getLocation();
+            double entX = entLoc.getX();
+            double entZ = entLoc.getZ();
+            double contactDist = 0.3125;
+            for (Block bush:berryBushes){
+                double bushX = bush.getX();
+                double bushZ = bush.getZ();
+                double xDist = Math.abs(entX - bushX);
+                double zDist = Math.abs(entZ - bushZ);
+                double xOffDist = Math.abs(entX - (bushX + 1));
+                double zOffDist = Math.abs(entZ - (bushZ + 1));
+                if (debug) System.out.println(
+                        "xDist: " + xDist + "\nzDist: " + zDist + "\nxOffDist: " + xOffDist + "\nzOffDist: " + zOffDist
+                ); //debug
+                if (xDist < contactDist || zDist < contactDist || xOffDist < contactDist || zOffDist < contactDist){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private static final Map<Player, List<Double>> foxPounceDataMap = new HashMap<>(); // 0 = last y | 1 = highest y
+    private static double foxGetLastY(Player player){
+        List<Double> list = foxPounceDataMap.get(player);
+        Double i = list.get(0);
+        if (i == null) i = -64.0;
+        return i;
+    }
+    private static void foxSetLastY(Player player, double i){
+        List<Double> list = foxPounceDataMap.get(player);
+        list.set(0, i);
+        foxPounceDataMap.put(player, list);
+    }
+    private static double foxGetMaxPounce(Player player){
+        List<Double> list = foxPounceDataMap.get(player);
+        Double i = list.get(1);
+        if (i == null) i = -64.0;
+        return i;
+    }
+    private static void foxSetMaxPounce(Player player, double i){
+        List<Double> list = foxPounceDataMap.get(player);
+        list.set(1, i);
+        foxPounceDataMap.put(player, list);
+    }
+    private static int foxGetFrame(Player player){
+        List<Double> list = foxPounceDataMap.get(player);
+        Double i = list.get(2);
+        if (i == null) i = 0d;
+        return i.intValue();
+    }
+    private static void foxSetFrame(Player player, int frame){
+        List<Double> list = foxPounceDataMap.get(player);
+        list.set(2, (double) frame);
+        foxPounceDataMap.put(player, list);
+    }
+    private static float foxGetStartingAngle(Player player){
+        List<Double> list = foxPounceDataMap.get(player);
+        Double i = list.get(3);
+        if (i == null) i = 0d;
+        return i.floatValue();
+    }
+    private static void foxSetStartingAngle(Player player, float angle){
+        List<Double> list = foxPounceDataMap.get(player);
+        list.set(3, (double) angle);
+        foxPounceDataMap.put(player, list);
+    }
+    public static boolean foxIsPlayerPouncing(Player player){
+        return foxPounceDataMap.containsKey(player);
+    }
+    private static void foxLockCamera(Player player, int frame){
+        float pitch = -90;
+        Vector velocity = player.getVelocity();
+        Location location = player.getLocation();
+        if (frame <= 10){
+            location.setPitch(pitch + (frame * 18));
+            player.teleport(location);
+            player.setVelocity(velocity);
+        }else{
+            float pPitch = player.getLocation().getPitch();
+            if (pPitch < 70){
+                location.setPitch(90f);
+                player.teleport(location);
+                player.setVelocity(velocity);
+            }
+        }
+    }
+    private static void foxResetCamera(Player player){
+        Location location = player.getLocation();
+        location.setPitch(foxGetStartingAngle(player));
+        player.teleport(location);
+    }
+    private static void foxWatchPounce(Player player){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                player.setGliding(true);
+                boolean canceled = false;
+                int frame = foxGetFrame(player);
+                double y = player.getLocation().getY();
+                double lastY = foxGetLastY(player);
+                double maxY = foxGetMaxPounce(player);
+                if (y > maxY){
+                    maxY = y;
+                }
+                double bpt = y - lastY;
+                boolean grounded = player.isOnGround();
+                int distance = (int) Math.floor(Math.abs(maxY - y));
+                int hudValue = distance;
+                if (hudValue > 30) hudValue = 30;
+                Hud.progressBar(player,30d,hudValue,true, "Pounce Power: ", false);
+                if (debug) System.out.println("Fox Blocks per tick: " + bpt); //debug
+                if (debug) System.out.println("Max Y: " + maxY); //debug
+
+                Material currentMat = player.getLocation().getBlock().getType();
+                if (currentMat.equals(Material.WATER) || currentMat.equals(Material.LAVA) || currentMat.equals(Material.COBWEB))canceled = true;
+
+                if (grounded){
+                    canceled = true;
+                    if (debug) System.out.println("Fox Pounce Distance: " + distance + " blocks."); //debug
+                    foxPounceSplashEffect(player, distance);
+                    foxResetCamera(player);
+                }else{
+                    foxSetMaxPounce(player, maxY);
+                    foxSetLastY(player, y);
+                    foxLockCamera(player, frame);
+                    frame++;
+                    foxSetFrame(player,frame);
+                }
+                if (canceled){
+                    Hud.progressBarEnd(player);
+                    cancel();
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            foxPounceDataMap.remove(player);
+                        }
+                    }.runTaskLater(plugin,1);
+                }
+            }
+        }.runTaskTimer(plugin,1,1);
+    }
+    private static void foxPounceSplashEffect(Player player, int power){
+        power = power + 4;
+        if (power > 30) power = 30;
+        Block block = player.getLocation().getBlock();
+        if (block.getType().toString().contains("AIR")) block = block.getRelative(BlockFace.DOWN);
+        AVFX.playFoxPounceLandEffect(player.getLocation(), block);
+        if (power >= 20) AVFX.playFoxPounceLandExplosionEffect(player.getLocation());
+        List<LivingEntity> nearby = player.getNearbyEntities(10,6,10).stream()
+                .filter(entity -> !entity.equals(player))
+                .filter(player::hasLineOfSight)
+                .filter(entity -> entity instanceof LivingEntity)
+                .map(LivingEntity.class::cast)
+                .collect(Collectors.toList()
+        );
+        for (LivingEntity entity:nearby){
+            //if (!player.hasLineOfSight(entity))continue;
+            Vector eLocVec = entity.getLocation().toVector();
+            Vector pLocVec = player.getLocation().toVector();
+            int distance = (int) Math.floor(eLocVec.distance(pLocVec));
+            int finalDam = power - distance;
+            if (finalDam < 1) continue;
+            entity.damage(finalDam, player);
+            Vector direction = eLocVec.subtract(pLocVec).normalize(); direction.setY(0); direction.multiply(1.5);
+            Vector eVelocity = entity.getVelocity();
+            entity.setVelocity(eVelocity.add(direction).add(new Vector(0,0.2 + (power * 0.01), 0)));
+            AVFX.playFoxPounceLandHitEffect(entity.getLocation());
+        }
+    }
+    public static void foxPounce(Player player){
+        if (foxIsPlayerPouncing(player))return;
+        float pitch = player.getLocation().getPitch();
+        foxPounceDataMap.put(player, new ArrayList<>(List.of(-64.0, -64.0, 0d, (double) pitch)));
+        Vector pVelocity = player.getVelocity();
+        pVelocity.setY(0.0);
+        Vector facing = player.getLocation().getDirection().multiply(0.4);
+        player.setVelocity(pVelocity.add(new Vector(facing.getX(), 0.6, facing.getZ())));
+        AVFX.playFoxPounceEffect(player.getEyeLocation());
+        foxWatchPounce(player);
+    }
+
+    // Cat / Ocelot ----------------------------------------------------------------------------------------------------
+    public static void catJumpFive(Player player, boolean sneaking){
+        PotionEffect jumpFive = PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,5,-1);
+        if (sneaking){
+            PotionEffectManager.addEffectToEntity(player, jumpFive);
+        }else{
+            PotionEffectManager.removeExactEffect(player, jumpFive);
+        }
+    }
+
     // Spider / Cave Spider --------------------------------------------------------------------------------------------
+    public static void spiderClimb(Player player){
+
+    }
 
     // Rabbit ----------------------------------------------------------------------------------------------------------
     private static final PotionEffect rabbitSpeedEffect = PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,2,200);
@@ -358,15 +585,19 @@ public class CreatureEvents {
                     player.setSaturation(saturation);
                     player.setRemainingAir(air);
                     Location inFront = getLocationInFrontOfFace(player);
-                    if (eaten.getType().equals(EntityType.COW)){
-                        for (PotionEffect effect:player.getActivePotionEffects()){
-                            PotionEffectType type = effect.getType();
-                            if (!type.equals(PotionEffectType.JUMP)) player.removePotionEffect(type);
+                    switch (eaten.getType()){
+                        case COW -> {
+                            for (PotionEffect effect:player.getActivePotionEffects()){
+                                PotionEffectType type = effect.getType();
+                                if (!type.equals(PotionEffectType.JUMP)) player.removePotionEffect(type);
+                            }
+                            AVFX.playFrogEatCowEffect(inFront);
                         }
-                        AVFX.playFrogEatCowEffect(inFront);
-                    }else if (eaten.getType().equals(EntityType.CREEPER)) creeperExplosion(player);
+                        case CREEPER -> {creeperExplosion(player);}
+                        case SNOWMAN -> {player.setFreezeTicks(player.getMaxFreezeTicks());}
+                        case SHULKER_BULLET -> {AVFX.playShulkerAfflictionEffect(player.getLocation(),player.getEyeHeight(),false);}
+                    }
                     if (eaten instanceof LivingEntity) AVFX.playFrogEatenSounds(inFront,eaten.getType());
-                    if (eaten instanceof ShulkerBullet) AVFX.playShulkerAfflictionEffect(player.getLocation(),player.getEyeHeight(),false);
                     eaten.remove();
                 }
             }.runTaskLater(MobHeadsV3.getPlugin(),8);
@@ -460,13 +691,13 @@ public class CreatureEvents {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE,1,3600));
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW_FALLING,1,3600));
             }
-            case RABBIT, FROG -> {
+            case RABBIT, FROG, SLIME -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,2,3600));
             }
             case CHICKEN, PARROT -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW_FALLING,1,3600));
             }
-            case GLOW_SQUID, PHANTOM -> {
+            case GLOW_SQUID, PHANTOM, BAT -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.NIGHT_VISION,1,3600));
             }
             case DOLPHIN -> {
@@ -505,6 +736,7 @@ public class CreatureEvents {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,1,3600));
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,2,3600));
             }
+            case TURTLE -> {effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,3600));}
         }
         return effects;
     }
@@ -728,47 +960,97 @@ public class CreatureEvents {
 
     // Slime / Magma Cube ----------------------------------------------------------------------------------------------
     public static Map<Player,Double> slimeLastYPos = new HashMap<>();
+    private static final Map<Player,Integer> slimeJumps = new HashMap<>();
+    private static final Set<Player> slimeJumpCooldown = new HashSet<>();
+    private static boolean isOnSlimeJumpCooldown(Player player){
+        return slimeJumpCooldown.contains(player);
+    }
+    private static void addToSlimeJumpCooldown(Player player){
+        if (isOnSlimeJumpCooldown(player))return;
+        slimeJumpCooldown.add(player);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                slimeJumpCooldown.remove(player);
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(),5);
+    }
+    //private static final double slimeVelocityMultiplier = 1.4;
     public static void slimeAirborne(Player player){
-        if (debug) System.out.println("slimeAirborne() slimeLastYPos: " + slimeLastYPos.get(player)); //debug
-        if (player.isInWater())return;
-        boolean grounded = player.isOnGround();
+        //if (debug) System.out.println("slimeAirborne() slimeLastYPos: " + slimeLastYPos.get(player)); //debug
+        if (isOnSlimeJumpCooldown(player))return;
+        boolean grounded = player.isOnGround() || player.isInWater();
         double y = player.getLocation().getY();
+        int jumps = slimeJumps.getOrDefault(player, 0);
+        //if (debug) System.out.println("jumps: " + jumps); //debug
+        if (jumps > 4) jumps = 4;
         if (!grounded){
             slimeLastYPos.put(player,y);
+            if (jumps != 0) Hud.progressBar(player,4,jumps,true, "Jump Speed:",false);
         }else{
-            if (player.isSneaking() || !slimeLastYPos.containsKey(player)){
-                slimeLastYPos.remove(player);
-                return;
+            double difference = 0;
+            if (slimeLastYPos.containsKey(player)){
+                Double lastY = slimeLastYPos.get(player);
+                difference = y - lastY;
             }
-            Double lastY = slimeLastYPos.get(player);
-            double difference = y - lastY;
             double mpt = Math.abs(difference);
-            if (mpt < 0.4){
+//            if (debug) System.out.println(
+//                    "\nsneaking: " + player.isSneaking() +"\nOn cooldown: " + isOnSlimeJumpCooldown(player) +
+//                    "\nlastYPos!containPlayer: " + !slimeLastYPos.containsKey(player) + "\nmpt < 0.4: " + (mpt < 0.4)
+//            ); //debug
+            if (player.isSneaking() || !slimeLastYPos.containsKey(player) || mpt < 0.4 || player.isInWater()){
+                if (debug) System.out.println("Slimejump reset"); //debug
+                if (slimeLastYPos.containsKey(player)) Hud.progressBarEnd(player);
                 slimeLastYPos.remove(player);
+                slimeJumps.remove(player);
                 return;
             }
-            Vector velocity = player.getVelocity();
+            addToSlimeJumpCooldown(player);
             Vector looking = player.getLocation().getDirection();
-            velocity.multiply(2.5).add(new Vector(looking.getX()*mpt,0,looking.getZ()*mpt));
+            Vector velocity = player.getVelocity();
+            double multiplier = (jumps + 1) * 0.4;
+            velocity.add(new Vector(looking.getX()*multiplier,0,looking.getZ()*multiplier));
             velocity.setY(mpt);
             player.setVelocity(velocity);
+            //if (debug) System.out.println("velocity: " + velocity); //debug
+            jumps++;
+            slimeJumps.put(player,jumps);
             MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
             EntityType entityType = EntityType.SLIME;
             if (mobHead != null) entityType = mobHead.getEntityType();
             AVFX.playSlimeBounceEffect(player.getLocation(), entityType);
-            if (debug) System.out.println("difference: " + difference + " mpt: " + mpt); //debug
+            //if (debug) System.out.println("difference: " + difference + " mpt: " + mpt); //debug
         }
     }
     public static void slimeJump(Player player){
-        Vector velocity = player.getVelocity();
         Vector facing = player.getLocation().getDirection();
-        Vector jumpVel = facing.multiply(0.8).setY(0.5);
+        Vector velocity = player.getVelocity();
+        Vector jumpVel = facing.multiply(0.3).setY(0.4);
         player.setVelocity(velocity.add(jumpVel));
-
         MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
         EntityType entityType = EntityType.SLIME;
         if (mobHead != null) entityType = mobHead.getEntityType();
         AVFX.playSlimeJumpEffect(player.getLocation(), entityType);
+    }
+
+    public static void slimeRicochet(Player player, double strength, boolean fall){
+        if (strength < 1) return;
+        player.setGliding(true);
+        Vector wasFacing;
+        if (fall){
+            wasFacing = new Vector(0,125,0);
+        }else wasFacing = player.getLocation().getDirection();
+        double x = wasFacing.getX() * -1;
+        double y = wasFacing.getY();
+        double z = wasFacing.getZ() * -1;
+        Vector facing = new Vector(x,y,z).multiply(0.1 * strength);
+        Location location = player.getLocation().setDirection(facing);
+        player.teleport(location);
+        player.setVelocity(facing);
+        MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
+        EntityType entityType = EntityType.SLIME;
+        if (mobHead != null) entityType = mobHead.getEntityType();
+        AVFX.playSlimeBounceEffect(player.getLocation(),entityType);
     }
 
     // Ghast -----------------------------------------------------------------------------------------------------------
@@ -1517,7 +1799,7 @@ public class CreatureEvents {
             return;
         }
 
-        AVFX.playParrotWarnSound(targeted.getEyeLocation(), warnSound);
+        AVFX.playParrotWarnSound(targeted.getEyeLocation(), targeter.getEyeLocation(), warnSound);
         addToParrotCooldown(targeted);
         new BukkitRunnable(){
             @Override

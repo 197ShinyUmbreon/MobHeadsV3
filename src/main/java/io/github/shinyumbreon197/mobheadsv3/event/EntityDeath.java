@@ -1,6 +1,5 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import com.comphenix.protocol.PacketType;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;

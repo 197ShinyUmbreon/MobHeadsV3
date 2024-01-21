@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
+import com.comphenix.protocol.PacketType;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
@@ -57,6 +58,13 @@ public class EntityDamage implements Listener {
                 projectile = true;
             }
             if (debug) System.out.println("projectile: " + projectile); //debug
+            if (debug && damager instanceof Player){
+                Player player = (Player) damager;
+                player.sendMessage(
+                      player.getDisplayName() + " damaged " + damaged.getName() + " for " + edbee.getDamage() +
+                      " of type " + edbee.getCause().name()
+                );
+            }
             //if (debug) System.out.println("onEntityDamage() projectile: " + projectile + " damager: " + damager); //debug
             if (damagedHead != null) headedEntityTakeDamageFromEntity(damagedHead, (EntityDamageByEntityEvent) ede);
             damagerHead = MobHead.getMobHeadWornByEntity(damager);

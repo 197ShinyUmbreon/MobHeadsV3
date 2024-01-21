@@ -6,8 +6,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
-import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
-
 public class Data {
 
     public static final List<Material> playerHeadMats = Arrays.asList(
@@ -55,6 +53,10 @@ public class Data {
         map.put(EntityType.ENDER_DRAGON, new ItemStack(Material.DRAGON_HEAD));
         return map;
     }
+
+    public static final Set<EntityType> vanillaHeadEntTypes = Set.of(
+            EntityType.CREEPER, EntityType.ZOMBIE, EntityType.SKELETON, EntityType.WITHER_SKELETON, EntityType.ENDER_DRAGON
+    );
 
     private static List<Material> foodMats;
     public static List<Material> getFoodMats(){

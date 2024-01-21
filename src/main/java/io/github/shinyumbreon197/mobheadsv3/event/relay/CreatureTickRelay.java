@@ -1,8 +1,8 @@
 package io.github.shinyumbreon197.mobheadsv3.event.relay;
 
-import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
+import io.github.shinyumbreon197.mobheadsv3.entity.Decoy;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.entity.EntityType;
@@ -94,14 +94,12 @@ public class CreatureTickRelay {
             case CHICKEN -> {}
             case SQUID -> {
             }
-            case WOLF -> {
-            }
+            //case WOLF -> {if (!Decoy.hasDecoy(target)) Decoy.addDecoyToCreature(target, EntityType.WOLF);}
             case MUSHROOM_COW -> {
             }
             case SNOWMAN -> {
             }
-            case OCELOT -> {
-            }
+            //case OCELOT -> {if (!Decoy.hasDecoy(target)) Decoy.addDecoyToCreature(target, EntityType.OCELOT);}
             case IRON_GOLEM -> {
             }
             case HORSE -> {
@@ -131,8 +129,7 @@ public class CreatureTickRelay {
             }
             case DOLPHIN -> {
             }
-            case CAT -> {
-            }
+            //case CAT -> {if (!Decoy.hasDecoy(target)) Decoy.addDecoyToCreature(target, EntityType.CAT);}
             case PANDA -> {if (target instanceof Player) CreatureEvents.pandaSnackBamboo((Player) target);}
             case PILLAGER -> {
             }

@@ -16,6 +16,7 @@ import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.projectiles.ProjectileSource;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -173,6 +174,7 @@ public class Decollation implements Listener {
     public static void runDecollationPearlHit(EnderPearl pearl, Entity targetEnt, Block targetBlock){
         if (debug) System.out.println("runDecollationPearlHit() targetEnt: " + targetEnt + "\ntargetBlock: " + targetBlock); //debug
         Location dropLoc = pearl.getLocation();
+        ProjectileSource source = pearl.getShooter();
         if (targetEnt instanceof EnderDragonPart){
             targetEnt = ((EnderDragonPart) targetEnt).getParent();
         }
@@ -184,10 +186,22 @@ public class Decollation implements Listener {
             }else if (health > 20) health = 20;
             double damage = health * 0.8;
             livTarget.damage(damage, pearl);
-            HeadItemDrop.dropHead(livTarget.getEyeLocation(),livTarget);
+
+            ItemStack headItem = MobHead.getHeadItemOfEntity(livTarget);
+            if (source instanceof Player){
+                Player player = (Player) source;
+                player.getInventory().addItem(headItem);
+                //AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation());
+            }else HeadItemDrop.dropHead(livTarget.getEyeLocation(),livTarget);
+            AVFX.playHeadDropEffect(livTarget.getEyeLocation());
             AVFX.playDecollationPearlEffect(livTarget.getLocation());
         }else{
-            pearl.getWorld().dropItem(dropLoc,pearl.getItem());
+            //pearl.getWorld().dropItem(dropLoc,pearl.getItem());
+            if (source instanceof Player){
+                Player player = (Player) source;
+                player.getInventory().addItem(pearl.getItem());
+                //AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation());
+            }else pearl.getWorld().dropItem(dropLoc,pearl.getItem());
         }
         pearl.remove();
     }

@@ -21,7 +21,7 @@ public class StringBuilder {
         }else{
             EntityType entityType = mobHead.getEntityType();
             if (entityType.equals(EntityType.PLAYER)){
-                String headName = mobHead.getDisplayName().replace("'s Head", "");
+                String headName = mobHead.getHeadName().replace("'s Head", "");
                 newName = player.getName() + " (" + headName + ")";
             }else{
                 newName = player.getName() + " (" + friendlyEntityTypeName(entityType) + ")";

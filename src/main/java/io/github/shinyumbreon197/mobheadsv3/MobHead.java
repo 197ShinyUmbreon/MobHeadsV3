@@ -210,12 +210,22 @@ public class MobHead implements Listener {
         if (debug) System.out.println("addMobHead(" + mobHead + ") " + isNotRegistered); //debug
         if (isNotRegistered) mobHeads.add(0,mobHead);
     }
+    public static void removeMobHead(UUID uuid){
+        List<MobHead> heads = new ArrayList<>();
+        for (MobHead mobHead:mobHeads){
+            UUID headUUID = mobHead.getUuid();
+            if (headUUID.equals(uuid))continue;
+            heads.add(mobHead);
+        }
+        mobHeads.clear();
+        mobHeads.addAll(heads);
+    }
     public static boolean isHeadRegistered(MobHead mobHead){
         return mobHeads.contains(mobHead);
     }
 
     UUID uuid;
-    String displayName;
+    String headName;
     EntityType entityType;
     ItemStack headItemStack;
     ItemStack headLootItemStack;
@@ -225,7 +235,7 @@ public class MobHead implements Listener {
 
     public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore) {
         this.uuid = uuid;
-        this.displayName = displayName;
+        this.headName = displayName;
         this.entityType = entityType;
         this.headItemStack = headItemStack;
         this.headLootItemStack = headLootItemStack;
@@ -235,7 +245,7 @@ public class MobHead implements Listener {
     }
     public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore, String variant) {
         this.uuid = uuid;
-        this.displayName = displayName;
+        this.headName = displayName;
         this.entityType = entityType;
         this.headItemStack = headItemStack;
         this.headLootItemStack = headLootItemStack;
@@ -245,7 +255,7 @@ public class MobHead implements Listener {
     }
     public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore, String variant, Map<Enchantment, Integer> enchantments) {
         this.uuid = uuid;
-        this.displayName = displayName;
+        this.headName = displayName;
         this.entityType = entityType;
         this.headItemStack = headItemStack;
         this.headLootItemStack = headLootItemStack;
@@ -266,12 +276,12 @@ public class MobHead implements Listener {
         this.uuid = uuid;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getHeadName() {
+        return headName;
     }
 
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+    public void setHeadName(String headName) {
+        this.headName = headName;
     }
 
     public EntityType getEntityType() {

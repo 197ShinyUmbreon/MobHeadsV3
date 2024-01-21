@@ -1,10 +1,8 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
-import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
-import io.github.shinyumbreon197.mobheadsv3.function.HeadEquip;
 import io.github.shinyumbreon197.mobheadsv3.function.SkullInteract;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,7 +19,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +105,7 @@ public class PlayerInteractEvents implements Listener {
     }
 
     private static void headedPlayerInteractBlock(MobHead mobHead, PlayerInteractEvent pie, boolean itemInteract){
-        if (debug) System.out.println("headedPlayerInteractBlock() mobHead: " + mobHead.getDisplayName());
+        if (debug) System.out.println("headedPlayerInteractBlock() mobHead: " + mobHead.getHeadName());
         Player player = pie.getPlayer();
         boolean sneaking = player.isSneaking();
         EntityType headType = mobHead.getEntityType();

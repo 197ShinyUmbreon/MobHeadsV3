@@ -9,15 +9,16 @@ import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedParticle;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Packets {
 
     //private static final WrappedDataWatcher.Serializer byteSerializer = WrappedDataWatcher.Registry.get(Byte.class);
     private static ProtocolManager pm;
+    private static final boolean enabled = MobHeadsV3.protocolLibEnabled;
     public static void initialize(){
         pm = ProtocolLibrary.getProtocolManager();
     }
@@ -26,7 +27,10 @@ public class Packets {
 //        PacketContainer packet = pm.createPacket(PacketType.Play.Client.ENTITY_ACTION);
 //
 //    }
+
+    // Suspicious Particles --------------------------------------------------------------------------------------------
     public static void susParticles(Player player, Location origin){
+        if (!enabled)return;
         float red = 255 / 255f;
         float green = 60 / 255f;
         float blue = 10 / 255f;
@@ -45,18 +49,37 @@ public class Packets {
         pm.sendServerPacket(player,packet);
     }
 
-    private static final WrappedDataValue entityDataClearAll = new WrappedDataValue(0,WrappedDataWatcher.Registry.get(Byte.class), (byte) 0x00);
-    private static final WrappedDataValue entityDataGlow = new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), (byte) 0x40);
+    // Entity Glow -----------------------------------------------------------------------------------------------------
+    private static WrappedDataValue entityDataClearAll;
+    private static WrappedDataValue getEntityDataClearAll(){
+        if (entityDataClearAll == null){
+            entityDataClearAll = new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), (byte) 0x00);
+        }
+        return entityDataClearAll;
+    }
+    private static WrappedDataValue entityDataGlow;
+    private static WrappedDataValue getEntityDataGlow(){
+        if (entityDataGlow == null){
+            entityDataGlow = new WrappedDataValue(0, WrappedDataWatcher.Registry.get(Byte.class), (byte) 0x40);
+        }
+        return entityDataGlow;
+    }
 
     private static final Map<Player, List<Entity>> glowingEnts = new HashMap<>();
+    private static final Set<EntityType> glowingExclusions = Set.of(
+            EntityType.ITEM_FRAME, EntityType.ITEM_DISPLAY, EntityType.GLOW_ITEM_FRAME, EntityType.BLOCK_DISPLAY,
+            EntityType.INTERACTION, EntityType.MARKER, EntityType.PAINTING, EntityType.TEXT_DISPLAY
+    );
     public static void nearbyGlow(Player player, int halfRadius){
+        if (!enabled)return;
         List<Entity> wereNearby;
         if (glowingEnts.containsKey(player)){
             wereNearby = glowingEnts.get(player);
         }else wereNearby = new ArrayList<>();
         List<Entity> nearbyEnts = player.getNearbyEntities(halfRadius,halfRadius,halfRadius);
-        nearbyEnts.add(player);
+        nearbyEnts.remove(player);
         for (Entity nearby:nearbyEnts){
+            if (glowingExclusions.contains(nearby.getType()))continue;
             toggleGlow(player,nearby,true);
         }
         wereNearby.removeAll(nearbyEnts);
@@ -66,22 +89,34 @@ public class Packets {
         glowingEnts.put(player,nearbyEnts);
     }
     public static void removeGlow(Player player){
+        if (!enabled)return;
         if (!glowingEnts.containsKey(player))return;
         for (Entity remove:glowingEnts.get(player)){
             toggleGlow(player,remove,false);
         }
         glowingEnts.remove(player);
     }
-    public static void toggleGlow(Player player, Entity target, boolean enabled){
+    public static void toggleGlow(Player player, Entity target, boolean glowEnabled){
+        if (!enabled)return;
         PacketContainer packet = pm.createPacket(PacketType.Play.Server.ENTITY_METADATA);
         WrappedDataValue value;
-        if (enabled){
-            value = entityDataGlow;
-        }else value = entityDataClearAll;
+        if (glowEnabled){
+            value = getEntityDataGlow();
+        }else value = getEntityDataClearAll();
         packet.getDataValueCollectionModifier().write(0, Collections.singletonList(value));
         packet.getIntegers().write(0, target.getEntityId());
         pm.sendServerPacket(player,packet);
     }
+
+    // Auto Fishing ----------------------------------------------------------------------------------------------------
+//    public static void autoFish(Player player){
+//        if (!enabled)return;
+//        PacketContainer packet = pm.createPacket(PacketType.Play.Client.USE_ITEM);
+//        packet.getHands().writeDefaults();
+//        pm.sendServerPacket(player,packet);
+//    }
+
+
 //                  THIS CODE WORKS VVVVVVVVVVVVVV
 //    public static void blindEffect(Player player, boolean enable){
 //        PacketContainer packet = pm.createPacket(PacketType.Play.Server.ENTITY_EFFECT);

@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.event.main;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
+import io.github.shinyumbreon197.mobheadsv3.entity.Decoy;
 import io.github.shinyumbreon197.mobheadsv3.event.relay.CreatureTickRelay;
 import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
@@ -46,20 +47,17 @@ public class MainThread {
         //if (debug) System.out.println("threadActive: (Skipping tick?) " + threadActive);
         if (threadActive){
             threadSkips++;
-            MobHeadsV3.cOut(
-                    ChatColor.RED + "MAIN THREAD SKIPPED! " +
-                    ChatColor.WHITE + "Total occurrences since last reload: " +
-                    ChatColor.AQUA + threadSkips
-            );
+            MobHeadsV3.cOut("[WARNING]" + " MAIN THREAD SKIPPED! " + "Total occurrences since last reload: " + threadSkips);
             return;
         }
         //if (debug) System.out.println("on5Ticks()\nheadWearersMap: " + headWearersMap + "\nNoLongerWearingMap: " + noLongerWearingMap); //debug
+        threadActive = true;
         new BukkitRunnable(){
             @Override
             public void run() {
                 runHeadedEffects();
-                threadActive = false;
                 //if (debug) runTimer(false);
+                threadActive = false;
             }
         }.run();
     }
@@ -67,6 +65,7 @@ public class MainThread {
     private static final Map<LivingEntity, UUID> headWearersMap = new HashMap<>();
 
     private static void runHeadedEffects(){
+        updatePlayerList();
         List<LivingEntity> scanned = new ArrayList<>();
         for (World world:Bukkit.getWorlds()){
             scanned.addAll(world.getLivingEntities());
@@ -97,7 +96,7 @@ public class MainThread {
             MobHead mobHead = MobHead.getMobHeadFromUUID(wasWearing.get(removeEffect));
             PotionEffectManager.addHeadRemovalPotionEffects(removeEffect, mobHead);
             headRemovalEffects(removeEffect, mobHead);
-            if (removeEffect instanceof Player) updatePlayerList(((Player)removeEffect),null);
+            Decoy.removeDecoyFromCreature(removeEffect);
         }
         headWearersMap.clear();
         for (LivingEntity wear:wearing.keySet()){
@@ -107,7 +106,6 @@ public class MainThread {
             UUID uuid = mobHead.getUuid();
             PotionEffectManager.updateEffects(wear, uuid);
             CreatureTickRelay.tickRelay(wear, uuid);
-            if (wear instanceof Player) updatePlayerList(((Player)wear),MobHead.getMobHeadFromUUID(uuid));
         }
     }
 
@@ -121,14 +119,21 @@ public class MainThread {
         }
     }
 
-    private static void updatePlayerList(Player player, MobHead mobHead){
-        String listingString;
-        String playerName = player.getDisplayName();
-        if (mobHead != null){
-            String headTypeName = Util.friendlyEntityTypeName(mobHead.getEntityType());
-            listingString = playerName + " (" + headTypeName + ")";
-        }else listingString = playerName;
-        player.setPlayerListName(listingString);
+    private static void updatePlayerList(){
+        for (Player player:Bukkit.getOnlinePlayers()){
+            MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
+            String listingString;
+            String playerName = player.getDisplayName();
+            if (mobHead != null){
+                String headTypeName;
+                if (mobHead.getEntityType().equals(EntityType.PLAYER)){
+                    headTypeName = mobHead.getHeadName().replace("'s Head", "");
+                }else headTypeName = Util.friendlyEntityTypeName(mobHead.getEntityType());
+                listingString = playerName + " (" + headTypeName + ")";
+            }else listingString = playerName;
+            player.setPlayerListName(listingString);
+        }
+
     }
 
 }

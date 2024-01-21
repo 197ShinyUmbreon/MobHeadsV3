@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -157,6 +158,31 @@ public class AVFX {
                 10,0.2,0.1,0.2,0.05,new ItemStack(Material.STONE)
         );
 
+    }
+
+    public static void playFoxPounceLandExplosionEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.ENTITY_GENERIC_EXPLODE,1.0f, 1.1f);
+        world.spawnParticle(Particle.EXPLOSION_HUGE, origin, 8,1.5,1.5,1.5);
+    }
+    public static void playFoxPounceEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ENTITY_FOX_SCREECH, 0.6f, 1.1f);
+    }
+    public static void playFoxPounceLandHitEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.ENTITY_FOX_BITE,0.8f,1.2f);
+    }
+    public static void playFoxPounceLandEffect(Location origin, Block block){
+        World world = origin.getWorld();
+        if (world == null)return;
+        BlockData blockData = block.getType().createBlockData();
+        Sound sound = blockData.getSoundGroup().getBreakSound();
+        world.playSound(origin, sound, 1.6f, 1.2f);
+        world.spawnParticle(Particle.BLOCK_DUST, origin,10, blockData);
     }
     public static void playSheepEatEffect(Location blockLoc, Block block, Location playerMouthLoc){
         World world = blockLoc.getWorld();
@@ -607,10 +633,13 @@ public class AVFX {
         }else sound = Sound.ITEM_HONEY_BOTTLE_DRINK;
         world.playSound(location, sound, 0.5f, 1.0f);
     }
-    public static void playParrotWarnSound(Location origin, Sound warnSound){
-        World world = origin.getWorld();
+    public static void playParrotWarnSound(Location playerLoc, Location hostileLoc, Sound warnSound){
+        World world = playerLoc.getWorld();
         if (world == null)return;
-        world.playSound(origin,warnSound,0.6f,1.0f);
+        Vector pVec = playerLoc.toVector();
+        Vector hVec = hostileLoc.toVector();
+        Vector direction = hVec.subtract(pVec).normalize();
+        world.playSound(playerLoc.add(direction),warnSound,0.6f,1.0f);
     }
     public static void playElderGuardianFatigueSound(Location origin){
         World world = origin.getWorld();

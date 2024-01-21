@@ -22,20 +22,32 @@ public class ToggleGliding implements Listener {
         if (mobHead == null)return;
         EntityType headType = mobHead.getEntityType();
         boolean isGliding = etge.isGliding();
+        if (debug) System.out.println("onToggleGliding: isGliding: " + isGliding); //debug
+
+        if (isGliding){
+            CreatureEvents.addToCreatureWasGliding(target);
+            if (debug) System.out.println("Added to CreatureWasGliding"); //debug
+        }else{
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    if (!target.isGliding()){
+                        if (debug) System.out.println("Removed from CreatureWasGliding"); //debug
+                        CreatureEvents.removeFromCreatureWasGliding(target);
+                    }
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(),2);
+        }
 
         switch (headType){
+            case FOX -> {
+                if (!isGliding && target instanceof Player && CreatureEvents.foxIsPlayerPouncing((Player) target)){
+                    //if (debug) System.out.println("Pouncing fox that was gliding attempted to have it's flight toggled!");
+                    etge.setCancelled(true);
+                }
+            }
             case ENDER_DRAGON, GOAT -> {
                 if (debug) System.out.println("onToggleGliding: isGliding: " + isGliding); //debug
-                if (isGliding){
-                    CreatureEvents.addToCreatureWasGliding(target);
-                }else{
-                    new BukkitRunnable(){
-                        @Override
-                        public void run() {
-                            CreatureEvents.removeFromCreatureWasGliding(target);
-                        }
-                    }.runTaskLater(MobHeadsV3.getPlugin(),1);
-                }
                 if (isGliding && target instanceof Player){
                     if (headType.equals(EntityType.ENDER_DRAGON)) CreatureEvents.enderDragonElytraTakeoff((Player) target,false);
                     if (headType.equals(EntityType.GOAT)) CreatureEvents.goatTakeOff((Player) target, false);

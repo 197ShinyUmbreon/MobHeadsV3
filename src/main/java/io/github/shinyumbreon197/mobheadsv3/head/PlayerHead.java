@@ -2,6 +2,8 @@ package io.github.shinyumbreon197.mobheadsv3.head;
 
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.data.HeadData;
+import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadItemStack;
 import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;
 import org.bukkit.Bukkit;
@@ -12,11 +14,15 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class PlayerHead {
+
+    private static final PlayerRegistry registry = MobHeadsV3.playerRegistry;
 
     public static void registerOnlinePlayers(){
         List<Player> toRegister = new ArrayList<>(Bukkit.getOnlinePlayers());
@@ -32,15 +38,34 @@ public class PlayerHead {
     public static void writeNewPlayerToFile(Player player){
         MobHead newPlayerHead = buildPlayerHead(player);
         MobHead.addMobHead(newPlayerHead);
-        MobHeadsV3.playerRegistry.addToRegistry(Serializer.serializeItemStack(newPlayerHead.getHeadItemStack()));
+        registry.addToRegistry(Serializer.serializeItemStack(newPlayerHead.getHeadItemStack()));
+    }
+
+    public static void updatePlayerFile(Player player, MobHead oldHead){
+        PlayerProfile pp = player.getPlayerProfile();
+        String url = pp.getTextures().getSkin().toString();
+        if (debug) System.out.println(url + " <--- New URL"); //debug
+        SkullMeta skullMeta = (SkullMeta) oldHead.getHeadItemStack().getItemMeta();
+        assert skullMeta != null;
+        PlayerProfile savedPP = skullMeta.getOwnerProfile();
+        if (savedPP != null){
+            String savedURL = savedPP.getTextures().getSkin().toString();
+            if (debug) System.out.println(savedURL + " <--- Old URL"); //debug
+            if (!url.matches(savedURL)){
+                MobHeadsV3.cOut(player.getDisplayName() + " has a new skin. Updating head...");
+                registry.removeFromRegistry(oldHead);
+                MobHead.removeMobHead(player.getUniqueId());
+                writeNewPlayerToFile(player);
+            }
+        }
     }
 
     public static void registerPlayerHistory(){
-        MobHeadsV3.playerRegistry.reloadPlayerRegistry();
-        MobHeadsV3.playerRegistry.updateRegistryFromFile();
-        for (String string:MobHeadsV3.playerRegistry.getRegistry()){
+        registry.reloadPlayerRegistry();
+        registry.updateRegistryFromFile();
+        for (String string:registry.getRegistry()){
             MobHead mobHead = rebuildPlayerHead(Serializer.deserializeItemStack(string));
-            System.out.println("Registering "+mobHead.getDisplayName()+", "+mobHead.getUuid().toString()+"...");
+            MobHeadsV3.cOut("Registering "+mobHead.getHeadName()+", "+mobHead.getUuid().toString()+"...");
             MobHead.addMobHead(mobHead);
         }
     }

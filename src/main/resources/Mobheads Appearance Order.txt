@@ -1,0 +1,99 @@
+Mobheads Appearance Order
+## All registered Players
+Players @
+
+## Overworld
+# Passive
+Pig
+Chicken
+Cow
+Mooshrooms @
+Sheep @
+Wolf
+Allay
+Snow Golem
+Iron Golem
+Horses @
+Donkey
+Mule
+Skeleton Horse
+Zombified Horse
+Llamas @
+Trader-Llamas @
+Bee
+Bat
+Rabbits @
+Foxes @
+Goat
+Cats @
+Ocelot
+Parrots @
+Camel
+Sniffer
+Polar Bear
+Pandas @
+Villagers @
+Wandering Trader
+
+# Aquatic
+Cod
+Salmon
+Pufferfish
+Tropical Fish
+Squid
+Glow Squid
+Dolphin
+Turtle
+Tadpole
+Frogs @
+Axolotls @
+Guardian
+
+# Hostile
+Creeper
+Skeleton
+Stray
+Zombie
+Drowned
+Husk
+Zombie Villagers @
+Spider
+Cave Spider
+Slime
+Phantom
+
+#Pillagers
+Pillager
+Vindicator
+Witch
+Evoker
+Vex
+Illusioner
+Ravager
+
+## Nether
+# Passive
+Strider
+
+# Hostile
+Magma Cube
+Wither Skeleton
+Piglin
+Piglin Brute
+Zombie Piglin
+Hoglin
+Zoglin
+Blaze
+Ghast
+
+## End
+Endermite
+Enderman
+Shulker
+
+## Boss
+Ender Dragon
+Wither
+Elder Guardian
+Warden
+

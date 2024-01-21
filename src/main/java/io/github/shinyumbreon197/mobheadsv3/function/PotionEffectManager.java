@@ -26,10 +26,10 @@ public class PotionEffectManager {
             case WITHER_SKELETON -> effects = List.of(buildSimpleEffect(PotionEffectType.WITHER, 1, 4*20));
             case WITHER -> effects = List.of(buildSimpleEffect(PotionEffectType.WITHER, 2, 3*20));
             case CAVE_SPIDER -> effects = List.of(buildSimpleEffect(PotionEffectType.POISON, 1, 3*20));
-            case BAT -> effects = List.of(buildSimpleEffect(PotionEffectType.BLINDNESS,1,2*20));
+            case BAT -> effects = List.of(buildSimpleEffect(PotionEffectType.BLINDNESS,1,20));
             case WARDEN -> effects = List.of(
-                    buildSimpleEffect(PotionEffectType.DARKNESS,1,5*20),
-                    buildSimpleEffect(PotionEffectType.NIGHT_VISION,1,4*20)
+                    buildSimpleEffect(PotionEffectType.BLINDNESS,1,20),
+                    buildSimpleEffect(PotionEffectType.NIGHT_VISION,1,20)
             );
         }
         if (debug) System.out.println("effects: " + effects); //debug
@@ -38,7 +38,7 @@ public class PotionEffectManager {
     }
 
     public static List<PotionEffect> getAfflictionPotionEffects(EntityType attackerType, boolean projectile){
-        if (Groups.isZombie(attackerType)) return List.of(buildSimpleEffect(PotionEffectType.HUNGER,1, 10*20));
+        if (Groups.isZombie(attackerType) && !projectile) return List.of(buildSimpleEffect(PotionEffectType.HUNGER,1, 10*20));
 
         switch (attackerType){
             case WITHER_SKELETON -> {if (!projectile) return List.of(buildSimpleEffect(PotionEffectType.WITHER,2,4*20));}
@@ -46,10 +46,7 @@ public class PotionEffectManager {
             case CAVE_SPIDER -> {if (!projectile) return List.of(buildSimpleEffect(PotionEffectType.POISON,1,10*20));}
             case BEE -> {if (!projectile) return List.of(buildSimpleEffect(PotionEffectType.POISON,1,5*20));}
             case WARDEN -> {
-                return List.of(
-                        buildSimpleEffect(PotionEffectType.DARKNESS,1,10*20),
-                        buildSimpleEffect(PotionEffectType.BLINDNESS, 1, 2*20)
-                );
+                return List.of(buildSimpleEffect(PotionEffectType.DARKNESS,1,10*20));
             }
             case SHULKER -> {
                 int ticks = 40;
@@ -235,7 +232,6 @@ public class PotionEffectManager {
                     remove.add(effect0);
                 }else add.add(effect0);
             }
-
             case SNOWMAN -> {
                 PotionEffect effect0 = headEffect(PotionEffectType.REGENERATION,1,-1,false);
                 PotionEffect effect1 = headEffect(PotionEffectType.WITHER,1,-1,false);
@@ -250,7 +246,6 @@ public class PotionEffectManager {
                     remove.add(effect1);
                 }
             }
-
             case HUSK -> {
                 PotionEffect effect0 = headEffect(PotionEffectType.SLOW,1,-1,false);
                 if (Util.isWalkingOnSandyBlock(target)){
@@ -266,9 +261,14 @@ public class PotionEffectManager {
             }
 
             case DOLPHIN -> {add.add(headEffect(PotionEffectType.DOLPHINS_GRACE, 1, -1, false));}
-            case ZOMBIE, ZOMBIE_VILLAGER, ZOMBIFIED_PIGLIN -> {
+            case ZOMBIE, ZOMBIE_VILLAGER -> {
                 add.add(headEffect(PotionEffectType.HUNGER, 1, -1, false));
                 add.add(headEffect(PotionEffectType.SLOW, 1, -1, false));
+            }
+            case ZOMBIFIED_PIGLIN -> {
+                add.add(headEffect(PotionEffectType.HUNGER, 1, -1, false));
+                add.add(headEffect(PotionEffectType.SLOW, 1, -1, false));
+                add.add(headEffect(PotionEffectType.HUNGER,1,-1,false));
             }
             case WITHER_SKELETON -> {add.add(headEffect(PotionEffectType.WITHER, 1, -1, false));}
             case WITHER -> {add.add(headEffect(PotionEffectType.WITHER, 2, -1, false));}
@@ -277,11 +277,11 @@ public class PotionEffectManager {
             case BAT -> {
                 add.add(headEffect(PotionEffectType.BLINDNESS, 1, -1, false));
                 add.add(headEffect(PotionEffectType.SPEED,1,-1,false));
+                add.add(headEffect(PotionEffectType.NIGHT_VISION,1,-1,false));
             }
             case WARDEN -> {
-                add.add(headEffect(PotionEffectType.SPEED,2,-1,false));
+                //add.add(headEffect(PotionEffectType.SPEED,2,-1,false));
                 add.add(headEffect(PotionEffectType.DARKNESS,1,-1,false));
-                add.add(headEffect(PotionEffectType.BLINDNESS,1,-1,false));
                 add.add(headEffect(PotionEffectType.NIGHT_VISION,1,-1,false));
             }
             case ZOMBIE_HORSE -> {
@@ -311,7 +311,7 @@ public class PotionEffectManager {
             }
             case CAT, OCELOT -> {
                 add.add(headEffect(PotionEffectType.SPEED, 1, -1, false));
-                add.add(headEffect(PotionEffectType.JUMP, 1, -1, false));
+                //add.add(headEffect(PotionEffectType.JUMP, 1, -1, false));
             }
             case HORSE, SKELETON_HORSE -> {add.add(headEffect(PotionEffectType.SPEED,2,-1,false));}
             case RABBIT -> {add.add(headEffect(PotionEffectType.JUMP,2,-1,false));}
