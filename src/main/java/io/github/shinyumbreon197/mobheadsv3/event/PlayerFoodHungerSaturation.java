@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
+import org.bukkit.GameEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,7 +10,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
-public class PlayerHungerSaturation implements Listener {
+public class PlayerFoodHungerSaturation implements Listener {
 
     @EventHandler
     public static void onFoodLevelChange(FoodLevelChangeEvent flce){

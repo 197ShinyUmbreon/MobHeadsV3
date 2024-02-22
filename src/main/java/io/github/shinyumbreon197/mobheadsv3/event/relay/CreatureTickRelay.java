@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event.relay;
 
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
 import io.github.shinyumbreon197.mobheadsv3.entity.Decoy;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 public class CreatureTickRelay {
     public static void tickRelay(LivingEntity target, UUID headID){
+        if (!Config.headEffects)return;
         MobHead mobHead = MobHead.getMobHeadFromUUID(headID);
         if (mobHead == null)return;
         EntityType headType = mobHead.getEntityType();

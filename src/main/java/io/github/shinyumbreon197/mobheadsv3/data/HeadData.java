@@ -1,6 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.data;
 
 
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadItemStack;
 import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadLootItemStack;
@@ -18,6 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class HeadData {
+
+    private static final boolean writeLore = Config.headEffects;
 
     public static List<MobHead> getAllHeads(){
         return allHeads();
@@ -165,7 +168,9 @@ public class HeadData {
     public static MobHead Skeleton(){
         UUID uuid = UUID.fromString("766ca39c-5fe3-11ed-9b6a-0242ac120002");
         EntityType entityType = EntityType.SKELETON;
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
+        );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_PROJECTILE, 3);
         ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid,enchants);
         return new MobHead(
@@ -183,7 +188,9 @@ public class HeadData {
         UUID uuid = UUID.fromString("766ca90a-5fe3-11ed-9b6a-0242ac120002");
         EntityType entityType = EntityType.WITHER_SKELETON;
         List<String> lore = List.of(
-                "Gain Wither I.", "Immune to Wither damage.", "Afflict Wither II for", "4 seconds on melee attack."
+                "Gain Wither I.", "Immune to Wither damage.", "Afflict Wither II for", "4 seconds on melee attack.",
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
+                "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
         ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid);
         return new MobHead(
@@ -302,7 +309,8 @@ public class HeadData {
         }
         List<String> lore = List.of(
                 "Other Players can milk you!", "They can use a bucket, or get",
-                "some straight from the source."
+                "some straight from the source.",
+                "Sneak-Right-Click to", "milk yourself with a bucket."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.COW, head, new ItemStack(Material.LEATHER, 12), lore);
@@ -316,8 +324,8 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
+        List<String> lore = List.of("Gain Dolphin's Grace I");
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 2);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.DOLPHIN, head, new ItemStack(Material.COD, 4), lore,null,enchants);
     }
@@ -330,7 +338,11 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Speed I.", //"Players can mount you by Right-Clicking.",
+                "Storage Containers can be picked up", "with Shift-Right-Click, imposing",
+                "a level of Slowness for each container."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.DONKEY, head, new ItemStack(Material.LEATHER, 4), lore);
     }
@@ -387,7 +399,11 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Speed II.", //"Players can mount you by Right-Clicking.",
+                "Storage Containers can be picked up", "with Shift-Right-Click, imposing",
+                "a level of Slowness for each container."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.MULE, head, new ItemStack(Material.LEATHER, 4), lore);
     }
@@ -472,7 +488,10 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of("Gain Speed II.");
+        List<String> lore = List.of(
+                "Gain Speed II.",
+                "Drink Milk to gain", "Regeneration I & Resistance I", "for 5 minutes."
+        );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.OXYGEN, 3);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.SKELETON_HORSE, head, new ItemStack(Material.BONE_BLOCK, 16), lore, null,enchants);
@@ -515,7 +534,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
+        );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 3);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.STRIDER, head, new ItemStack(Material.LAVA_BUCKET, 1), lore,null,enchants);
@@ -683,7 +704,8 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Wither II.", "Immune to Wither damage.", "Afflict Wither III for", "3 seconds on melee attack."
+                "Gain Wither II.", "Immune to Wither damage.", "Afflict Wither III for", "3 seconds on melee attack.",
+                "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.WITHER, head, new ItemStack(Material.WITHER_ROSE, 8), lore);
@@ -700,7 +722,8 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Feather Falling I", "& Fire Resistance I"
+                "Gain Feather Falling I.",
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
@@ -792,7 +815,9 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Feather Falling I & Fire Resistance I.", "Hold Sneak while airborne to gain",
+                "Gain Feather Falling I",
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
+                "Hold Sneak while airborne to gain",
                 "Levitation III for up to 10 seconds."
         );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
@@ -868,7 +893,9 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Fire Resistance I", "and immunity from fall damage.",
+                "Half-Damage from all fire damage sources.",
+                "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
+                "80% Reduction from Fall damage.",
                 "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to jump high into the air."
         );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
@@ -884,9 +911,7 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of(
-
-        );
+        List<String> lore = List.of("Gain Night Vision I");
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.PHANTOM, head, new ItemStack(Material.PHANTOM_MEMBRANE, 6), lore);
     }
@@ -988,7 +1013,7 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain immunity from fall damage.", "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to jump high into the air."
+                "80% Reduction from Fall damage.", "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to jump high into the air."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.SLIME, head, new ItemStack(Material.SLIME_BLOCK, 4), lore);
@@ -1015,7 +1040,10 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Afflict other creatures with", "Slowness I for 5 seconds.",
+                "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
+        );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_PROJECTILE, 3);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         ItemStack loot = HeadLootItemStack.strayLoot();
@@ -1075,7 +1103,8 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Slowness I, Hunger I & Strength I.", "Your hunger will never", "drop below 19/20."
+                "Gain Slowness I, Hunger I & Strength I.", "Your hunger will never", "drop below 19/20.",
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
@@ -1091,7 +1120,8 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Slowness I and Hunger I.", "Your hunger will never", "drop below 19/20."
+                "Gain Slowness I and Hunger I.", "Your hunger will never", "drop below 19/20.",
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
@@ -1279,7 +1309,8 @@ public class HeadData {
         ItemStack loot = new ItemStack(Material.SLIME_BALL, 8);
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 2);
         List<String> lore = List.of(
-                "Sneak-Jump to launch towards where you are looking.", "Sneak-Right-Clicking on a creature will attempt",
+                "Gain Jump Boost I",
+                "Sneak-Jump to leap towards where you are looking.", "Sneak-Right-Clicking on a creature will attempt",
                 "to eat them.", "Eating creatures can restore your Hunger, Saturation", "and Air, as well as gain you various Potion effects.",
                 "Nearby creatures that can be eaten will Glow.", "Reduced fall damage."
         );
@@ -1377,7 +1408,9 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.CHEST, 2);
         List<String> lore = List.of(
-                "Spit a nasty projectile at", "anything that attacks you.", "Deals 1.5 Hearts of damage."
+                "Spit a nasty projectile at", "anything that attacks you.", "Deals 1.5 Hearts of damage.",
+                "Storage Containers can be picked up", "with Shift-Right-Click, imposing",
+                "a level of Slowness for every other container."
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1414,9 +1447,21 @@ public class HeadData {
                 new ItemStack(Material.RED_MUSHROOM_BLOCK, 32),
                 new ItemStack(Material.BROWN_MUSHROOM_BLOCK, 32)
         );
-        List<String> lore = List.of(
-                "Other players can milk you for", "Mushroom Stew when holding a bowl.",
-                "...or they can get some" , "straight from the source."
+        List<List<String>> lores = List.of(
+                List.of(
+                        "Other players can milk you for", "Milk when holding a bucket, or",
+                        "Mushroom Stew when holding a bowl.",
+                        "...or they can get some" , "straight from the source.",
+                        "Sneak-Right-Click to milk yourself", "with a bowl or bucket."
+                ),
+                List.of(
+                        "Other players can milk you for", "Milk when holding a bucket, or",
+                        "Mushroom Stew when holding a bowl.", "The stew can be sus if you",
+                        "are milked holding or are nearby", "certain flowers.",
+                        "They can also get some", "straight from the source.",
+                        "Sneak-Right-Click to milk yourself", "with a bowl or bucket."
+                )
+
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1424,6 +1469,7 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
+            List<String> lore = lores.get(i);
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
             ItemStack loot = loots.get(i);
             heads.add(new MobHead(uuid,name,EntityType.MUSHROOM_COW,head,loot,lore,variant));
@@ -1551,7 +1597,8 @@ public class HeadData {
         );
         ItemStack loot = HeadLootItemStack.rabbitLoot();
         List<String> lore = List.of(
-                "Gain Jump II.", "Gain Speed II for 10 seconds", "when attacked.", "Sneak-Jump to shoot into the air.", "Half-damage from Falling."
+                "Gain Jump II.", "Gain Speed II for 10 seconds", "when attacked.", "Sneak-Jump to shoot into the air.",
+                "Half-damage from Falling."
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1701,7 +1748,9 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.LEAD, 2);
         List<String> lore = List.of(
-                "Spit a nasty projectile at", "anything that attacks you.", "Deals 1.5 Hearts of damage."
+                "Spit a nasty projectile at", "anything that attacks you.", "Deals 1.5 Hearts of damage.",
+                "Storage Containers can be picked up", "with Shift-Right-Click, imposing",
+                "a level of Slowness for every other container."
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1824,11 +1873,4 @@ public class HeadData {
         }
         return heads;
     }
-
-    
-
-
-
-
-
 }

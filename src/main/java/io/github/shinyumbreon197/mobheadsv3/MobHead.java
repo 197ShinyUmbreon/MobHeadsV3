@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
+import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.Material;

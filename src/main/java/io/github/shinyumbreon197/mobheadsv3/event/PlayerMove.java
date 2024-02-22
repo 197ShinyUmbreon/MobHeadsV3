@@ -13,9 +13,6 @@ public class PlayerMove implements Listener {
 
     @EventHandler
     public static void onMove(PlayerMoveEvent pme){
-
-        //Packets.autoFish(pme.getPlayer());
-
         Player player = pme.getPlayer();
         MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
         if (mobHead == null)return;

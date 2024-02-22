@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
@@ -22,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
@@ -41,7 +43,6 @@ public class PlayerInteractEvents implements Listener {
         Action action = pie.getAction();
         EquipmentSlot hand = pie.getHand();
         boolean mainHand = hand != null && hand.equals(EquipmentSlot.HAND);
-        boolean offHand = hand != null && hand.equals(EquipmentSlot.OFF_HAND);
         if (debug) System.out.println("block: " + block + "\nitem: " + item + "\naction: " + action); //debug
 
         if (!isBlock && isItem && swapping.contains(player)){
@@ -64,15 +65,18 @@ public class PlayerInteractEvents implements Listener {
             SkullInteract.skullInteract(pie);
         }
 
+        if (!Config.headEffects)return;
         MobHead mobHead = MobHead.getMobHeadWornByEntity(pie.getPlayer());
         if (mobHead == null)return;
 
-        if (isBlock) headedPlayerInteractBlock(mobHead, pie, isItem);
+        if (isBlock) headedPlayerInteractBlock(mobHead, pie, isItem, mainHand);
         if (isItem) headedPlayerInteractItem(mobHead, pie, isBlock);
     }
 
     @EventHandler
     public static void onPlayerInteractEntity(PlayerInteractEntityEvent piee){
+        if (!Config.headEffects)return;
+        if (debug) System.out.println("Interacted with: " + piee.getRightClicked().getName()); //debug
         MobHead interactedMobHead = MobHead.getMobHeadWornByEntity(piee.getRightClicked());
         MobHead interactorMobHead = MobHead.getMobHeadWornByEntity(piee.getPlayer());
         if (interactedMobHead == null && interactorMobHead == null)return;
@@ -87,7 +91,7 @@ public class PlayerInteractEvents implements Listener {
         assert itemStack != null;
         Action action = pie.getAction();
         List<Action> rightClickActions = List.of(Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK);
-
+        Player player = pie.getPlayer();
 
         switch (headType){
             case PIG -> {
@@ -100,11 +104,16 @@ public class PlayerInteractEvents implements Listener {
                     CreatureEvents.creeperExplodeGunpowder(pie);
                 }
             }
+            case COW, MUSHROOM_COW -> {
+                if (rightClickActions.contains(action) && player.isSneaking()){
+                    CreatureEvents.milkCows(player, player, mobHead);
+                }
+            }
         }
 
     }
 
-    private static void headedPlayerInteractBlock(MobHead mobHead, PlayerInteractEvent pie, boolean itemInteract){
+    private static void headedPlayerInteractBlock(MobHead mobHead, PlayerInteractEvent pie, boolean itemInteract, boolean mainHand){
         if (debug) System.out.println("headedPlayerInteractBlock() mobHead: " + mobHead.getHeadName());
         Player player = pie.getPlayer();
         boolean sneaking = player.isSneaking();
@@ -116,8 +125,13 @@ public class PlayerInteractEvents implements Listener {
 
         switch (headType){
             case SHEEP -> {
-                if (action.equals(Action.RIGHT_CLICK_BLOCK) && !sneaking){
+                if (action.equals(Action.RIGHT_CLICK_BLOCK) && !sneaking && mainHand){
                     CreatureEvents.sheepEatGrass(player, block, blockFace);
+                }
+            }
+            case DONKEY, MULE, LLAMA, TRADER_LLAMA -> {
+                if (action.equals(Action.RIGHT_CLICK_BLOCK) && sneaking && !itemInteract && mainHand){
+                    CreatureEvents.chestedPickUpContainer(player, block);
                 }
             }
         }
@@ -132,8 +146,8 @@ public class PlayerInteractEvents implements Listener {
         EntityType headType = mobHead.getEntityType();
 
         switch (headType){
-            case COW -> CreatureEvents.milkCow(player,livHeadedEnt);
-            case MUSHROOM_COW -> CreatureEvents.soupMooshroom(player,livHeadedEnt);
+            case COW, MUSHROOM_COW -> CreatureEvents.milkCows(player,livHeadedEnt, mobHead);
+            //case MUSHROOM_COW -> CreatureEvents.soupMooshroom(player,livHeadedEnt);
         }
     }
 

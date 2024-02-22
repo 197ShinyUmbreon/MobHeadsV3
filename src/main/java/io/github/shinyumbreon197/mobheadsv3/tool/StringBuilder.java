@@ -24,7 +24,7 @@ public class StringBuilder {
                 String headName = mobHead.getHeadName().replace("'s Head", "");
                 newName = player.getName() + " (" + headName + ")";
             }else{
-                newName = player.getName() + " (" + friendlyEntityTypeName(entityType) + ")";
+                newName = player.getName() + " (" + friendlyStringConversion(entityType.name()) + ")";
             }
         }
         return newName;
@@ -32,8 +32,8 @@ public class StringBuilder {
 
     //Private Methods -------------------------------------------------------------------------
 
-    private static String friendlyEntityTypeName(EntityType entityType){
-        String original = entityType.name();
+    public static String friendlyStringConversion(String original){
+        //String original = entityType.name();
         original = original.replace('_', ' ');
         java.lang.StringBuilder builder = new java.lang.StringBuilder(original.length());
         int index = 0;

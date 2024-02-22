@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
+import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.SkullBreakPlace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -16,7 +17,8 @@ public class BlockPlaceAndBreak implements Listener {
         ItemStack itemInHand = bpe.getItemInHand();
         if (skullItemIsMobHead(itemInHand)){
             SkullBreakPlace.placeMobHeadSkull(bpe);
-            return;
+        }else if (CreatureEvents.chestedItemIsContainer(itemInHand)){
+            CreatureEvents.chestedPlaceContainer(bpe.getPlayer(), bpe.getBlockPlaced(), bpe.getItemInHand());
         }
 
     }

@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -19,6 +20,7 @@ public class PlayerJoinServer implements Listener {
     @EventHandler
     public void onPlayerJoinServer(org.bukkit.event.player.PlayerJoinEvent e){
         Player player = e.getPlayer();
+        CreatureEvents.chestedAddHolder(player);
         UUID uuid = player.getUniqueId();
         MobHead mobHead = MobHead.getMobHeadFromUUID(uuid);
         if (mobHead != null){

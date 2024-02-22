@@ -1,3 +1,12 @@
+Key:
+    "-" Not Fixed.
+    "-X-" Fixed.
+
+-Slime/Magma Cube heads will occasionally store a jump that will unleash on teleport/camera move/reapplication of head after death
+-X-Head or Decollation Pearl is voided when inventory is full
+-X-Guardians do not restore Air on Frog Head
+-X-Breaking an Armor Stand will attempt to drop a head
+-X-Right-Clicking with an empty hand on someone wearing a Mooshroom Head does not give food
 -X-Head worn Tab list does not update on death.
 -X-New Player skins are not updated with a new head (if PlayerProfile != old.PlayerProfile, replace?)
--X-Warden Head allows you to run with Darkness now??? Hell yeah
+-X-Warden Head allows you to run with Darkness now??? Hell yeah (It was of my own packet functions breaking it :facepalm:)

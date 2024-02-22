@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.itemStack;
 
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.Bukkit;
@@ -42,7 +43,7 @@ public class HeadItemStack {
         ItemStack itemStack = new ItemStack(getVanillaHeadMap().get(headType));
         ItemMeta itemMeta = addEnchantments(itemStack.getItemMeta(), enchantments);
         assert itemMeta != null;
-        itemMeta.setLore(colorLore(lore));
+        itemMeta = addLoreToHeadMeta(itemMeta,lore);
         String name = Util.friendlyMaterialName(itemStack.getType());
         itemMeta.setDisplayName(ChatColor.YELLOW + name);
         PersistentDataContainer data = itemMeta.getPersistentDataContainer();
@@ -52,6 +53,7 @@ public class HeadItemStack {
     }
 
     private static ItemMeta addLoreToHeadMeta(ItemMeta itemMeta, List<String> lore){
+        if (!Config.headEffects)return itemMeta;
         itemMeta.setLore(colorLore(lore));
         return itemMeta;
     }
@@ -88,6 +90,7 @@ public class HeadItemStack {
     }
 
     private static ItemMeta addEnchantments(ItemMeta headMeta, Map<Enchantment,Integer> enchantments){
+        if (!Config.headEffects)return headMeta;
         for (Enchantment enchantment:enchantments.keySet()){
             headMeta.addEnchant(enchantment,enchantments.get(enchantment), true);
         }

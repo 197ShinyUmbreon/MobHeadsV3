@@ -134,6 +134,25 @@ public class AVFX {
             case VEX -> {}
         }
     }
+    public static void playChestedPickup(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.BLOCK_WOOD_BREAK, 0.6f, 1.1f);
+        BlockData blockData = new ItemStack(Material.OAK_PLANKS).getType().createBlockData();
+        world.spawnParticle(Particle.BLOCK_DUST,origin,5,0.2,0.05,0.2,0,blockData);
+    }
+    public static void playChestedItemSizzle(Location origin, boolean sound){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.spawnParticle(Particle.SMOKE_NORMAL,origin,2,0,0.5,0,0.025,null);
+        if (sound) world.playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH,0.5f,1.1f);
+    }
+    public static void playChestedItemExplode(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ITEM_SHIELD_BREAK,0.5f, 1.4f);
+        world.spawnParticle(Particle.EXPLOSION_NORMAL,origin,5,0.1,0.1,0.1,0,null);
+    }
     public static void playSummonDispelEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
@@ -218,14 +237,19 @@ public class AVFX {
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_GENERIC_DRINK,0.6F,1.0F);
     }
+    public static void playFrogFireballSpit(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.ITEM_FIRECHARGE_USE,1.0f,1.1f);
+    }
 
-    private static final List<Vector> blazeParticleVectors = Arrays.asList(
+    private static final List<Vector> blazeHeadParticleVectors = Arrays.asList(
             new Vector(0.25, 0.0, 0.0), new Vector(-0.25, 0.0, 0.0), new Vector(0.0, 0.0, 0.25),
             new Vector(0.0, 0.0, -0.25), new Vector(0.25, 0.0, 0.25), new Vector(-0.25, 0.0, 0.25),
             new Vector(-0.25, 0.0, -0.25), new Vector(0.25, 0.0, -0.25)
     );
-    public static void playBlazeHeadBurnEffect(Location headLoc, boolean fuel){
-        World world = headLoc.getWorld();
+    public static void playBlazeHeadBurnEffect(Location origin, boolean fuel, boolean furnaceBlock, boolean xSpread, boolean invalid){
+        World world = origin.getWorld();
         if (world == null)return;
         Random random = new Random();
         float pitch;
@@ -242,15 +266,37 @@ public class AVFX {
             particle = Particle.SMOKE_NORMAL;
             speed = 0.005;
         }
-        for (Vector vector: blazeParticleVectors){
-            Location loc = headLoc.clone();
-            loc.add(vector);
-            double xOffset = vector.getX()/6;
-            double zOffset = vector.getZ()/6;
-            world.spawnParticle(particle, loc, 0, xOffset, 0.2, zOffset, speed,null);
+        if (invalid) particle = Particle.SMOKE_NORMAL;
+        if (!furnaceBlock && !invalid){
+            for (Vector vector: blazeHeadParticleVectors){
+                Location loc = origin.clone();
+                loc.add(vector);
+                double xOffset = vector.getX()/6;
+                double zOffset = vector.getZ()/6;
+                world.spawnParticle(particle, loc, 0, xOffset, 0.2, zOffset, speed,null);
+            }
+        }else{
+            speed = 0.01;
+            double yBound = 0.2;
+            double xBound = 0.1;
+            double zBound = 0.1;
+            if (xSpread){
+                zBound = 0.4;
+            }else xBound = 0.4;
+            int count = 10;
+            if (invalid) count = 1;
+            for (int i = 0; i < count; i++) {
+                double x = random.nextDouble(-xBound, xBound);
+                double y = random.nextDouble(-yBound, yBound);
+                double z = random.nextDouble(-zBound, zBound);
+                Location loc = origin.clone().add(x,y,z);
+                world.spawnParticle(particle, loc,0, 0,0.2,0,speed,null);
+            }
         }
-        float addPitch = random.nextFloat(0.4F);
-        world.playSound(headLoc, Sound.ITEM_FIRECHARGE_USE, volume, pitch+addPitch);
+        if (!invalid){
+            float addPitch = random.nextFloat(0.4F);
+            world.playSound(origin, Sound.ITEM_FIRECHARGE_USE, volume, pitch+addPitch);
+        }
     }
 
     private static void blazeHeadInteractEffect(Location headPos){

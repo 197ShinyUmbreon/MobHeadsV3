@@ -44,6 +44,8 @@ public class Key {
     public static NamespacedKey summonTarget = new NamespacedKey(plugin, "summonTarget");
 
     // EntityType Specific ---------------------------------------------------------------------------------------------
+    // Chested Animal ------------------------------------------------
+    public static String chestedKeyString = "chested";
     // Frog ----------------------------------------------------------
     public static NamespacedKey frogFood = new NamespacedKey(plugin, "frogfood");
 

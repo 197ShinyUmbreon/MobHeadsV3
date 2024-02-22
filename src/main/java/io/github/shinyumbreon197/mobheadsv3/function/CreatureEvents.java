@@ -5,13 +5,12 @@ import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.data.Groups;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
-import net.minecraft.world.item.ItemFishingRod;
+import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;
+import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.block.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -20,13 +19,10 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.loot.LootContext;
-import org.bukkit.loot.LootTable;
-import org.bukkit.loot.LootTables;
+import org.bukkit.inventory.*;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -56,6 +52,13 @@ public class CreatureEvents {
     public static void addToCreatureWasGliding(LivingEntity livingEntity){
         creatureWasGliding.add(livingEntity);
     }
+    private static final Set<EntityDamageEvent.DamageCause> fireDamageTypes = Set.of(
+            EntityDamageEvent.DamageCause.FIRE, EntityDamageEvent.DamageCause.FIRE_TICK, EntityDamageEvent.DamageCause.LAVA
+    );
+    private static final Set<EntityType> fireDamageResistantTypes = Set.of(
+            EntityType.MAGMA_CUBE, EntityType.BLAZE, EntityType.WITHER_SKELETON,
+            EntityType.ZOMBIFIED_PIGLIN, EntityType.GHAST, EntityType.STRIDER, EntityType.ZOGLIN
+    );
     public static void damageTypeResistance(EntityType headType, EntityDamageEvent ede){
         LivingEntity damaged = (LivingEntity) ede.getEntity();
         if (debug) System.out.println("noDamageTicks: " + damaged.getNoDamageTicks()); //debug
@@ -69,27 +72,32 @@ public class CreatureEvents {
         double incomingDamage = ede.getDamage();
 
         if (debug) System.out.println("damageTypeResistance() mobHead: " + headType + "\ndamageCause: " + damageCause); //debug
-
+        switch (damageCause){
+            case FIRE,FIRE_TICK,LAVA -> {
+                if (fireDamageResistantTypes.contains(headType)){
+                    double damage = netherMobFireResistance(damaged, ede.getDamage());
+                    if (damage == 0){
+                        canceled = true;
+                    }else ede.setDamage(damage);
+                }
+            }
+        }
         switch (headType){
             case WITHER, WITHER_SKELETON -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
             case CAVE_SPIDER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.POISON)) canceled = true;}
             case SLIME, MAGMA_CUBE -> {
                 switch (damageCause){
                     case FALL -> {
-                        if (ede.getEntity() instanceof Player){
-                            Player player = (Player) ede.getEntity();
-                            if (wasCreatureGliding(player)){
-                                if (debug) System.out.println("Slime was gliding"); //debug
-                                CreatureEvents.slimeRicochet(player,ede.getDamage(), true);
-                            }
-                        }
-                        canceled = true;
+                        double damage = slimeFallDamage((LivingEntity) ede.getEntity(), ede.getDamage());
+                        if (damage == 0){
+                            canceled = true;
+                        }else ede.setDamage(damage);
                     }
                     case FLY_INTO_WALL -> {
                         canceled = true;
                         if (ede.getEntity() instanceof Player){
                             double damage = ede.getDamage();
-                            CreatureEvents.slimeRicochet((Player) ede.getEntity(), damage, false);
+                            slimeRicochet((Player) ede.getEntity(), damage, false);
                         }
                     }
                 }
@@ -109,7 +117,7 @@ public class CreatureEvents {
                     canceled = true;
                     }else ede.setDamage(damage);
                 }else if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){
-                    boolean wasGliding = CreatureEvents.wasCreatureGliding(damaged);
+                    boolean wasGliding = wasCreatureGliding(damaged);
                     if (debug) System.out.println("wasGliding: " + wasGliding); //debug
                     if (wasGliding){
                         double damage = ede.getDamage() * 0.25;
@@ -152,7 +160,6 @@ public class CreatureEvents {
                 }
             }
         }
-
         ede.setCancelled(canceled);
     }
     public static void damageTypeReactions(EntityType damagedHeadType, EntityDamageEvent ede){
@@ -200,6 +207,7 @@ public class CreatureEvents {
         switch (attackerType){
             case ELDER_GUARDIAN -> {if (target instanceof Player){runElderGuardianAfflictionFX(target);}}
             case SHULKER -> {AVFX.playShulkerAfflictionEffect(target.getLocation(), target.getEyeHeight(),false);}
+            case STRAY -> {}
         }
     }
 
@@ -245,6 +253,398 @@ public class CreatureEvents {
         Entity attacker = Util.getTrueAttacker(edbee.getDamager());
         if (damaged.equals(attacker))return;
         Summon.spawnSummon(damagedLivEnt.getLocation(),headType,damagedLivEnt,attacker);
+    }
+
+    // Chested Animals (Donkey, Mule, Llama, Trader-Llama) ----------------------------------------------------------------
+    private static final Set<EntityType> chestedEntityTypes = Set.of(
+            EntityType.DONKEY, EntityType.MULE, EntityType.LLAMA, EntityType.TRADER_LLAMA
+    );
+    private static final Set<Material> chestedWhitelist = Set.of(
+            Material.CHEST, Material.TRAPPED_CHEST, Material.BARREL//, Material.SHULKER_BOX
+    );
+    private static final NamespacedKey chestedKey = new NamespacedKey(plugin, Key.chestedKeyString);
+    private static final Set<LivingEntity> chestedHolders = new HashSet<>();
+    private static void chestedAffectRiddenVehicle(LivingEntity chested){
+        Entity entity = chested.getVehicle();
+        if (!(entity instanceof Vehicle))return;
+        Vehicle vehicle = (Vehicle) entity;
+        EntityType vehicleType = vehicle.getType();
+        if (vehicle instanceof LivingEntity){
+            LivingEntity livingVehicle = (LivingEntity) vehicle;
+            PotionEffect slow = PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,5,2*20);
+            PotionEffect wither = PotionEffectManager.buildSimpleEffect(PotionEffectType.WITHER, 1, 2*20);
+            PotionEffectManager.addEffectsToEntity(livingVehicle, List.of(slow, wither));
+        }else{
+            vehicle.setVelocity(new Vector(0,-0.5,0));
+        }
+    }
+    public static void chestedInterruptGliding(LivingEntity chested){
+        if (!chestedHolders.contains(chested))return;
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (!chested.isGliding() || !chestedHolders.contains(chested))return;
+                chested.setGliding(false);
+                if (chested instanceof Player){
+                    MobHeadsV3.messagePlayer((Player)chested, ChatColor.RED + "You are too heavy to glide.");
+                }
+                AVFX.playChestedItemExplode(chested.getEyeLocation());
+            }
+        }.runTaskLater(plugin, 10);
+    }
+    public static void chestedWatchDroppedContainer(Item containerItem){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                int time = containerItem.getTicksLived();
+                boolean sound = time == 3;
+                AVFX.playChestedItemSizzle(containerItem.getLocation().add(0,0.3,0), sound);
+                if (time >= 80){
+                    chestedContainerItemExplode(containerItem);
+                    cancel();
+                }
+                if (containerItem.isDead()){
+                    cancel();
+                }
+            }
+        }.runTaskTimer(plugin,0,1);
+    }
+    public static void chestedContainerItemExplode(Item containerItem){
+        AVFX.playChestedItemExplode(containerItem.getLocation());
+        ItemStack containerItemStack = containerItem.getItemStack();
+        List<ItemStack> items = new ArrayList<>();
+        if (containerItemStack.getType().equals(Material.BUNDLE)){
+            items.addAll(Util.getBundleContents(containerItemStack));
+        }else{
+            ItemStack[] toAddArray = chestedItemGetContents(containerItem.getItemStack());
+            if (toAddArray != null) for (ItemStack itemStack:toAddArray) items.add(itemStack);
+        }
+        ItemStack containerTypeItem = new ItemStack(containerItemStack.getType());
+        World world = containerItem.getWorld();
+        Location location = containerItem.getLocation();
+        containerItem.remove();
+        world.dropItemNaturally(location, containerTypeItem);
+        for (ItemStack item:items){
+            if (item == null)continue;
+            world.dropItemNaturally(location, item);
+        }
+    }
+    public static void chestedWatchHolders(){
+        Set<LivingEntity> toRemove = new HashSet<>();
+        for (LivingEntity holder:chestedHolders){
+            MobHead mobHead = MobHead.getMobHeadWornByEntity(holder);
+            EntityType headType;
+            if (mobHead == null){
+                headType = null;
+            }else headType = mobHead.getEntityType();
+            int carried = chestedAmountCarried(holder);
+            if (carried != 0){
+                chestedAffectRiddenVehicle(holder);
+            }
+            if (carried == 0 && headType == null || carried == 0 && !chestedEntityTypes.contains(headType)){
+                toRemove.add(holder);
+            }
+            chestedHandlePotionEffects(holder, headType);
+        }
+        if (toRemove.size() != 0){
+            for (LivingEntity holder:toRemove){
+                chestedRemoveHolder(holder);
+            }
+        }
+    }
+    public static void chestedAddHolder(LivingEntity holder){
+        chestedHolders.add(holder);
+    }
+    public static void chestedRemoveHolder(LivingEntity holder){
+        chestedHolders.remove(holder);
+        PotionEffectManager.removeInfinitePotionEffects(holder);
+    }
+    private static final Map<EntityType, Integer> chestedSpeedMap = Map.of(
+            EntityType.DONKEY, 1,
+            EntityType.MULE, 2
+    );
+    private static final Map<EntityType, Double> chestedMultiplerMap = Map.of(
+            EntityType.LLAMA, 0.5,
+            EntityType.TRADER_LLAMA, 0.5
+    );
+    public static void chestedHandlePotionEffects(LivingEntity livingEntity, EntityType headType){
+        List<PotionEffect> chestedEffects = chestedPotionEffects(livingEntity, headType);
+        Map<PotionEffectType, PotionEffect> chestedEffectMap = new HashMap<>();
+        for (PotionEffect potionEffect:chestedEffects) chestedEffectMap.put(potionEffect.getType(), potionEffect);
+        if (chestedEffectMap.containsKey(PotionEffectType.SLOW)){
+            if (livingEntity.hasPotionEffect(PotionEffectType.SPEED)){
+                PotionEffect speed = livingEntity.getPotionEffect(PotionEffectType.SPEED);
+                assert speed != null;
+                if (speed.getDuration() != -1) livingEntity.removePotionEffect(PotionEffectType.SPEED);
+            }
+        }else if (chestedEffectMap.containsKey(PotionEffectType.SPEED)){
+            if (livingEntity.hasPotionEffect(PotionEffectType.SLOW)){
+                PotionEffect slow = livingEntity.getPotionEffect(PotionEffectType.SLOW);
+                assert slow != null;
+                if (slow.getDuration() != -1) livingEntity.removePotionEffect(PotionEffectType.SLOW);
+            }
+        }
+        if (livingEntity.hasPotionEffect(PotionEffectType.SLOW)){
+            PotionEffect slow = livingEntity.getPotionEffect(PotionEffectType.SLOW);
+            assert slow != null;
+            if (!chestedEffectMap.containsKey(PotionEffectType.SLOW)){
+                if (slow.getDuration() == -1) livingEntity.removePotionEffect(PotionEffectType.SLOW);
+            }else{
+                PotionEffect newSlow = chestedEffectMap.get(PotionEffectType.SLOW);
+                if (!slow.equals(newSlow)) livingEntity.removePotionEffect(PotionEffectType.SLOW);
+            }
+        }
+        if (livingEntity.hasPotionEffect(PotionEffectType.SPEED)){
+            PotionEffect speed = livingEntity.getPotionEffect(PotionEffectType.SPEED);
+            assert speed != null;
+            if (!chestedEffectMap.containsKey(PotionEffectType.SPEED)){
+                if (speed.getDuration() == -1) livingEntity.removePotionEffect(PotionEffectType.SPEED);
+            }else{
+                PotionEffect newSpeed = chestedEffectMap.get(PotionEffectType.SPEED);
+                if (!speed.equals(newSpeed)) livingEntity.removePotionEffect(PotionEffectType.SPEED);
+            }
+        }
+        if (livingEntity.hasPotionEffect(PotionEffectType.WITHER)){
+            PotionEffect wither = livingEntity.getPotionEffect(PotionEffectType.WITHER);
+            assert wither != null;
+            if (!chestedEffectMap.containsKey(PotionEffectType.WITHER)){
+                if (wither.getDuration() == -1) livingEntity.removePotionEffect(PotionEffectType.WITHER);
+            }else{
+                PotionEffect newWither = chestedEffectMap.get(PotionEffectType.WITHER);
+                if (!wither.equals(newWither)) livingEntity.removePotionEffect(PotionEffectType.WITHER);
+            }
+        }
+        addEffectsToEntity(livingEntity, chestedEffects);
+    }
+    private static List<PotionEffect> chestedMaxPenalty(){
+        List<PotionEffect> effects = new ArrayList<>();
+        effects.add(PotionEffectManager.headEffect(PotionEffectType.SLOW, 5, -1, false));
+        effects.add(PotionEffectManager.headEffect(PotionEffectType.WITHER, 1, -1, true));
+        return effects;
+    }
+    public static List<PotionEffect> chestedPotionEffects(LivingEntity livingEntity, EntityType headType){
+        int containers = chestedAmountCarried(livingEntity);
+        if (headType == null || !chestedEntityTypes.contains(headType)){
+            if (containers == 0){
+                return new ArrayList<>();
+            }else return chestedMaxPenalty();
+        }
+        Integer speed = chestedSpeedMap.get(headType);
+        if (speed == null) speed = 0;
+        Double multiplier = chestedMultiplerMap.get(headType);
+        if (multiplier == null) multiplier = 1.0;
+        containers = (int) Math.floor(containers * multiplier);
+        speed = speed - containers;
+        List<PotionEffect> effects = new ArrayList<>();
+        if (speed == 0){
+            return effects;
+        }else if (speed > 0){
+            effects.add(PotionEffectManager.headEffect(PotionEffectType.SPEED,speed,-1,false));
+            return effects;
+        }else{
+            if (speed >= -5){
+                effects.add(PotionEffectManager.headEffect(PotionEffectType.SLOW, speed * -1, -1, false));
+                return effects;
+            }else{
+                return chestedMaxPenalty();
+            }
+        }
+    }
+    public static boolean chestedItemIsContainer(ItemStack itemStack){
+        if (itemStack == null)return false;
+        if (!chestedWhitelist.contains(itemStack.getType()))return false;
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (itemMeta == null)return false;
+        PersistentDataContainer data = itemMeta.getPersistentDataContainer();
+        return data.has(chestedKey, PersistentDataType.INTEGER);
+    }
+    public static boolean chestedItemContainsContainer(ItemStack itemStack){
+        if (itemStack == null || !itemStack.getType().equals(Material.BUNDLE))return false;
+        return chestedItemStackArrayContainsContainer(Util.getBundleContents(itemStack));
+    }
+    private static int chestedAmountCarried(LivingEntity entity){
+        if (!(entity instanceof InventoryHolder))return 0;
+        InventoryHolder holder = (InventoryHolder) entity;
+        ItemStack[] contentArray = holder.getInventory().getContents();
+        List<ItemStack> contents = new ArrayList<>();
+        for (ItemStack itemStack:contentArray) contents.add(itemStack);
+        //if (contents == null)return 0;
+        return chestedAmountInItemStackArray(contents);
+    }
+    public static int chestedAmountInItemStackArray(List<ItemStack> contents){
+        int count = 0;
+        for (ItemStack item:contents){
+            if (item == null)continue;
+            if (chestedItemIsContainer(item)) count++;
+            if (item.getType().equals(Material.BUNDLE)){
+                List<ItemStack> bundleContents = Util.getBundleContents(item);
+                if (bundleContents == null)continue;
+                int nestedCount = chestedAmountInItemStackArray(bundleContents);
+                count = count + nestedCount;
+            }
+        }
+        return count;
+    }
+    public static boolean chestedItemStackArrayContainsContainer(List<ItemStack> contents){
+        return chestedAmountInItemStackArray(contents) != 0;
+    }
+    public static void chestedPickUpContainer(Player chested, Block interacted){
+        Material containerType = interacted.getType();
+        if (!chestedWhitelist.contains(containerType))return;
+        ItemStack mainHand = chested.getInventory().getItemInMainHand();
+        if (mainHand.getType() != Material.AIR)return;
+        if (debug) System.out.println("Valid Container. " + interacted.getType()); //debug
+
+        Container container = (Container) interacted.getState();
+
+        PersistentDataContainer containerData = container.getPersistentDataContainer();
+        if (containerData.getKeys().size() != 0){
+            MobHeadsV3.messagePlayer(chested, ChatColor.RED + "This container has custom data and cannot be picked up.");
+            return;
+        }
+//        if (containerType.equals(Material.SHULKER_BOX)){
+//            ShulkerBox shulkerBox = (ShulkerBox) container;
+//            return;
+//        }
+        ItemStack[] contents;
+        if (container.getInventory() instanceof DoubleChestInventory){
+            Location interactedLoc = interacted.getLocation();
+            DoubleChest doubleChest = ((DoubleChestInventory) container.getInventory()).getHolder();
+            assert doubleChest != null;
+            Chest chestLeft = (Chest) doubleChest.getLeftSide();
+            assert chestLeft != null;
+            Chest chestRight = (Chest) doubleChest.getRightSide();
+            assert chestRight != null;
+            Location leftLoc = chestLeft.getLocation();
+            boolean left = interactedLoc.equals(leftLoc);
+            if (left){
+                contents = chestLeft.getBlockInventory().getContents();
+                chestLeft.getBlockInventory().clear();
+                chestLeft.update(true);
+            }else{
+                contents = chestRight.getBlockInventory().getContents();
+                chestRight.getBlockInventory().clear();
+                chestRight.update(true);
+            }
+
+        }else{
+            contents = container.getInventory().getContents();
+            container.update(true);
+        }
+
+        ItemStack containerItem = new ItemStack(containerType);
+        ItemMeta containerMeta = containerItem.getItemMeta();
+        assert  containerMeta != null;
+        PersistentDataContainer itemData = containerMeta.getPersistentDataContainer();
+
+        String containerItemName = "§6§l" + "Picked Up " + StringBuilder.friendlyStringConversion(containerType.toString());
+        List<String> lore = new ArrayList<>(List.of("§4§n" + "Dropping will spill contents!"));
+
+        int i = 0;
+        int items = 0;
+        itemData.set(chestedKey, PersistentDataType.INTEGER,new Random().nextInt());
+        for (ItemStack item:contents){
+            String itemString;
+            if (item == null){
+                itemString = "null";
+            }else{
+                itemString = Serializer.serializeItemStack(item);
+                if (items <= 5){
+                    int count = item.getAmount();
+                    boolean isHeadItem = MobHead.skullItemIsMobHead(item);
+                    String color = "§f";
+                    String name = StringBuilder.friendlyStringConversion(item.getType().toString());
+                    if (isHeadItem && item.getItemMeta() != null) name = item.getItemMeta().getDisplayName();
+                    if (item.getType().equals(Material.ENCHANTED_BOOK) || isHeadItem){
+                        color = "§e";
+                    }else if (item.getItemMeta() != null && item.getItemMeta().hasEnchants()) color = "§b";
+                    lore.add(color + count + "x " + name);
+                }
+                items++;
+            }
+            itemData.set(new NamespacedKey(plugin,Key.chestedKeyString + i), PersistentDataType.STRING, itemString);
+            i++;
+        }
+        if (items > 5){
+            lore.add("§f" + "    ...");
+        }
+        if (items == 0){
+            chested.getInventory().setItemInMainHand(new ItemStack(containerType));
+        }else{
+            containerMeta.setDisplayName(containerItemName);
+            containerMeta.setLore(lore);
+            containerItem.setItemMeta(containerMeta);
+            chested.getInventory().setItemInMainHand(containerItem);
+            chestedAddHolder(chested);
+        }
+        if (containerType.equals(Material.TRAPPED_CHEST)){
+            Chest trappedChest = (Chest) container;
+            chested.openInventory(trappedChest.getInventory());
+            chested.closeInventory();
+        }
+        AVFX.playChestedPickup(interacted.getLocation().add(0.5,0.5,0.5));
+        interacted.setType(Material.AIR);
+    }
+    public static void chestedPlaceContainer(Player chested, Block block, ItemStack containerItem){
+        if (!chestedWhitelist.contains(containerItem.getType()))return;
+        if (!chestedWhitelist.contains(block.getType()))return;
+        EquipmentSlot hand;
+        if (chested.getInventory().getItemInMainHand().equals(containerItem)){
+            hand = EquipmentSlot.HAND;
+        }else if (chested.getInventory().getItemInOffHand().equals(containerItem)){
+            hand = EquipmentSlot.OFF_HAND;
+        }else return;
+        ItemStack[] items = chestedItemGetContents(containerItem);
+        if (items == null)return;
+        Container container = (Container) block.getState();
+        container.getSnapshotInventory().setContents(items);
+        container.setCustomName(null);
+        container.update(true);
+        containerItem.setAmount(containerItem.getAmount() - 1);
+        if (hand.equals(EquipmentSlot.HAND)){
+            chested.getInventory().setItemInMainHand(containerItem);
+        }else chested.getInventory().setItemInOffHand(containerItem);
+
+    }
+    private static ItemStack[] chestedItemGetContents(ItemStack containerItem){
+        ItemMeta containerMeta = containerItem.getItemMeta();
+        if (containerMeta == null)return null;
+        PersistentDataContainer data = containerMeta.getPersistentDataContainer();
+        if (!chestedItemIsContainer(containerItem))return null;
+        ItemStack[] items = new ItemStack[27];
+        for (int i = 0; i < 27; i++) {
+            String itemString = data.get(new NamespacedKey(plugin, Key.chestedKeyString + i), PersistentDataType.STRING);
+            if (itemString == null || itemString.matches("null")){
+                items[i] = null;
+            }else items[i] = Serializer.deserializeItemStack(itemString);
+        }
+        return items;
+    }
+
+
+    // Nether Mobs (Fire-Resistant) ------------------------------------------------------------------------------------
+    public static double netherMobFireResistance(LivingEntity target, double damage){
+        double reduced = Math.floor(damage * 0.5);
+        if (reduced != 0){
+            PotionEffect fireResist = PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE,1,5*20);
+            PotionEffectManager.addEffectToEntity(target,fireResist);
+        }
+        return reduced;
+    }
+
+    // Skeletons (Skeleton, Wither, Wither Skeleton, Skeleton Horse, Stray) --------------------------------------------
+    private static final List<PotionEffect> skeletonMilkEffects = List.of(
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.REGENERATION,1,5*60*20),
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,1,5*60*20),
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,5*60*20)
+    );
+    public static void skeletonDrinkMilk(Player player){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                PotionEffectManager.addEffectsToEntity(player,skeletonMilkEffects);
+            }
+        }.runTaskLater(plugin,1);
     }
 
     // Fish (Cod, Salmon, Tropical, Puffer) ----------------------------------------------------------------------------
@@ -515,7 +915,10 @@ public class CreatureEvents {
     );
     private static final Set<EntityType> frogAlwaysEdible = Set.of(
             EntityType.SHULKER_BULLET, EntityType.COD, EntityType.SALMON, EntityType.PUFFERFISH,
-            EntityType.TROPICAL_FISH, EntityType.RABBIT, EntityType.BAT
+            EntityType.TROPICAL_FISH, EntityType.RABBIT, EntityType.BAT, EntityType.FIREBALL, EntityType.DRAGON_FIREBALL
+    );
+    private static final Set<EntityType> frogInstantRemove = Set.of(
+            EntityType.SHULKER_BULLET, EntityType.FIREBALL, EntityType.DRAGON_FIREBALL
     );
     private static final Set<Player> frogsOnCooldown = new HashSet<>();
     private static boolean isOnFrogCooldown(Player player){
@@ -567,7 +970,7 @@ public class CreatureEvents {
                 Vector velocity = Util.getDirection(eaten.getLocation().toVector(),player.getEyeLocation().add(0,-0.5,0).toVector());
                 eaten.setVelocity(velocity);
                 ((Damageable)eaten).setHealth(0);
-            }else if (eaten instanceof ShulkerBullet){
+            }else if (frogInstantRemove.contains(eaten.getType())){
                 eaten.remove();
             }
             new BukkitRunnable(){
@@ -596,6 +999,13 @@ public class CreatureEvents {
                         case CREEPER -> {creeperExplosion(player);}
                         case SNOWMAN -> {player.setFreezeTicks(player.getMaxFreezeTicks());}
                         case SHULKER_BULLET -> {AVFX.playShulkerAfflictionEffect(player.getLocation(),player.getEyeHeight(),false);}
+                        case FIREBALL, DRAGON_FIREBALL -> {
+                            EntityType ballType = eaten.getType();
+                            Fireball fireball = (Fireball) player.getWorld().spawnEntity(inFront,ballType);
+                            fireball.setVelocity(player.getLocation().getDirection());
+                            if (player.getFireTicks() == 0) player.setFireTicks(20);
+                            AVFX.playFrogFireballSpit(inFront);
+                        }
                     }
                     if (eaten instanceof LivingEntity) AVFX.playFrogEatenSounds(inFront,eaten.getType());
                     eaten.remove();
@@ -659,7 +1069,7 @@ public class CreatureEvents {
         double health = livingEaten.getHealth();
         AttributeInstance maxHealthAttribute = livingEaten.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (maxHealthAttribute == null) return false;
-        if (debug) System.out.println("health: " + health + " maxHealth: " + maxHealthAttribute.getValue()); //debug
+        //if (debug) System.out.println("health: " + health + " maxHealth: " + maxHealthAttribute.getValue()); //debug
         double maxHealth = maxHealthAttribute.getValue();
         if (maxHealth == 0) return false;
         return health <= 4 || health / maxHealth <= frogEdiblePercent;
@@ -667,7 +1077,7 @@ public class CreatureEvents {
     private static List<PotionEffect> frogGetEffects(Entity eaten){
         List<PotionEffect> effects = new ArrayList<>();
         List<PotionEffect> eatenEffects;
-        if (eaten instanceof LivingEntity){
+        if (eaten instanceof LivingEntity && !Summon.entityIsSummon(eaten)){
             eatenEffects = new ArrayList<>(((LivingEntity)eaten).getActivePotionEffects());
         }else eatenEffects = new ArrayList<>();
         for (PotionEffect eatenEffect:eatenEffects){
@@ -736,7 +1146,7 @@ public class CreatureEvents {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,1,3600));
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,2,3600));
             }
-            case TURTLE -> {effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,3600));}
+            case TURTLE,GUARDIAN -> {effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,3600));}
         }
         return effects;
     }
@@ -747,7 +1157,8 @@ public class CreatureEvents {
         EntityType eatenType = eaten.getType();
         if (eaten instanceof WaterMob) air = air + 100;
         switch (eatenType){
-            case DROWNED -> air = air + 100;
+            case DROWNED -> air = air + 120;
+            case GUARDIAN -> air = air + 160;
         }
         double maxHealth = 0;
         if (eaten instanceof LivingEntity){
@@ -959,68 +1370,73 @@ public class CreatureEvents {
     }
 
     // Slime / Magma Cube ----------------------------------------------------------------------------------------------
-    public static Map<Player,Double> slimeLastYPos = new HashMap<>();
-    private static final Map<Player,Integer> slimeJumps = new HashMap<>();
-    private static final Set<Player> slimeJumpCooldown = new HashSet<>();
-    private static boolean isOnSlimeJumpCooldown(Player player){
-        return slimeJumpCooldown.contains(player);
+    public static Map<LivingEntity,Double> slimeLastYPos = new HashMap<>();
+    private static final Map<LivingEntity,Integer> slimeJumps = new HashMap<>();
+    private static final Set<LivingEntity> slimeJumpCooldown = new HashSet<>();
+    private static boolean isOnSlimeJumpCooldown(LivingEntity slime){
+        return slimeJumpCooldown.contains(slime);
     }
-    private static void addToSlimeJumpCooldown(Player player){
-        if (isOnSlimeJumpCooldown(player))return;
-        slimeJumpCooldown.add(player);
+    private static void addToSlimeJumpCooldown(LivingEntity slime){
+        if (isOnSlimeJumpCooldown(slime))return;
+        slimeJumpCooldown.add(slime);
         new BukkitRunnable(){
             @Override
             public void run() {
-                slimeJumpCooldown.remove(player);
+                slimeJumpCooldown.remove(slime);
             }
         }.runTaskLater(MobHeadsV3.getPlugin(),5);
     }
     //private static final double slimeVelocityMultiplier = 1.4;
-    public static void slimeAirborne(Player player){
-        //if (debug) System.out.println("slimeAirborne() slimeLastYPos: " + slimeLastYPos.get(player)); //debug
-        if (isOnSlimeJumpCooldown(player))return;
-        boolean grounded = player.isOnGround() || player.isInWater();
-        double y = player.getLocation().getY();
-        int jumps = slimeJumps.getOrDefault(player, 0);
+    public static void slimeAirborne(LivingEntity slime){
+        //if (debug) System.out.println("slimeAirborne() slimeLastYPos: " + slimeLastYPos.get(slime)); //debug
+        if (isOnSlimeJumpCooldown(slime))return;
+        boolean player = slime instanceof Player;
+        boolean grounded = slime.isOnGround() || slime.isInWater();
+        double y = slime.getLocation().getY();
+        int jumps = slimeJumps.getOrDefault(slime, 0);
         //if (debug) System.out.println("jumps: " + jumps); //debug
         if (jumps > 4) jumps = 4;
         if (!grounded){
-            slimeLastYPos.put(player,y);
-            if (jumps != 0) Hud.progressBar(player,4,jumps,true, "Jump Speed:",false);
+            slimeLastYPos.put(slime,y);
+            if (jumps != 0 && player) Hud.progressBar((Player) slime,4,jumps,true, "Jump Speed:",false);
         }else{
             double difference = 0;
-            if (slimeLastYPos.containsKey(player)){
-                Double lastY = slimeLastYPos.get(player);
+            if (slimeLastYPos.containsKey(slime)){
+                Double lastY = slimeLastYPos.get(slime);
                 difference = y - lastY;
             }
             double mpt = Math.abs(difference);
 //            if (debug) System.out.println(
-//                    "\nsneaking: " + player.isSneaking() +"\nOn cooldown: " + isOnSlimeJumpCooldown(player) +
-//                    "\nlastYPos!containPlayer: " + !slimeLastYPos.containsKey(player) + "\nmpt < 0.4: " + (mpt < 0.4)
+//                    "\nsneaking: " + slime.isSneaking() +"\nOn cooldown: " + isOnSlimeJumpCooldown(slime) +
+//                    "\nlastYPos!containPlayer: " + !slimeLastYPos.containsKey(slime) + "\nmpt < 0.4: " + (mpt < 0.4)
 //            ); //debug
-            if (player.isSneaking() || !slimeLastYPos.containsKey(player) || mpt < 0.4 || player.isInWater()){
-                if (debug) System.out.println("Slimejump reset"); //debug
-                if (slimeLastYPos.containsKey(player)) Hud.progressBarEnd(player);
-                slimeLastYPos.remove(player);
-                slimeJumps.remove(player);
+            if (player && ((Player)slime).isSneaking() || !slimeLastYPos.containsKey(slime) || mpt < 0.5 || slime.isInWater()){
+                slimeReset(slime);
                 return;
             }
-            addToSlimeJumpCooldown(player);
-            Vector looking = player.getLocation().getDirection();
-            Vector velocity = player.getVelocity();
-            double multiplier = (jumps + 1) * 0.4;
+            addToSlimeJumpCooldown(slime);
+            Vector looking = slime.getLocation().getDirection();
+            Vector velocity = slime.getVelocity();
+            double multiplier = (jumps + 2) * 0.3;
             velocity.add(new Vector(looking.getX()*multiplier,0,looking.getZ()*multiplier));
-            velocity.setY(mpt);
-            player.setVelocity(velocity);
+            velocity.setY(mpt * 1.15);
+            slime.setVelocity(velocity);
+            if (wasCreatureGliding(slime)) slime.setGliding(true);
             //if (debug) System.out.println("velocity: " + velocity); //debug
             jumps++;
-            slimeJumps.put(player,jumps);
-            MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
+            slimeJumps.put(slime,jumps);
+            MobHead mobHead = MobHead.getMobHeadWornByEntity(slime);
             EntityType entityType = EntityType.SLIME;
             if (mobHead != null) entityType = mobHead.getEntityType();
-            AVFX.playSlimeBounceEffect(player.getLocation(), entityType);
+            AVFX.playSlimeBounceEffect(slime.getLocation(), entityType);
             //if (debug) System.out.println("difference: " + difference + " mpt: " + mpt); //debug
         }
+    }
+    public static void slimeReset(LivingEntity slime){
+        //if (debug) System.out.println("Slimejump reset"); //debug
+        if (slime instanceof Player && slimeLastYPos.containsKey(slime)) Hud.progressBarEnd((Player)slime);
+        slimeLastYPos.remove(slime);
+        slimeJumps.remove(slime);
     }
     public static void slimeJump(Player player){
         Vector facing = player.getLocation().getDirection();
@@ -1033,24 +1449,32 @@ public class CreatureEvents {
         AVFX.playSlimeJumpEffect(player.getLocation(), entityType);
     }
 
-    public static void slimeRicochet(Player player, double strength, boolean fall){
+    public static void slimeRicochet(LivingEntity slime, double strength, boolean fall){
         if (strength < 1) return;
-        player.setGliding(true);
+        if (slime instanceof Player && ((Player)slime).isSneaking())return;
         Vector wasFacing;
         if (fall){
             wasFacing = new Vector(0,125,0);
-        }else wasFacing = player.getLocation().getDirection();
+        }else wasFacing = slime.getLocation().getDirection();
         double x = wasFacing.getX() * -1;
         double y = wasFacing.getY();
         double z = wasFacing.getZ() * -1;
         Vector facing = new Vector(x,y,z).multiply(0.1 * strength);
-        Location location = player.getLocation().setDirection(facing);
-        player.teleport(location);
-        player.setVelocity(facing);
-        MobHead mobHead = MobHead.getMobHeadWornByEntity(player);
+        Location location = slime.getLocation().setDirection(facing);
+        slime.teleport(location);
+        slime.setVelocity(facing);
+        slime.setGliding(true);
+        MobHead mobHead = MobHead.getMobHeadWornByEntity(slime);
         EntityType entityType = EntityType.SLIME;
         if (mobHead != null) entityType = mobHead.getEntityType();
-        AVFX.playSlimeBounceEffect(player.getLocation(),entityType);
+        AVFX.playSlimeBounceEffect(slime.getLocation(),entityType);
+    }
+    private static double slimeFallDamage(LivingEntity slime, double damage){
+        if (wasCreatureGliding(slime)){
+            if (debug) System.out.println("Slime was gliding"); //debug
+            slimeRicochet(slime,damage, true);
+        }
+        return Math.floor(damage * 0.2); // 80% Reduction
     }
 
     // Ghast -----------------------------------------------------------------------------------------------------------
@@ -1810,7 +2234,7 @@ public class CreatureEvents {
     }
 
     // Sheep -----------------------------------------------------------------------------------------------------------
-    private static final List<Material> sheepEdibleList = List.of(
+    private static final Set<Material> sheepEdibleList = Set.of(
             Material.GRASS_BLOCK, Material.GRASS, Material.TALL_GRASS, Material.PODZOL, Material.MYCELIUM,
             Material.CRIMSON_NYLIUM, Material.WARPED_NYLIUM, Material.NETHER_SPROUTS, Material.CRIMSON_ROOTS,
             Material.WARPED_ROOTS, Material.HANGING_ROOTS
@@ -1932,6 +2356,69 @@ public class CreatureEvents {
             }
         }.runTaskLater(MobHeadsV3.getPlugin(),20);
     }
+    private static final Set<Material> cowHarvestMats = Set.of(Material.BUCKET, Material.BOWL);
+    public static void milkCows(Player milkingPlayer, LivingEntity milkedEnt, MobHead mobHead){
+        if (isOnMilkingCooldown(milkingPlayer))return;
+        ItemStack mainHand = milkingPlayer.getInventory().getItemInMainHand();
+        ItemStack offHand = milkingPlayer.getInventory().getItemInOffHand();
+        EquipmentSlot hand = EquipmentSlot.HAND;
+        ItemStack harvestItem = milkingPlayer.getItemInUse();
+        if (cowHarvestMats.contains(offHand.getType())){
+            hand = EquipmentSlot.OFF_HAND;
+            harvestItem = offHand;
+        }
+        if (cowHarvestMats.contains(mainHand.getType())){
+            hand = EquipmentSlot.HAND;
+            harvestItem = mainHand;
+        }
+        boolean self = milkingPlayer.equals(milkedEnt);
+        boolean openHand = harvestItem == null;
+        if (self && openHand)return;
+        Location location = milkedEnt.getLocation();
+        EntityType cowType = mobHead.getEntityType();
+        boolean stew = false;
+        boolean sus = false;
+        boolean sneaking = milkingPlayer.isSneaking();
+        if (self && !sneaking)return;
+        if (cowType.equals(EntityType.MUSHROOM_COW)) stew = true;
+        if (mobHead.getVariant() != null && mobHead.getVariant().equals("BROWN")) sus = true;
+        List<PotionEffect> addedEffects = new ArrayList<>();
+        if (sus) addedEffects = getBrownMooshroomEffects(milkedEnt);
+        if (openHand){
+            if (stew && !sneaking){
+                int hunger = milkingPlayer.getFoodLevel();
+                float saturation = milkingPlayer.getSaturation();
+                if (hunger >= 20 && !sus)return;
+                hunger = hunger + 2;
+                if (hunger > 20) hunger = 20;
+                saturation = saturation + 1f;
+                if (saturation > 20f) saturation = 20f;
+                milkingPlayer.setFoodLevel(hunger);
+                milkingPlayer.setSaturation(saturation);
+                addEffectsToEntity(milkingPlayer, addedEffects);
+                runMilkingCooldown(milkingPlayer);
+                AVFX.playMooshroomSoupingSounds(location,false);
+            }else{
+                List<PotionEffectType> toRemove = new ArrayList<>();
+                for (PotionEffect effect:milkingPlayer.getActivePotionEffects())toRemove.add(effect.getType());
+                for (PotionEffectType type:toRemove) milkingPlayer.removePotionEffect(type);
+                MobHead milkingHead = MobHead.getMobHeadWornByEntity(milkingPlayer);
+                if (milkingHead != null && Groups.isSkeletal(milkingHead.getEntityType())) skeletonDrinkMilk(milkingPlayer);
+                runMilkingCooldown(milkingPlayer);
+                AVFX.playCowMilkingSounds(location,false);
+            }
+        }else{
+            if (harvestItem.getType().equals(Material.BUCKET)){
+                giveMilkBucket(milkingPlayer, hand);
+                runMilkingCooldown(milkingPlayer);
+                AVFX.playCowMilkingSounds(location,true);
+            }else if (stew && harvestItem.getType().equals(Material.BOWL)){
+                giveSoupBowl(milkingPlayer, hand, addedEffects);
+                runMilkingCooldown(milkingPlayer);
+                AVFX.playMooshroomSoupingSounds(location,true);
+            }
+        }
+    }
     private static void giveMilkBucket(Player milker, EquipmentSlot hand){
         PlayerInventory inv = milker.getInventory();
         ItemStack bucket;
@@ -1950,42 +2437,46 @@ public class CreatureEvents {
             }
         }
     }
-    public static void milkCow(Player milkingPlayer, LivingEntity milkedEnt){
-        if (isOnMilkingCooldown(milkingPlayer))return;
-        ItemStack mainHand = milkingPlayer.getInventory().getItemInMainHand();
-        ItemStack offHand = milkingPlayer.getInventory().getItemInOffHand();
-        EquipmentSlot hand = EquipmentSlot.HAND;
-        ItemStack bucketItem = milkingPlayer.getItemInUse();
-        if (mainHand.getType().equals(Material.BUCKET)){
-            bucketItem = mainHand;
-        }else if (offHand.getType().equals(Material.BUCKET)){
-            bucketItem = offHand;
-            hand = EquipmentSlot.OFF_HAND;
-        }
-        Location location = milkedEnt.getLocation();
-        if (bucketItem == null){
-            List<PotionEffectType> types = new ArrayList<>();
-            for (PotionEffect effect:milkingPlayer.getActivePotionEffects())types.add(effect.getType());
-            for (PotionEffectType type:types) milkingPlayer.removePotionEffect(type);
-            runMilkingCooldown(milkingPlayer);
-            AVFX.playCowMilkingSounds(location,false);
-        }else if (bucketItem.getType().equals(Material.BUCKET)){
-            giveMilkBucket(milkingPlayer, hand);
-            runMilkingCooldown(milkingPlayer);
-            AVFX.playCowMilkingSounds(location,true);
-        }
-    }
-    private static void giveSoupBowl(Player souper, EquipmentSlot hand){
+    private static void giveSoupBowl(Player souper, EquipmentSlot hand, List<PotionEffect> effects){
         PlayerInventory inv = souper.getInventory();
-        ItemStack bucket;
+        ItemStack bowl;
         if (hand.equals(EquipmentSlot.HAND)){
-            bucket = inv.getItemInMainHand();
-        }else bucket = inv.getItemInOffHand();
-        if (!bucket.getType().equals(Material.BOWL))return;
-        int stackSize = bucket.getAmount();
+            bowl = inv.getItemInMainHand();
+        }else bowl = inv.getItemInOffHand();
+        if (!bowl.getType().equals(Material.BOWL))return;
+        int stackSize = bowl.getAmount();
         stackSize--;
-        bucket.setAmount(stackSize);
-        Map<Integer,ItemStack> overflow = inv.addItem(new ItemStack(Material.MUSHROOM_STEW));
+        bowl.setAmount(stackSize);
+        ItemStack stew;
+        if(effects.size() == 0){
+            stew = new ItemStack(Material.MUSHROOM_STEW);
+        }else{
+            stew = new ItemStack(Material.SUSPICIOUS_STEW);
+            SuspiciousStewMeta meta = (SuspiciousStewMeta) stew.getItemMeta();
+            assert meta != null;
+            List<String> lore = new ArrayList<>();
+            for (PotionEffect potionEffect:effects){
+                meta.addCustomEffect(potionEffect,true);
+                String name = StringBuilder.friendlyStringConversion(potionEffect.getType().getName());
+                double seconds = (int) Math.floor(potionEffect.getDuration() * 0.05);
+                if (seconds == 0) seconds = potionEffect.getDuration() * 0.05;
+                String time = String.valueOf(seconds);
+                int period = 0;
+                for (int i = 0; i < time.length(); i++) {
+                    char c = time.charAt(i);
+                    if (c == '.'){
+                        period = i;
+                        break;
+                    }
+                }
+                time = time.substring(0, period + 2);
+                if (time.endsWith(".0")) time = time.substring(0,time.length()-2);
+                lore.add(name + " for " + time + " seconds.");
+            }
+            meta.setLore(lore);
+            stew.setItemMeta(meta);
+        }
+        Map<Integer,ItemStack> overflow = inv.addItem(stew);
         if (overflow.size() > 0){
             World world = souper.getWorld();
             for (ItemStack itemStack: overflow.values()){
@@ -1993,28 +2484,89 @@ public class CreatureEvents {
             }
         }
     }
-    public static void soupMooshroom(Player soupingPlayer, LivingEntity soupedEnt){
-        if (isOnMilkingCooldown(soupingPlayer))return;
-        ItemStack mainHand = soupingPlayer.getInventory().getItemInMainHand();
-        ItemStack offHand = soupingPlayer.getInventory().getItemInOffHand();
-        EquipmentSlot hand = EquipmentSlot.HAND;
-        ItemStack bowlItem = soupingPlayer.getItemInUse();
-        if (mainHand.getType().equals(Material.BOWL)){
-            bowlItem = mainHand;
-        }else if (offHand.getType().equals(Material.BOWL)){
-            bowlItem = offHand;
-            hand = EquipmentSlot.OFF_HAND;
+    private static List<PotionEffect> getBrownMooshroomEffects(LivingEntity cow){
+        List<Block> nearby = new ArrayList<>();
+        Location origin = cow.getLocation();
+        for (int x = -1; x < 2; x++) {
+            for (int z = -1; z < 2; z++) {
+                for (int y = 0; y < 2; y++) {
+                    Location loc = origin.clone().add(x,y,z);
+                    nearby.add(loc.getBlock());
+                    if (debug){
+                        Location debugLoc = loc.clone().getBlock().getLocation().add(0.5,0.5,0.5);
+                        origin.getWorld().spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE,debugLoc,1,0,0,0,0,null);
+                    }
+                }
+            }
         }
-        Location location = soupedEnt.getLocation();
-        if (bowlItem == null){
-
-            runMilkingCooldown(soupingPlayer);
-            AVFX.playMooshroomSoupingSounds(location,false);
-        }else if (bowlItem.getType().equals(Material.BOWL)){
-            giveSoupBowl(soupingPlayer, hand);
-            runMilkingCooldown(soupingPlayer);
-            AVFX.playMooshroomSoupingSounds(location,true);
+        Set<Material> validTypes = getBrownMushroomFlowerTypes();
+        List<Material> flowers = new ArrayList<>();
+        for (Block block:nearby){
+            Material blockType = block.getType();
+            if (validTypes.contains(blockType)){
+                flowers.add(blockType);
+            }
         }
+        if (cow instanceof Player){
+            List<Material> heldItems = new ArrayList<>();
+            PlayerInventory inv = ((Player)cow).getInventory();
+            heldItems.add(inv.getItemInMainHand().getType());
+            heldItems.add(inv.getItemInOffHand().getType());
+            for (Material held:heldItems){
+                if (validTypes.contains(held)){
+                    flowers.add(held);
+                }
+            }
+        }
+        Map<PotionEffectType, Integer> effectTypeMultiplierMap = new HashMap<>();
+        List<PotionEffect> effects = new ArrayList<>();
+        for (Material flower:flowers){
+            PotionEffectType type = brownMushroomFlowerEffectMap().get(flower);
+            if (effectTypeMultiplierMap.containsKey(type)){
+                int count = effectTypeMultiplierMap.get(type);
+                effectTypeMultiplierMap.put(type, count + 1);
+            }else effectTypeMultiplierMap.put(type, 1);
+        }
+        for (PotionEffectType type:effectTypeMultiplierMap.keySet()){
+            int multiplier = effectTypeMultiplierMap.get(type);
+            int duration = brownMushroomFlowerTimeMap().get(type) * multiplier;
+            effects.add(new PotionEffect(type,duration,0,false,true,true));
+        }
+        return effects;
+    }
+    private static Set<Material> getBrownMushroomFlowerTypes(){
+        return brownMushroomFlowerEffectMap().keySet();
+    }
+    private static Map<Material, PotionEffectType> brownMushroomFlowerEffectMap(){
+        Map<Material, PotionEffectType> map = new HashMap<>();
+        map.put(Material.ALLIUM, PotionEffectType.FIRE_RESISTANCE);
+        map.put(Material.AZURE_BLUET, PotionEffectType.BLINDNESS);
+        map.put(Material.BLUE_ORCHID, PotionEffectType.SATURATION);
+        map.put(Material.DANDELION, PotionEffectType.SATURATION);
+        map.put(Material.CORNFLOWER, PotionEffectType.JUMP);
+        map.put(Material.LILY_OF_THE_VALLEY, PotionEffectType.POISON);
+        map.put(Material.OXEYE_DAISY, PotionEffectType.REGENERATION);
+        map.put(Material.POPPY, PotionEffectType.NIGHT_VISION);
+        map.put(Material.TORCHFLOWER, PotionEffectType.NIGHT_VISION);
+        map.put(Material.ORANGE_TULIP, PotionEffectType.WEAKNESS);
+        map.put(Material.PINK_TULIP, PotionEffectType.WEAKNESS);
+        map.put(Material.RED_TULIP, PotionEffectType.WEAKNESS);
+        map.put(Material.WHITE_TULIP, PotionEffectType.WEAKNESS);
+        map.put(Material.WITHER_ROSE, PotionEffectType.WITHER);
+        return map;
+    }
+    private static Map<PotionEffectType, Integer> brownMushroomFlowerTimeMap(){ //Integer is Time in Ticks
+        Map<PotionEffectType, Integer> map = new HashMap<>();
+        map.put(PotionEffectType.FIRE_RESISTANCE, 4*20);
+        map.put(PotionEffectType.BLINDNESS, 8*20);
+        map.put(PotionEffectType.SATURATION, 7);
+        map.put(PotionEffectType.JUMP, 6*20);
+        map.put(PotionEffectType.POISON, 12*20);
+        map.put(PotionEffectType.REGENERATION, 8*20);
+        map.put(PotionEffectType.NIGHT_VISION, 5*20);
+        map.put(PotionEffectType.WEAKNESS, 9*20);
+        map.put(PotionEffectType.WITHER, 8*20);
+        return map;
     }
 
 }

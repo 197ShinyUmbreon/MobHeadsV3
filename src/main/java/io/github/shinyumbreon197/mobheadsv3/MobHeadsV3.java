@@ -7,8 +7,10 @@ import io.github.shinyumbreon197.mobheadsv3.event.*;
 import io.github.shinyumbreon197.mobheadsv3.event.main.MainThread;
 import io.github.shinyumbreon197.mobheadsv3.event.world.Furnace;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
+import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -52,6 +54,7 @@ public final class MobHeadsV3 extends JavaPlugin {
 
         Summon.startSummonThread();
         getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
+        resumeServices();
     }
 
     @Override
@@ -70,48 +73,48 @@ public final class MobHeadsV3 extends JavaPlugin {
             cOut("ProtocolLib Found!");
             Packets.initialize();
         }else{
-            System.out.println("\n"+
-                    "/////////////////////////////////////\n"+
-                    "ProtocolLib is not installed.\n" +
-                    "Some functionality will be missing.\n"+
-                    "/////////////////////////////////////\n"
-            );
+            cOut("/////////////////////////////////////");
+            cOut("ProtocolLib is not installed.");
+            cOut("Some functionality will be missing.");
+            cOut("/////////////////////////////////////");
         }
     }
 
     private void registerCommands(){
         getCommand("mobheads").setExecutor(new OpenHeadSpawnGUI());
-        if (debug) getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
+        getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
         //if (debug) getCommand("center").setExecutor(new TestCommands());
     }
 
     private void registerEvents(){
         PluginManager pm = getServer().getPluginManager();
 
-        pm.registerEvents(new MobHeadGUI(),this);
-        pm.registerEvents(new Decollation(),this);
         //pm.registerEvents(new Summon(), this);
 
+        pm.registerEvents(new MobHeadGUI(),this);
+        pm.registerEvents(new Decollation(),this);
         pm.registerEvents(new MobHead(),this);
         pm.registerEvents(new PlayerJoinServer(),this);
         pm.registerEvents(new EntityDeath(),this);
         pm.registerEvents(new EntityDamage(),this);
-        pm.registerEvents(new EntityTargetLivingEntity(),this);
-        pm.registerEvents(new PlayerHungerSaturation(),this);
+        if (Config.headEffects) pm.registerEvents(new EntityTargetLivingEntity(),this);
+        if (Config.headEffects) pm.registerEvents(new PlayerFoodHungerSaturation(),this);
         pm.registerEvents(new PlayerInteractEvents(),this);
         pm.registerEvents(new BlockPlaceAndBreak(),this);
-        pm.registerEvents(new ItemSpawn(),this);
+        pm.registerEvents(new ItemSpawnDespawnEvents(),this);
         pm.registerEvents(new InventoryEvents(),this);
-        pm.registerEvents(new ProjectileLand(),this);
-        pm.registerEvents(new IncrementStatistic(),this);
-        pm.registerEvents(new PlayerMove(),this);
-        pm.registerEvents(new PlayerToggleSneak(),this);
-        pm.registerEvents(new PickUpItem(),this);
-        pm.registerEvents(new PrepareCraft(),this);
-        pm.registerEvents(new ToggleGliding(),this);
+        if (Config.headEffects) pm.registerEvents(new ProjectileLand(),this);
+        if (Config.headEffects) pm.registerEvents(new IncrementStatistic(),this);
+        if (Config.headEffects) pm.registerEvents(new PlayerMove(),this);
+        if (Config.headEffects) pm.registerEvents(new PlayerToggleSneak(),this);
+        if (Config.headEffects) pm.registerEvents(new PickUpItem(),this);
+        if (Config.headCraftLoot) pm.registerEvents(new PrepareCraft(),this);
+        if (Config.headEffects) pm.registerEvents(new ToggleGliding(),this);
         pm.registerEvents(new ChunkUnload(),this);
-        pm.registerEvents(new Furnace(),this);
-        pm.registerEvents(new PlayerFish(), this);
+        if (Config.headEffects) pm.registerEvents(new Furnace(),this);
+        if (Config.headEffects) pm.registerEvents(new PlayerFish(), this);
+        if (Config.headEffects) pm.registerEvents(new PlayerItemConsume(), this);
+        if (Config.headEffects) pm.registerEvents(new PlayerTeleport(), this);
 
         //pm.registerEvents(new Packets(), this);
     }
@@ -138,7 +141,8 @@ public final class MobHeadsV3 extends JavaPlugin {
     }
 
     private void registerRecipes(){
-        Decollation.registerSmithingRecipes();
+        if (Config.headDecollation) Decollation.registerSmithingRecipes();
+        if (!Config.headCraftLoot)return;
         for (MobHead mobHead: MobHead.getMobHeads()){
             ItemStack lootItem = mobHead.getHeadLootItemStack();
             if (lootItem == null) continue;
@@ -152,6 +156,11 @@ public final class MobHeadsV3 extends JavaPlugin {
             recipe.setIngredient('H', rc);
             //if (debug) System.out.println("registerRecipes() " + name); //debug
             getServer().addRecipe(recipe);
+        }
+    }
+    private static void resumeServices(){
+        for (Player player:Bukkit.getOnlinePlayers()){
+            CreatureEvents.chestedAddHolder(player);
         }
     }
 

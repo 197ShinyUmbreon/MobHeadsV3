@@ -8,7 +8,8 @@ import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
-public class Hud { // listener is for debug
+public class Hud {
+
 
 //    static final List<Player> bars = new ArrayList<>();
 //

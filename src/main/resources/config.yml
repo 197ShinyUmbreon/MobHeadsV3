@@ -1,18 +1,110 @@
 # MobHeadsV3 config
 # By 197ShinyUmbreon (Eclipse)
 
-# Core Features
+# Core Features --------------------------------------------------------------------------------------------------------
+## There's a small chance of a killed creature dropping its head upon a Player kill (identical to Wither Skeleton Skull)
+## Bosses such as the Wither, Elder Guardian, Warden and Ender Dragon always drop a head upon death.
 heads_drop: true
-potion_effects_when_worn: true
-potion_effect_afflictions: true
-potion_effect_retaliations: true
-event_mechanics_when_worn: true
+## A player's head will drop if killed by another player.
+player_heads_drop: true
+## Heads can give potion effects, unique mechanics, or interact with the world when placed.
+## If False, the heads will simply be decoration.
+head_effects: true
 
-# Minor Features
+# Minor Features -------------------------------------------------------------------------------------------------------
+## Heads can be crafted away into loot
+head_craft_loot: true
+## Charged Creeper Explosions will drop a head for every entity that dies in the explosion.
 charged_creeper_explosions_drop_heads: true
-head_decollation_smithing_recipes: true
-head_decollation_functionality: true
+## Allows players to combine their weapon/Ender Pearl with a Wither Skeleton Skull on a Smithing Table to make a weapon
+## that guarantees a head drop on their next kill with that weapon.
+head_decollation: true
 
-# Individual Heads
+# Individual Heads -----------------------------------------------------------------------------------------------------
+## True: Mechanics and effects of these heads trigger.
+## False: The head is simply decorative.
+pig: true
+chicken: true
+cow: true
+mooshroom: true
+sheep: true
+wolf: true
+allay: true
+snow_golem: true
+iron_golem: true
+horse: true
+donkey: true
+mule: true
+skeleton_horse: true
+zombified_horse: true
+llama: true
+trader_llama: true
+bee: true
+bat: true
+rabbit: true
+fox: true
+goat: true
+cat: true
+ocelot: true
+parrot: true
+camel: true
+sniffer: true
+polar_bear: true
+panda: true
+villager: true
+wandering_trader: true
 
+cod: true
+salmon: true
+pufferfish: true
+tropical_fish: true
+squid: true
+glow_squid: true
+dolphin: true
+turtle: true
+tadpole: true
+frog: true
+axolotl: true
+guardian: true
+
+creeper: true
+skeleton: true
+stray: true
+zombie: true
+drowned: true
+husk: true
+zombie_villager: true
+spider: true
+cave_spider: true
+slime: true
+phantom: true
+
+pillager: true
+vindicator: true
+witch: true
+evoker: true
+vex: true
+illusioner: true
+ravager: true
+
+strider: true
+
+magma_cube: true
+wither_skeleton: true
+piglin: true
+piglin_brute: true
+zombie_piglin: true
+hoglin: true
+zoglin: true
+blaze: true
+ghast: true
+
+endermite: true
+enderman: true
+shulker: true
+
+ender_dragon: true
+wither: true
+elder_guardian: true
+warden: true
 

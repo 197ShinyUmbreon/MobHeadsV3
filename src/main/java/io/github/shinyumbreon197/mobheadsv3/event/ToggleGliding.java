@@ -18,13 +18,11 @@ public class ToggleGliding implements Listener {
     @EventHandler
     public static void onToggleGliding(EntityToggleGlideEvent etge){
         LivingEntity target = (LivingEntity) etge.getEntity();
-        MobHead mobHead = MobHead.getMobHeadWornByEntity(target);
-        if (mobHead == null)return;
-        EntityType headType = mobHead.getEntityType();
         boolean isGliding = etge.isGliding();
         if (debug) System.out.println("onToggleGliding: isGliding: " + isGliding); //debug
 
         if (isGliding){
+            CreatureEvents.chestedInterruptGliding(target);
             CreatureEvents.addToCreatureWasGliding(target);
             if (debug) System.out.println("Added to CreatureWasGliding"); //debug
         }else{
@@ -38,6 +36,10 @@ public class ToggleGliding implements Listener {
                 }
             }.runTaskLater(MobHeadsV3.getPlugin(),2);
         }
+
+        MobHead mobHead = MobHead.getMobHeadWornByEntity(target);
+        if (mobHead == null)return;
+        EntityType headType = mobHead.getEntityType();
 
         switch (headType){
             case FOX -> {

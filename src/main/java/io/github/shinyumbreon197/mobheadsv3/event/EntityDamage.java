@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 
 import com.comphenix.protocol.PacketType;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
@@ -13,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -26,6 +28,13 @@ public class EntityDamage implements Listener {
     @EventHandler
     public static void onEntityDamage(EntityDamageEvent ede){
         Entity damaged = ede.getEntity();
+        if (damaged.getType().equals(EntityType.DROPPED_ITEM)){
+            Item item = (Item) damaged;
+            ItemStack itemStack = item.getItemStack();
+            if (CreatureEvents.chestedItemIsContainer(itemStack)){
+                CreatureEvents.chestedContainerItemExplode(item);
+            }
+        }
         Entity damager;
         MobHead damagedHead = MobHead.getMobHeadWornByEntity(damaged);
         MobHead damagerHead;
@@ -66,9 +75,9 @@ public class EntityDamage implements Listener {
                 );
             }
             //if (debug) System.out.println("onEntityDamage() projectile: " + projectile + " damager: " + damager); //debug
-            if (damagedHead != null) headedEntityTakeDamageFromEntity(damagedHead, (EntityDamageByEntityEvent) ede);
+            if (Config.headEffects && damagedHead != null) headedEntityTakeDamageFromEntity(damagedHead, (EntityDamageByEntityEvent) ede);
             damagerHead = MobHead.getMobHeadWornByEntity(damager);
-            if (damagerHead != null){
+            if (Config.headEffects && damagerHead != null){
                 headedEntityDamageEntity(damagerHead,projectile,edbee);
             }
         }
@@ -91,8 +100,8 @@ public class EntityDamage implements Listener {
 
     private static void headedEntityTakeDamage(MobHead damagedHead, EntityDamageEvent ede){
         EntityType damagedHeadType = damagedHead.getEntityType();
-        CreatureEvents.damageTypeResistance(damagedHeadType,ede);
-        if (!ede.isCancelled()) CreatureEvents.damageTypeReactions(damagedHeadType,ede);
+        if (Config.headEffects) CreatureEvents.damageTypeResistance(damagedHeadType,ede);
+        if (Config.headEffects && !ede.isCancelled()) CreatureEvents.damageTypeReactions(damagedHeadType,ede);
 
         if (ede.isCancelled())return;
         if (ede.getFinalDamage() != 0) AVFX.playHeadHurtSound((LivingEntity) ede.getEntity(),damagedHead);
@@ -124,7 +133,7 @@ public class EntityDamage implements Listener {
             edbee.setCancelled(true);
             return;
         }
-        if (getSummonTypes().contains(damagedHeadType)) CreatureEvents.spawnSummon(damagedHeadType,edbee);
+        if (Config.headEffects && getSummonTypes().contains(damagedHeadType)) CreatureEvents.spawnSummon(damagedHeadType,edbee);
 
         boolean projectile = false;
         if (damager instanceof Projectile){
@@ -133,12 +142,13 @@ public class EntityDamage implements Listener {
         }
         if (damager instanceof LivingEntity){
             LivingEntity livDamager = (LivingEntity) damager;
-            CreatureEvents.applyRetaliationEffects(damagedHeadType, damaged,  livDamager, projectile);
+            if (Config.headEffects) CreatureEvents.applyRetaliationEffects(damagedHeadType, damaged,  livDamager, projectile);
         }
 
     }
 
     private static void headedEntityDamageEntity(MobHead damagerHead, boolean projectile, EntityDamageByEntityEvent edbee){
+        if (!Config.headEffects)return;
         EntityType damagerHeadType = damagerHead.getEntityType();
         Entity damaged = edbee.getEntity();
         EntityDamageEvent.DamageCause cause = edbee.getCause();

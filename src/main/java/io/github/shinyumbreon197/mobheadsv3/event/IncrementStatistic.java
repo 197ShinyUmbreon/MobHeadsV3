@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;

@@ -8,10 +8,14 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.BundleMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.ProjectileSource;
@@ -23,6 +27,33 @@ import java.util.*;
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class Util {
+
+    // Container Management --------------------------------------------------------------------------------------------
+    public static ItemStack[] getShulkerBoxItemContents(ItemStack itemStack){
+        ShulkerBox shulkerBox = getShulkerBoxFromItemStack(itemStack);
+        if (shulkerBox == null)return null;
+        return shulkerBox.getInventory().getContents();
+    }
+    public static boolean setShulkerBoxItemContents(ItemStack itemStack, ItemStack[] contents){
+        ShulkerBox shulkerBox = getShulkerBoxFromItemStack(itemStack);
+        if (shulkerBox == null)return false;
+        shulkerBox.getInventory().setContents(contents);
+        return true;
+    }
+    public static List<ItemStack> getBundleContents(ItemStack bundle){
+        if (bundle == null || !bundle.getType().equals(Material.BUNDLE))return null;
+        BundleMeta bundleMeta = (BundleMeta) bundle.getItemMeta();
+        if (bundleMeta == null)return null;
+        return bundleMeta.getItems();
+    }
+    private static ShulkerBox getShulkerBoxFromItemStack(ItemStack itemStack){
+        if (!itemStack.getType().equals(Material.SHULKER_BOX))return null;
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        if (!(itemMeta instanceof BlockStateMeta))return null;
+        BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
+        if (!(blockStateMeta.getBlockState() instanceof ShulkerBox))return null;
+        return (ShulkerBox) blockStateMeta.getBlockState();
+    }
 
     public static String getVariantString(LivingEntity target){
         EntityType type = target.getType();
@@ -230,14 +261,42 @@ public class Util {
         return  (inWater || (temp > 0 && humid > 0 && isRaining && !blockAbove));
     }
 
-    private static final List<Material> sandyMats = List.of(
-            Material.SAND, Material.RED_SAND, Material.SANDSTONE, Material.RED_SANDSTONE,
-            Material.SANDSTONE_SLAB, Material.SANDSTONE_STAIRS, Material.SANDSTONE_WALL,
-            Material.RED_SANDSTONE_SLAB, Material.RED_SANDSTONE_STAIRS, Material.RED_SANDSTONE_STAIRS
+    private enum Climate{
+        TEMPERATE, COLD, HOT, HUMID, DRY
+    }
+    public static List<Climate> getClimate(Location location){
+        World world = location.getWorld();
+        if (world == null) return List.of(Climate.TEMPERATE);
+        World.Environment environment = world.getEnvironment();
+        switch (environment){
+            default -> {return List.of(Climate.TEMPERATE);}
+            case NETHER -> {return List.of(Climate.HOT, Climate.DRY);}
+            case NORMAL -> {
+                List<Climate> climateList = new ArrayList<>();
+                double humidity = location.getBlock().getHumidity();
+                double temperature = location.getBlock().getTemperature();
+                if (humidity <= 0){
+                    climateList.add(Climate.DRY);
+                }else if (humidity >= 0.85){
+                    climateList.add(Climate.HUMID);
+                }
+                if (temperature <= 0){
+                    climateList.add(Climate.COLD);
+                }else if (temperature >= 2){
+                    climateList.add(Climate.HOT);
+                }
+                if (climateList.size() == 0)climateList.add(Climate.TEMPERATE);
+                return climateList;
+            }
+        }
+    }
+
+    private static final Set<Material> sandyMats = Set.of(
+            Material.SAND, Material.RED_SAND, Material.SOUL_SAND
     );
     public static boolean isWalkingOnSandyBlock(LivingEntity target){
         Block block = target.getLocation().getBlock().getRelative(BlockFace.DOWN);
-        return sandyMats.contains(block.getType());
+        return sandyMats.contains(block.getType()) || block.getType().toString().contains("SANDSTONE");
     }
 
     public static boolean isExposedToSnowfall(LivingEntity target){
@@ -303,14 +362,13 @@ public class Util {
                 }
             }
         }
-
         if (debug) System.out.println("blocks.size(): " + blocks.size()); //debug
         return blocks;
     }
-    private static final List<Material> unsafeFloorMats = List.of(
+    private static final Set<Material> unsafeFloorMats = Set.of(
             Material.MAGMA_BLOCK, Material.COBWEB, Material.CAMPFIRE, Material.SOUL_CAMPFIRE
     );
-    private static final List<Material> unsafeAirMats = List.of(
+    private static final Set<Material> unsafeAirMats = Set.of(
             Material.FIRE, Material.SOUL_FIRE, Material.COBWEB, Material.KELP_PLANT, Material.SEAGRASS, Material.TALL_SEAGRASS
     );
     public static Location getSafeTeleportLoc(Location origin, int x, int y, int z){

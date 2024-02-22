@@ -521,3 +521,81 @@ private static InteractionHand getHandWithRod(Player player) {
         InteractionHand.MAIN_HAND : player.getInventory().getItemInOffHand().getType().equals(Material.FISHING_ROD) ?
         InteractionHand.OFF_HAND : null;
         }
+
+public static void milkCow(Player milkingPlayer, LivingEntity milkedEnt){
+        if (isOnMilkingCooldown(milkingPlayer))return;
+        ItemStack mainHand = milkingPlayer.getInventory().getItemInMainHand();
+        ItemStack offHand = milkingPlayer.getInventory().getItemInOffHand();
+        EquipmentSlot hand = EquipmentSlot.HAND;
+        ItemStack bucketItem = milkingPlayer.getItemInUse();
+        if (mainHand.getType().equals(Material.BUCKET)){
+        bucketItem = mainHand;
+        }else if (offHand.getType().equals(Material.BUCKET)){
+        bucketItem = offHand;
+        hand = EquipmentSlot.OFF_HAND;
+        }
+        Location location = milkedEnt.getLocation();
+        if (bucketItem == null){
+        List<PotionEffectType> types = new ArrayList<>();
+        for (PotionEffect effect:milkingPlayer.getActivePotionEffects())types.add(effect.getType());
+        for (PotionEffectType type:types) milkingPlayer.removePotionEffect(type);
+        runMilkingCooldown(milkingPlayer);
+        AVFX.playCowMilkingSounds(location,false);
+        }else if (bucketItem.getType().equals(Material.BUCKET)){
+        giveMilkBucket(milkingPlayer, hand);
+        runMilkingCooldown(milkingPlayer);
+        AVFX.playCowMilkingSounds(location,true);
+        }
+        }
+public static void soupMooshroom(Player soupingPlayer, LivingEntity soupedEnt){
+        if (isOnMilkingCooldown(soupingPlayer))return;
+        ItemStack mainHand = soupingPlayer.getInventory().getItemInMainHand();
+        ItemStack offHand = soupingPlayer.getInventory().getItemInOffHand();
+        EquipmentSlot hand = EquipmentSlot.HAND;
+        ItemStack bowlItem = soupingPlayer.getItemInUse();
+        if (mainHand.getType().equals(Material.BOWL)){
+        bowlItem = mainHand;
+        }else if (offHand.getType().equals(Material.BOWL)){
+        bowlItem = offHand;
+        hand = EquipmentSlot.OFF_HAND;
+        }
+        List<PotionEffect> effects = new ArrayList<>();
+        MobHead mobHead = MobHead.getMobHeadWornByEntity(soupedEnt);
+        assert mobHead != null;
+        boolean brown = mobHead.getVariant().matches("BROWN");
+        if (brown) effects = getBrownMooshroomEffects(soupedEnt);
+        Location location = soupedEnt.getLocation();
+        if (bowlItem == null){
+        //Give 2 Hunger && 1 Saturation
+        int hunger = soupingPlayer.getFoodLevel();
+        float saturation = soupingPlayer.getSaturation();
+        if (hunger >= 20)return;
+        hunger = hunger + 2;
+        if (hunger > 20) hunger = 20;
+        saturation = saturation + 1f;
+        if (saturation > 20f)saturation = 20f;
+        soupingPlayer.setFoodLevel(hunger);
+        soupingPlayer.setSaturation(saturation);
+        PotionEffectManager.addEffectsToEntity(soupingPlayer, effects);
+        runMilkingCooldown(soupingPlayer);
+        AVFX.playMooshroomSoupingSounds(location,false);
+        }else if (bowlItem.getType().equals(Material.BOWL)){
+        giveSoupBowl(soupingPlayer, hand, effects);
+        runMilkingCooldown(soupingPlayer);
+        AVFX.playMooshroomSoupingSounds(location,true);
+        }
+        }
+
+        public static final boolean a = config.getBoolean("");
+
+        if (container instanceof Chest){
+        if (debug) System.out.println("Container instanceof Chest");
+        Chest chest = (Chest) container;
+        container.getSnapshotInventory().setContents(items);
+        chest.update(true);
+        }else if (container instanceof Barrel){
+        if (debug) System.out.println("Container instanceof Barrel");
+        Barrel barrel = (Barrel) container;
+        barrel.getSnapshotInventory().setContents(items);
+        barrel.update(true);
+        }

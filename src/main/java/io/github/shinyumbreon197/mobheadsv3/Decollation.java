@@ -2,10 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.function.HeadItemDrop;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -22,6 +19,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
@@ -190,7 +188,13 @@ public class Decollation implements Listener {
             ItemStack headItem = MobHead.getHeadItemOfEntity(livTarget);
             if (source instanceof Player){
                 Player player = (Player) source;
-                player.getInventory().addItem(headItem);
+                Map<Integer,ItemStack> overflow = player.getInventory().addItem(headItem);
+                if (overflow.size() > 0){
+                    World world = player.getWorld();
+                    for (ItemStack itemStack: overflow.values()){
+                        world.dropItem(player.getLocation(),itemStack);
+                    }
+                }
                 //AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation());
             }else HeadItemDrop.dropHead(livTarget.getEyeLocation(),livTarget);
             AVFX.playHeadDropEffect(livTarget.getEyeLocation());
@@ -199,7 +203,13 @@ public class Decollation implements Listener {
             //pearl.getWorld().dropItem(dropLoc,pearl.getItem());
             if (source instanceof Player){
                 Player player = (Player) source;
-                player.getInventory().addItem(pearl.getItem());
+                Map<Integer,ItemStack> overflow = player.getInventory().addItem(pearl.getItem());
+                if (overflow.size() > 0){
+                    World world = player.getWorld();
+                    for (ItemStack itemStack: overflow.values()){
+                        world.dropItem(player.getLocation(),itemStack);
+                    }
+                }
                 //AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation());
             }else pearl.getWorld().dropItem(dropLoc,pearl.getItem());
         }

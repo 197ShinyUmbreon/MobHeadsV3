@@ -23,6 +23,7 @@ public class EntityDeath implements Listener {
     @EventHandler
     public static void onEntityDeath(EntityDeathEvent deathEvent){
         //if (debug) System.out.println("EntityDeathEvent"); //debug
+        if (deathEvent.getEntity().getType().equals(EntityType.ARMOR_STAND))return;
         if (Summon.entityIsSummon(deathEvent.getEntity())){
             deathEvent.getDrops().clear();
             deathEvent.setDroppedExp(0);

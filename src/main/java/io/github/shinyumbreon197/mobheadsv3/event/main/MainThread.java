@@ -1,10 +1,12 @@
 package io.github.shinyumbreon197.mobheadsv3.event.main;
 
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
 import io.github.shinyumbreon197.mobheadsv3.entity.Decoy;
 import io.github.shinyumbreon197.mobheadsv3.event.relay.CreatureTickRelay;
+import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.Bukkit;
@@ -16,6 +18,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class MainThread {
 
@@ -55,7 +59,9 @@ public class MainThread {
         new BukkitRunnable(){
             @Override
             public void run() {
+                updatePlayerList();
                 runHeadedEffects();
+                CreatureEvents.chestedWatchHolders();
                 //if (debug) runTimer(false);
                 threadActive = false;
             }
@@ -65,7 +71,6 @@ public class MainThread {
     private static final Map<LivingEntity, UUID> headWearersMap = new HashMap<>();
 
     private static void runHeadedEffects(){
-        updatePlayerList();
         List<LivingEntity> scanned = new ArrayList<>();
         for (World world:Bukkit.getWorlds()){
             scanned.addAll(world.getLivingEntities());
@@ -76,19 +81,26 @@ public class MainThread {
             MobHead wornHead = MobHead.getMobHeadWornByEntity(livEnt);
             if (wornHead == null){
                 notWearing.add(livEnt);
-            }else wearing.put(livEnt,wornHead);
+            }else{
+                //if (debug) System.out.println("runHeadedEffects() wearing.put -> " + livEnt.getName() + " " + wornHead.getHeadName()); //debug
+                wearing.put(livEnt,wornHead);
+            }
         }
         Map<LivingEntity,UUID> wasWearing = new HashMap<>(headWearersMap);
         List<LivingEntity> removeEffects = new ArrayList<>();
-        for (LivingEntity wasLivEnt:wasWearing.keySet()){
-            if (wearing.containsKey(wasLivEnt)){
-                MobHead wasHead = MobHead.getMobHeadFromUUID(wasWearing.get(wasLivEnt));
-                MobHead wornHead = MobHead.getMobHeadWornByEntity(wasLivEnt);
-                if (wornHead == null || !wornHead.equals(wasHead)){
+        if (!Config.headEffects){
+            removeEffects.addAll(wasWearing.keySet());
+        }else{
+            for (LivingEntity wasLivEnt:wasWearing.keySet()){
+                if (wearing.containsKey(wasLivEnt)){
+                    MobHead wasHead = MobHead.getMobHeadFromUUID(wasWearing.get(wasLivEnt));
+                    MobHead wornHead = MobHead.getMobHeadWornByEntity(wasLivEnt);
+                    if (wornHead == null || !wornHead.equals(wasHead)){
+                        removeEffects.add(wasLivEnt);
+                    }
+                }else if(notWearing.contains(wasLivEnt)) {
                     removeEffects.add(wasLivEnt);
                 }
-            }else if(notWearing.contains(wasLivEnt)) {
-                removeEffects.add(wasLivEnt);
             }
         }
         for (LivingEntity removeEffect:removeEffects){
@@ -96,7 +108,7 @@ public class MainThread {
             MobHead mobHead = MobHead.getMobHeadFromUUID(wasWearing.get(removeEffect));
             PotionEffectManager.addHeadRemovalPotionEffects(removeEffect, mobHead);
             headRemovalEffects(removeEffect, mobHead);
-            Decoy.removeDecoyFromCreature(removeEffect);
+            //Decoy.removeDecoyFromCreature(removeEffect);
         }
         headWearersMap.clear();
         for (LivingEntity wear:wearing.keySet()){
@@ -104,21 +116,25 @@ public class MainThread {
             assert mobHead != null;
             headWearersMap.put(wear, mobHead.getUuid());
             UUID uuid = mobHead.getUuid();
-            PotionEffectManager.updateEffects(wear, uuid);
-            CreatureTickRelay.tickRelay(wear, uuid);
-        }
-    }
-
-    private static void headRemovalEffects(LivingEntity target, MobHead mobHead){
-        if (mobHead == null)return;
-        EntityType headType = mobHead.getEntityType();
-        switch (headType){
-            case BAT, WARDEN -> {
-                if (target instanceof Player) Packets.removeGlow((Player) target);
+            if (Config.headEffects){
+                PotionEffectManager.updateEffects(wear, uuid);
+                CreatureTickRelay.tickRelay(wear, uuid);
             }
         }
     }
-
+    private static void headRemovalEffects(LivingEntity target, MobHead mobHead){
+        if (debug) System.out.println("headRemovalEffects() target: " + target.getName() + " MobHead: " + mobHead.getHeadName()); //debug
+        if (mobHead == null)return;
+        EntityType headType = mobHead.getEntityType();
+        switch (headType){
+            case BAT, WARDEN, FROG -> {
+                if (target instanceof Player) Packets.removeGlow((Player) target);
+            }
+            case SLIME, MAGMA_CUBE -> {
+                CreatureEvents.slimeReset(target);
+            }
+        }
+    }
     private static void updatePlayerList(){
         for (Player player:Bukkit.getOnlinePlayers()){
             MobHead mobHead = MobHead.getMobHeadWornByEntity(player);

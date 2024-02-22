@@ -1,6 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.function;
 
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
+import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.Decollation;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.data.Data;
@@ -30,6 +31,7 @@ public class HeadItemDrop {
     );
 
     public static void creatureDeath(EntityDeathEvent eDeathe, EntityDamageEvent eDamagee){
+        if (!Config.headsDrop)return;
         if (eDamagee == null || eDamagee.isCancelled())return;
         boolean success = false;
         boolean decollation;
@@ -67,7 +69,11 @@ public class HeadItemDrop {
                 if (!isSummon) return;
             }else{
                 Player killingPlayer = (Player) killer;
-                if (killingPlayer != killed && killed.getType().equals(EntityType.PLAYER)) success = true;
+                if (killingPlayer != killed && killed.getType().equals(EntityType.PLAYER)){
+                    if (Config.playerHeadsDrop){
+                        success = true;
+                    }else return;
+                }
                 weapon = killingPlayer.getInventory().getItemInMainHand();
                 ItemStack offHand = killingPlayer.getInventory().getItemInOffHand();
                 EntityDamageEvent lastDamageEvent = killed.getLastDamageCause();
@@ -131,7 +137,7 @@ public class HeadItemDrop {
     private static boolean dropSuccess(ItemStack wielding){
         int max = 200;
         int target = 5;
-        boolean guaranteed = false;
+        boolean guaranteed = false; //debug
         if (wielding != null && wielding.containsEnchantment(Enchantment.LOOT_BONUS_MOBS)){
             int lv = wielding.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
             target = target + lv*2;

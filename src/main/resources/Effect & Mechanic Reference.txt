@@ -27,7 +27,7 @@ Skeleton:
 		Effect:
 		Mechanic:
 	Event:
-		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
 		Mechanic:
 	Enchantments: Projectile Protection, Lv3.
 Creeper: 
@@ -44,7 +44,7 @@ Wither Skeleton:
 			Removal Penalty: Wither, Lv1, 4 Sec.
 		Mechanic: Immune to Wither damage.
 	Event:
-		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
 			Affliction: Wither, Lv2, 4 Sec.
 		Mechanic:
 	Enchantments:
@@ -65,7 +65,7 @@ Cow:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: You can be milked when right-clicked with an empty bucket or an empty hand.
+		Mechanic: You can be milked when right-clicked with an empty bucket or an empty hand. You can milk yourself by Sneak-Right-clicking with an empty Bucket.
 	Enchantments:
 Pig: 
 	Tick:
@@ -93,19 +93,19 @@ Wolf:
 	Enchantments:
 Donkey: 
 	Tick:
-		Effect:
+		Effect: Speed, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Mountable by other Players. Step up 1-high.
+		Mechanic: Mountable by other Players (WIP). Step up 1-high (NYI). Pick up and move containers (WIP).
 	Enchantments:
 Mule: 
 	Tick:
 		Effect:
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: Mountable by other Players. Step up 1-high.
+		Effect: Speed, Lv2, Infinite.
+		Mechanic: Mountable by other Players (WIP). Step up 1-high (NYI). Pick up and move containers (WIP).
 	Enchantments:
 Dolphin: 
 	Tick:
@@ -114,7 +114,7 @@ Dolphin:
 	Event:
 		Effect:
 		Mechanic:
-	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3.
+	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv2.
 Cod: 
 	Tick:
 		Effect: If exposed to water; Speed, Lv1, Infinite.
@@ -161,8 +161,8 @@ Strider:
 		Effect: Fire Resistance, Lv1, Infinite;
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: Mountable by other Players
+		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
+		Mechanic: Halve Fire/Lava damage. Mountable by other Players.
 	Enchantments: Fire Resistance, Lv3.
 Goat: 
 	Tick:
@@ -192,7 +192,7 @@ Bee:
 Bat: 
 	Tick:
 		Effect: Blindness, Lv1, Infinite;
-		Mechanic: (Packet) Shows all nearby Entities as Glowing. NYI
+		Mechanic: (Packet) Shows all nearby Entities as Glowing.
 	Event:
 		Effect:
 		Mechanic:
@@ -227,8 +227,8 @@ Skeleton Horse:
 		Effect: Speed, Lv2, Infinite.
 		Mechanic:
 	Event:
-		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv3, 5 min. (NYI)
-		Mechanic: Mountable by other Players. Step up 1-high.
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
+		Mechanic: Mountable by other Players (WIP). Step up 1-high (NYI).
 	Enchantments: Water Breathing, Lv3.
 Zombie Horse: 
 	Tick:
@@ -237,7 +237,7 @@ Zombie Horse:
 		Mechanic:
 	Event:
 		Effect: 
-		Mechanic: No hunger depletion under 19/20. Mountable by other Players. Step up 1-high. (NYI)
+		Mechanic: No hunger depletion under 19/20. Mountable by other Players (WIP). Step up 1-high (NYI).
 	Enchantments:
 Wandering Trader: 
 	Tick:
@@ -311,8 +311,8 @@ Stray:
 		Effect:
 		Mechanic:
 	Event:
-		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
-			Affliction: Slow, Lv1, 3 Sec.
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
+			Affliction: Slow, Lv1, 5 Sec.
 		Mechanic:
 	Enchantments: Projectile Protection, Lv3.
 Shulker: 
@@ -364,8 +364,8 @@ Zoglin:
 			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: No hunger depletion under 19/20.
+		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
+		Mechanic: Halve Fire/Lava damage. No hunger depletion under 19/20.
 	Enchantments: Fire Resistance, Lv2.
 Piglin: 
 	Tick:
@@ -442,19 +442,19 @@ Enderman:
 	Enchantments:
 Ghast: 
 	Tick:
-		Effect: Slow Fall, Lv1, Infinite. Fire Resist, Lv1, Infinite.
+		Effect: Slow Fall, Lv1, Infinite.
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: On sneak-jump, gain Levitation 2 for up to 10 seconds with the option to descend by holding sneak.
+		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
+		Mechanic: Halve Fire/Lava damage.  On sneak-jump, gain Levitation 2 for up to 10 seconds with the option to descend by holding sneak.
 	Enchantments: Fire Resistance, Lv2.
 Blaze: 
 	Tick:
-		Effect: Slow Fall, Lv1, Infinite. Fire Resistance, Lv1, Infinite.
-		Mechanic: Shoot fireballs while holding a Blaze Rod. Small chance for Rod to burn up on use. NYI
+		Effect: Slow Fall, Lv1, Infinite.
+		Mechanic: Shoot fireballs while holding a Blaze Rod. Small chance for Rod to burn up on use. (NYI)
 	Event:
-		Effect:
-		Mechanic:
+		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
+		Mechanic: Halve Fire/Lava damage.
 	Enchantments: Fire Resistance, Lv4.
 Cave Spider: 
 	Tick:
@@ -468,11 +468,11 @@ Cave Spider:
 	Enchantments:
 Magma Cube: 
 	Tick:
-		Effect: Fire Resistance, Lv1, Infinite. Jump, Lv1, Infinite;
+		Effect: Jump, Lv1, Infinite; // REMOVE Fire Resistance, Lv1, Infinite.
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: Upon landing, bounce and gain speed. Crouch to cancel.
+		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
+		Mechanic: Upon landing, bounce and gain speed. Crouch to cancel. Halve Fire/Lava damage.
 	Enchantments: Fire Resistance, Lv4.
 Zombified Piglin: 
 	Tick:
@@ -480,8 +480,8 @@ Zombified Piglin:
 			Removal Penalty: Hunger, Lv1, 5 Sec.
 		Mechanic:
 	Event:
-		Effect:
-		Mechanic: No hunger depletion under 19/20.
+		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
+		Mechanic: Halve Fire/Lava damage. No hunger depletion under 19/20.
 	Enchantments:
 Slime: 
 	Tick:
@@ -542,13 +542,13 @@ Wither:
 		Mechanic: Immune to Wither damage.
 			Affliction: Wither, Lv3, 3 Sec.
 	Event:
-		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. (NYI)
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
 		Mechanic:
 	Enchantments:
 Warden: 
 	Tick:
 		Effect: Darkness, Lv1, Infinite. Night Vision, Lv1, Infinite.
-		Mechanic: Sends the wearing Player glow packets for nearby creatures in a wide radius. (NYI)
+		Mechanic: (Packet) Sends the wearing Player glow packets for nearby creatures in a wide radius.
 	Event:
 		Effect:
 			Affliction: Darkness, Lv1, 10 Sec.
@@ -587,7 +587,7 @@ Horse:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Step up 1-high. Mountable by other Players.
+		Mechanic: Mountable by other Players (WIP). Step up 1-high (NYI).
 	Enchantments:
 Llama:
 	Tick:
@@ -643,7 +643,8 @@ Mooshroom:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: You can be milked for soup when right-clicked with a bowl. (If Brown and in proximity to a flower, make the stew sus (NYI))
+		Mechanic: You can be milked for soup when right-clicked with a bowl or empty hand, or milked for milk with a Bucket. (If Brown and in proximity to a flower, make the stew sus).
+                  You can milk yourself for stew or milk by Sneak-Right-Clicking with an empty bucket or empty bowl.
 	Enchantments:
 Frog:
 	Tick:
