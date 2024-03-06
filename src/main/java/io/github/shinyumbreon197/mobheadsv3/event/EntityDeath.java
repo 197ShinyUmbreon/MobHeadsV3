@@ -24,18 +24,7 @@ public class EntityDeath implements Listener {
     public static void onEntityDeath(EntityDeathEvent deathEvent){
         //if (debug) System.out.println("EntityDeathEvent"); //debug
         if (deathEvent.getEntity().getType().equals(EntityType.ARMOR_STAND))return;
-        if (Summon.entityIsSummon(deathEvent.getEntity())){
-            deathEvent.getDrops().clear();
-            deathEvent.setDroppedExp(0);
-            if (deathEvent.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent){
-                EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) deathEvent.getEntity().getLastDamageCause();
-                Entity killer = edbee.getDamager();
-                if (killer instanceof Mob){
-                    ((Mob)killer).setTarget(Summon.getSummonerFromSummon((Mob) deathEvent.getEntity()));
-                }
-            }
-            return;
-        }
+        if (Summon.isEntitySummon(deathEvent.getEntity()))return;
         EntityDamageEvent damageEvent = deathEvent.getEntity().getLastDamageCause();
         HeadItemDrop.creatureDeath(deathEvent,damageEvent);
         EntityType abilityType = Util.getAbilityDamageData(deathEvent.getEntity());

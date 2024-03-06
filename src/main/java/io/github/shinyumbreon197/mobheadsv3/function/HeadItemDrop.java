@@ -36,6 +36,7 @@ public class HeadItemDrop {
         boolean success = false;
         boolean decollation;
         LivingEntity killed = eDeathe.getEntity();
+        if (Summon.isEntitySummon(killed))return;
         if (debug) System.out.println("creatureDeath()\n    killed: " + killed.getName()); //debug
         if (killed.getType().equals(EntityType.WITHER_SKELETON)){
             success = witherSkeletonHead(eDeathe);
@@ -55,6 +56,11 @@ public class HeadItemDrop {
         // 2 == Trident Entity
         // 3 == Head lol
         if (!success){
+            if (Summon.isEntitySummon(killer)){
+                Summon summon = Summon.getSummonFromEntity(killer);
+                assert summon != null;
+                killer = summon.getOwner();
+            }
             if (!(killer instanceof LivingEntity)){
                 return;
             }else if (killer.getType().equals(EntityType.CREEPER)){
@@ -63,11 +69,7 @@ public class HeadItemDrop {
                 if (chargedKill){
                     success = true;
                 }else return;
-            }else if (!(killer instanceof Player)){
-                LivingEntity livingKiller = (LivingEntity) killer;
-                boolean isSummon = Summon.entityIsSummon(livingKiller);
-                if (!isSummon) return;
-            }else{
+            }else if (killer instanceof Player){
                 Player killingPlayer = (Player) killer;
                 if (killingPlayer != killed && killed.getType().equals(EntityType.PLAYER)){
                     if (Config.playerHeadsDrop){

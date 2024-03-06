@@ -12,6 +12,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.*;
 import org.bukkit.entity.*;
+import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -20,7 +21,6 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.*;
-import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -73,8 +73,15 @@ public class CreatureEvents {
 
         if (debug) System.out.println("damageTypeResistance() mobHead: " + headType + "\ndamageCause: " + damageCause); //debug
         switch (damageCause){
-            case FIRE,FIRE_TICK,LAVA -> {
+            case FIRE,FIRE_TICK,LAVA,PROJECTILE -> {
                 if (fireDamageResistantTypes.contains(headType)){
+                    if (damageCause.equals(EntityDamageEvent.DamageCause.PROJECTILE)){
+                        if (ede instanceof EntityDamageByEntityEvent){
+                            EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) ede;
+                            Projectile projectile = (Projectile) edbee.getDamager();
+                            if (!projectile.getType().equals(EntityType.SMALL_FIREBALL))return;
+                        }
+                    }
                     double damage = netherMobFireResistance(damaged, ede.getDamage());
                     if (damage == 0){
                         canceled = true;
@@ -220,6 +227,7 @@ public class CreatureEvents {
     private static void runRetaliations(EntityType defenderType, LivingEntity damaged, LivingEntity damager, boolean projectile){
         switch (defenderType){
             case LLAMA, TRADER_LLAMA -> {llamaRetaliationSpit(damaged, damager);}
+            case EVOKER -> evokerRetaliation(damaged, damager);
         }
     }
 
@@ -251,11 +259,90 @@ public class CreatureEvents {
         if (!(damaged instanceof LivingEntity))return;
         LivingEntity damagedLivEnt = (LivingEntity) edbee.getEntity();
         Entity attacker = Util.getTrueAttacker(edbee.getDamager());
+        if (!(attacker instanceof LivingEntity))return;
         if (damaged.equals(attacker))return;
-        Summon.spawnSummon(damagedLivEnt.getLocation(),headType,damagedLivEnt,attacker);
+        //Summon.spawnSummon(damagedLivEnt.getLocation(),headType,damagedLivEnt,attacker);
+        Summon.createNewSummon(damagedLivEnt, (LivingEntity) attacker, headType);
     }
 
-    // Chested Animals (Donkey, Mule, Llama, Trader-Llama) ----------------------------------------------------------------
+    // Horses (Horse, Donkey, Mule, Skeleton Horse, Zombie Horse) ------------------------------------------------------
+    public static void horseStepUp(Player horse){
+        // Attribute will be added in 1.20.5
+    }
+
+    // Evoker ----------------------------------------------------------------------------------------------------------
+    private static final int evokerCooldown = 2*20;
+    private static final Map<LivingEntity, Integer> evokerRetaliationCooldownMap = new HashMap<>();
+    private static boolean evokerIsOnCooldown(LivingEntity evoker){
+        return evokerRetaliationCooldownMap.containsKey(evoker);
+    }
+    public static void evokerRetaliation(LivingEntity evoker, LivingEntity target){
+        if (evokerIsOnCooldown(evoker))return;
+        evokerRetaliationCooldownMap.put(evoker, evokerCooldown);
+        boolean player = evoker instanceof Player;
+        new BukkitRunnable(){ // HUD
+            @Override
+            public void run() {
+                int timer = evokerRetaliationCooldownMap.getOrDefault(evoker, 0);
+                if (!evokerIsOnCooldown(evoker) || timer == 0){
+                    cancel();
+                    evokerRetaliationCooldownMap.remove(evoker);
+                    if (player) Hud.progressBarEnd((Player) evoker);
+                    return;
+                }
+                timer--;
+                evokerRetaliationCooldownMap.put(evoker, timer);
+                if (player) Hud.progressBar(
+                        (Player) evoker, evokerCooldown, timer, true, "Fangs Cooldown:", false
+                );
+            }
+        }.runTaskTimer(plugin,0,1);
+        Vector origin = evoker.getLocation().toVector();
+        double x = origin.getX();
+        double y = origin.getY();
+        double z = origin.getZ();
+        Vector destination = target.getLocation().toVector();
+        Vector direction = destination.clone().subtract(origin).normalize();//.multiply(0.5);
+        double xDir = direction.getX();
+        double yDir = direction.getY();
+        double zDir = direction.getZ();
+        if (debug) System.out.println("direction: " + direction);
+        Vector position = origin.clone();
+        double distance = origin.clone().setY(0).distance(destination.clone().setY(0)) + 3;
+        if (debug) System.out.println("distance: " + distance); //debug
+        if (distance > 20) distance = 20;
+        List<Vector> points = new ArrayList<>();
+        for (double i = 0; i <= distance; i = i + 1.2) {
+            if (i == 0) points.add(position);
+            double multiplier = i + 1;
+            points.add(new Vector(x + (xDir * multiplier), destination.getY(), z + (zDir * multiplier)));
+        }
+        if (debug) System.out.println("points.size(): " + points.size()); //debug
+        if (debug) System.out.println("points: " + points); //debug
+        World world = evoker.getWorld();
+        int delay = 0;
+        for (Vector point:points){
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    Block nearestSurface = Util.getNearestVerticalSurface(
+                            new Location(world, point.getX(), point.getY(), point.getZ()),10, true, true
+                    );
+                    if (nearestSurface == null){
+                        if (debug) System.out.println("nearestSurface == null");
+                        return;
+                    }
+                    Location location = new Location(world,point.getX(), nearestSurface.getY() + 1, point.getZ());
+                    if (debug) System.out.println("fang spawn location: " + location); //debug
+                    EvokerFangs fangs = (EvokerFangs) world.spawnEntity(location,EntityType.EVOKER_FANGS);
+                    fangs.setOwner(evoker);
+                }
+            }.runTaskLater(plugin, delay);
+            delay = delay + 2;
+        }
+    }
+
+    // Chested Animals (Donkey, Mule, Llama, Trader-Llama) -------------------------------------------------------------
     private static final Set<EntityType> chestedEntityTypes = Set.of(
             EntityType.DONKEY, EntityType.MULE, EntityType.LLAMA, EntityType.TRADER_LLAMA
     );
@@ -271,11 +358,9 @@ public class CreatureEvents {
         EntityType vehicleType = vehicle.getType();
         if (vehicle instanceof LivingEntity){
             LivingEntity livingVehicle = (LivingEntity) vehicle;
-            PotionEffect slow = PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,5,2*20);
-            PotionEffect wither = PotionEffectManager.buildSimpleEffect(PotionEffectType.WITHER, 1, 2*20);
-            PotionEffectManager.addEffectsToEntity(livingVehicle, List.of(slow, wither));
+            chestedAddHolder(livingVehicle);
         }else{
-            vehicle.setVelocity(new Vector(0,-0.5,0));
+            vehicle.setVelocity(new Vector(0,-0.2,0));
         }
     }
     public static void chestedInterruptGliding(LivingEntity chested){
@@ -283,7 +368,7 @@ public class CreatureEvents {
         new BukkitRunnable(){
             @Override
             public void run() {
-                if (!chested.isGliding() || !chestedHolders.contains(chested))return;
+                if (!chested.isGliding() || !chestedHolders.contains(chested) || chestedAmountCarried(chested) == 0)return;
                 chested.setGliding(false);
                 if (chested instanceof Player){
                     MobHeadsV3.messagePlayer((Player)chested, ChatColor.RED + "You are too heavy to glide.");
@@ -462,14 +547,30 @@ public class CreatureEvents {
         if (itemStack == null || !itemStack.getType().equals(Material.BUNDLE))return false;
         return chestedItemStackArrayContainsContainer(Util.getBundleContents(itemStack));
     }
-    private static int chestedAmountCarried(LivingEntity entity){
-        if (!(entity instanceof InventoryHolder))return 0;
-        InventoryHolder holder = (InventoryHolder) entity;
-        ItemStack[] contentArray = holder.getInventory().getContents();
-        List<ItemStack> contents = new ArrayList<>();
-        for (ItemStack itemStack:contentArray) contents.add(itemStack);
-        //if (contents == null)return 0;
-        return chestedAmountInItemStackArray(contents);
+    private static int chestedAmountCarried(LivingEntity chested){
+        int carried = 0;
+        List<Entity> toCheck = new ArrayList<>(chested.getPassengers());
+        toCheck.add(chested);
+        for (Entity entity:toCheck){
+            if (!(entity instanceof InventoryHolder))return 0;
+            InventoryHolder holder = (InventoryHolder) entity;
+            ItemStack[] contentArray = holder.getInventory().getContents();
+            List<ItemStack> contents = new ArrayList<>();
+            for (ItemStack itemStack:contentArray) contents.add(itemStack);
+            int held = chestedAmountInItemStackArray(contents);
+            int subtraction = 0;
+            double multiplier = 1;
+            switch (chested.getType()){
+                case DONKEY -> subtraction = 1;
+                case MULE -> subtraction = 2;
+                case LLAMA, TRADER_LLAMA -> multiplier = 0.5;
+            }
+            held = held - subtraction;
+            if (held < 0) held = 0;
+            held = (int) Math.floor(held * multiplier);
+            carried = carried + held;
+        }
+        return carried;
     }
     public static int chestedAmountInItemStackArray(List<ItemStack> contents){
         int count = 0;
@@ -1077,7 +1178,7 @@ public class CreatureEvents {
     private static List<PotionEffect> frogGetEffects(Entity eaten){
         List<PotionEffect> effects = new ArrayList<>();
         List<PotionEffect> eatenEffects;
-        if (eaten instanceof LivingEntity && !Summon.entityIsSummon(eaten)){
+        if (eaten instanceof LivingEntity && !Summon.isEntitySummon(eaten)){
             eatenEffects = new ArrayList<>(((LivingEntity)eaten).getActivePotionEffects());
         }else eatenEffects = new ArrayList<>();
         for (PotionEffect eatenEffect:eatenEffects){
@@ -1318,16 +1419,17 @@ public class CreatureEvents {
             }
         }.runTaskLater(MobHeadsV3.getPlugin(),10);
     }
-    private static final int explosionDamage = 6;
+    private static final int explosionDamage = 8;
     private static void creeperExplosion(Player player){
         player.setVelocity(new Vector(0,0.8,0));
-        player.damage(2);
+        player.damage(2, player);
         AVFX.playCreeperExplosionEffect(player.getLocation().add(0,player.getEyeHeight()*0.5, 0));
-        List<Damageable> damageables = player.getNearbyEntities(4,4,4).stream()
+        List<Damageable> damageables = player.getNearbyEntities(8,6,8).stream()
                 .filter(entity -> entity instanceof Damageable)
+                .filter(player::hasLineOfSight)
                 .map(Damageable.class::cast)
                 .collect(Collectors.toList()
-                );
+        );
         damageables.remove(player);
         if (damageables.size() == 0)return;
         Vector vecLoc = player.getLocation().toVector();
@@ -1337,12 +1439,15 @@ public class CreatureEvents {
             Vector direction = Util.getDirection(vecLoc,damVecLoc);
             int distance = (int) Math.floor(vecLoc.distance(damVecLoc));
             int damage = explosionDamage - distance;
+            if (damage < 1)continue;
             damageable.damage(damage,player);
             Vector velocity = direction.multiply(0.2*damage);
             damageable.setVelocity(damageable.getVelocity().add(velocity));
         }
     }
     public static void creeperExplodeGunpowder(PlayerInteractEvent pie){
+        Block block = pie.getClickedBlock();
+        if (block != null && block.getType().isInteractable())return;
         Player player = pie.getPlayer();
         if (isCreeperOnCooldown(player))return;
         PlayerInventory inv = player.getInventory();

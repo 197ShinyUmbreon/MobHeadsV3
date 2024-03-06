@@ -89,7 +89,7 @@ Wolf:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Summons wolf ally on damage from entity.
+		Mechanic: Summons a wolf ally on damage from entity.
 	Enchantments:
 Donkey: 
 	Tick:
@@ -211,8 +211,8 @@ Snowman:
 		Mechanic:
 	Event:
 		Effect: 
-			Affliction: If snowball; Slowness, Lv2, 5 Seconds.
-		Mechanic: Increases damage of Snowballs. (NYI)
+			Affliction: If snowball; Freezing ticks (NYI)
+		Mechanic: Increases damage of Snowballs. (NYI), Summons a Snowman to fight for you when hit.
 	Enchantments:
 Polar Bear: 
 	Tick:
@@ -413,7 +413,7 @@ Vex:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: When taking damage from an enemy, summons a Vex to fight for you.
 	Enchantments:
 Evoker: 
 	Tick:
@@ -421,7 +421,7 @@ Evoker:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: On hit, retaliate with a line of Fangs that seek the enemy that hit you.
 	Enchantments:
 Spider: 
 	Tick:

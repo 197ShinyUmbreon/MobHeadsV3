@@ -4,13 +4,12 @@ import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
-import io.github.shinyumbreon197.mobheadsv3.entity.Decoy;
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.relay.CreatureTickRelay;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -61,6 +60,7 @@ public class MainThread {
             public void run() {
                 updatePlayerList();
                 runHeadedEffects();
+                Summon.watchSummons();
                 CreatureEvents.chestedWatchHolders();
                 //if (debug) runTimer(false);
                 threadActive = false;

@@ -13,7 +13,8 @@ public class ChunkUnload implements Listener {
     public static void onChunkUnload(ChunkUnloadEvent cue){
         Entity[] unloadingEntities = cue.getChunk().getEntities();
         for (Entity entity:unloadingEntities){
-            if (Summon.entityIsSummon(entity)) Summon.dispelSummon((Mob) entity);
+            Summon summon = Summon.getSummonFromEntity(entity);
+            if (summon != null) Summon.removeSummon(summon);
         }
     }
 

@@ -1,13 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.event;
 
-import com.comphenix.protocol.PacketType;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
-import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -21,7 +19,6 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.List;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
-import static io.github.shinyumbreon197.mobheadsv3.entity.Summon.getSummonTypes;
 
 public class EntityDamage implements Listener {
 
@@ -42,15 +39,6 @@ public class EntityDamage implements Listener {
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) ede;
             boolean projectile = false;
             damager = edbee.getDamager();
-            if (Summon.entityIsSummon(damager)){
-                Mob summon = (Mob) damager;
-                switch (summon.getType()){
-                    case BEE -> {
-                        PotionEffectManager.addEffectToEntity(damaged, Summon.getSummonAfflictionEffect(EntityType.BEE));
-                        Summon.dispelSummon(summon);
-                    }
-                }
-            }
             if (damager instanceof Projectile){
                 //if (debug) System.out.println(((Projectile)damager).getPersistentDataContainer()); //debug
                 if (isAbilityProjectile((Projectile) damager)){
@@ -133,7 +121,7 @@ public class EntityDamage implements Listener {
             edbee.setCancelled(true);
             return;
         }
-        if (Config.headEffects && getSummonTypes().contains(damagedHeadType)) CreatureEvents.spawnSummon(damagedHeadType,edbee);
+        if (Config.headEffects && Summon.isSummonType(damagedHeadType)) CreatureEvents.spawnSummon(damagedHeadType,edbee);
 
         boolean projectile = false;
         if (damager instanceof Projectile){

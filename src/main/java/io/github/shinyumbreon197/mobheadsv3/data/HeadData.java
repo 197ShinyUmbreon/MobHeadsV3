@@ -261,7 +261,7 @@ public class HeadData {
         }
         List<String> lore = List.of(
                 "Afflict Poison I for 5 seconds", "on melee attack.",
-                "Summon a Bee to fight for", "you when attacked.", "Summon Cooldown: 1 Second.",
+                "Summon a Bee to fight for", "you when attacked.", "Summon Cooldown: 2 Seconds.",
                 "Summon Max Lifetime: 30 Seconds.", "Summon Affliction: Poison I, 5 seconds."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
@@ -505,7 +505,14 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Regeneration II in the snow,", "Wither I in the rain,",
+                "Speed I in cold biomes,", "and Slow I in hot biomes.",
+                "Thrown snowballs have a 90% chance", "of not being spent when thrown.",
+                "Snowballs inflict 2 damage and inflict", "2 seconds of Freezing.",
+                "A Snow Golem is summoned", "when damaged by an enemy.",
+                "Summon Cooldown: 5 Seconds.", "Summon Max Lifetime: 30 Seconds.", "Summon Affliction: Freezing, 2 seconds."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.SNOWMAN, head, new ItemStack(Material.SNOW_BLOCK, 3), lore);
     }
@@ -801,7 +808,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Sends a line of Evoker Fangs", "towards the enemies that hit you."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.EVOKER, head, new ItemStack(Material.EMERALD_BLOCK, 1), lore);
     }
@@ -1059,8 +1068,8 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Summon a Vex to fight for", "you when attacked.", "Summon Cooldown: 1 Second.",
-                "Summon Max Lifetime: 15 Seconds."
+                "Summon a Vex to fight for", "you when attacked.", "Summon Cooldown: 3 Seconds.",
+                "Summon Max Lifetime: 20 Seconds."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         ItemStack loot = new ItemStack(Material.IRON_SWORD);

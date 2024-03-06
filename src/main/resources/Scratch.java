@@ -599,3 +599,59 @@ public static void soupMooshroom(Player soupingPlayer, LivingEntity soupedEnt){
         barrel.getSnapshotInventory().setContents(items);
         barrel.update(true);
         }
+
+        if (debug && evoker instanceof Player) ((Player)evoker).sendMessage("Retaliation"); //debug
+        Vector origin = evoker.getLocation().toVector();
+        Vector destination = target.getLocation().toVector();
+        Vector difference = destination.clone().subtract(origin);
+        if (debug){
+        System.out.println("origin: " + origin);
+        System.out.println("destination: " + destination);
+        }
+        int distance = (int) Math.ceil(origin.distance(destination));
+        if (debug) System.out.println("distance: " + distance); //debug
+        if (distance == 0) distance = 1;
+        distance = distance * 2;
+        double multiple = 1.0 / distance;
+        Vector addition = difference.clone().multiply(multiple);
+        List<Vector> points = new ArrayList<>();
+        for (int i = 0; i <= distance; i++) {
+        points.add(origin.clone().add(addition.multiply(i + 1)));
+        }
+        if (debug) System.out.println("points: " + points); //debug
+        evokerRetaliationMap.put(evoker, List.of(0, distance));
+        new BukkitRunnable(){
+@Override
+public void run() {
+        List<Integer> ints = evokerRetaliationMap.getOrDefault(evoker, List.of(1,1));
+        int max;
+        int frame;
+        if (ints.size() != 2){
+        max = 1;
+        frame = 1;
+        }else{
+        max = ints.get(1);
+        frame = ints.get(0);
+        }
+        if (debug) System.out.println("frame: " + frame + "\nmax: " + max); //debug
+        if (frame == max){
+        evokerRetaliationMap.remove(evoker);
+        cancel();
+        return;
+        }
+        frame++;
+        evokerRetaliationMap.put(evoker, List.of(frame,max));
+        Vector point = points.get(frame);
+        double x = point.getX();
+        double y = point.getY();
+        double z = point.getZ();
+        Location location = evoker.getLocation();
+        location.setX(x);
+        location.setY(y);
+        location.setZ(z);
+        if (debug) System.out.println("Fang Spawn Location: " + location); //debug
+        EvokerFangs fangs = (EvokerFangs) evoker.getWorld().spawnEntity(location, EntityType.EVOKER_FANGS);
+        fangs.setOwner(evoker);
+        }
+        }.runTaskTimer(plugin,0,3);
+

@@ -52,7 +52,7 @@ public final class MobHeadsV3 extends JavaPlugin {
 
         initPtcLib();
 
-        Summon.startSummonThread();
+        //Summon.startSummonThread();
         getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
         resumeServices();
     }
@@ -115,6 +115,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         if (Config.headEffects) pm.registerEvents(new PlayerFish(), this);
         if (Config.headEffects) pm.registerEvents(new PlayerItemConsume(), this);
         if (Config.headEffects) pm.registerEvents(new PlayerTeleport(), this);
+        if (Config.headEffects) pm.registerEvents(new Summon(), this);
 
         //pm.registerEvents(new Packets(), this);
     }

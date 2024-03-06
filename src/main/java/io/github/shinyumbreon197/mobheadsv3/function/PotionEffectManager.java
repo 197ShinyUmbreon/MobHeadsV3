@@ -262,7 +262,6 @@ public class PotionEffectManager {
                     add.add(effect0);
                 }else remove.add(effect0);
             }
-
             case DOLPHIN -> {add.add(headEffect(PotionEffectType.DOLPHINS_GRACE, 1, -1, false));}
             case ZOMBIE, ZOMBIE_VILLAGER -> {
                 add.add(headEffect(PotionEffectType.HUNGER, 1, -1, false));

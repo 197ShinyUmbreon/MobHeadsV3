@@ -5,7 +5,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -60,7 +62,7 @@ public class AVFX {
             case ZOMBIE_HORSE -> {interactSound = Sound.ENTITY_ZOMBIE_HORSE_AMBIENT;}
             case DONKEY -> {interactSound = Sound.ENTITY_DONKEY_AMBIENT;}
             case MULE -> {interactSound = Sound.ENTITY_MULE_AMBIENT;}
-            case EVOKER -> {interactSound = Sound.ENTITY_EVOKER_CAST_SPELL;}
+            case EVOKER -> {interactSound = Sound.ENTITY_EVOKER_PREPARE_SUMMON;}
             case VEX -> {interactSound = Sound.ENTITY_VEX_CHARGE;}
             case VINDICATOR -> {interactSound = Sound.ENTITY_VINDICATOR_AMBIENT;}
             case ILLUSIONER -> {interactSound = Sound.ENTITY_ILLUSIONER_CAST_SPELL;}
@@ -78,7 +80,7 @@ public class AVFX {
             case MAGMA_CUBE -> {interactSound = Sound.ENTITY_MAGMA_CUBE_SQUISH_SMALL;}
             case WITCH -> {interactSound = Sound.ENTITY_WITCH_DRINK;}
             case ENDERMITE -> {interactSound = Sound.ENTITY_ENDERMITE_AMBIENT;}
-            case GUARDIAN -> {interactSound = Sound.ENTITY_GUARDIAN_AMBIENT_LAND;}
+            case GUARDIAN -> {interactSound = Sound.ENTITY_GUARDIAN_AMBIENT;}
             case SHULKER -> {interactSound = Sound.ENTITY_SHULKER_AMBIENT;}
             case PIG -> {interactSound = Sound.ENTITY_PIG_AMBIENT;}
             case SHEEP -> {interactSound = Sound.ENTITY_SHEEP_AMBIENT;}
@@ -134,24 +136,30 @@ public class AVFX {
             case VEX -> {}
         }
     }
-    public static void playChestedPickup(Location origin){
-        World world = origin.getWorld();
-        if (world == null)return;
-        world.playSound(origin,Sound.BLOCK_WOOD_BREAK, 0.6f, 1.1f);
-        BlockData blockData = new ItemStack(Material.OAK_PLANKS).getType().createBlockData();
-        world.spawnParticle(Particle.BLOCK_DUST,origin,5,0.2,0.05,0.2,0,blockData);
-    }
-    public static void playChestedItemSizzle(Location origin, boolean sound){
-        World world = origin.getWorld();
-        if (world == null)return;
-        world.spawnParticle(Particle.SMOKE_NORMAL,origin,2,0,0.5,0,0.025,null);
-        if (sound) world.playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH,0.5f,1.1f);
-    }
-    public static void playChestedItemExplode(Location origin){
-        World world = origin.getWorld();
-        if (world == null)return;
-        world.playSound(origin, Sound.ITEM_SHIELD_BREAK,0.5f, 1.4f);
-        world.spawnParticle(Particle.EXPLOSION_NORMAL,origin,5,0.1,0.1,0.1,0,null);
+    public static void playSummonContinuousEffect(Mob summon){
+        World world = summon.getWorld();
+        for (int i = 0; i <= 1; i++) {
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    double offsetX = random.nextDouble(-0.4, 0.5);
+                    double offsetY = random.nextDouble(-0.4, 0.5);
+                    double offsetZ = random.nextDouble(-0.4, 0.5);
+                    boolean flip = random.nextBoolean();
+                    if (flip){
+                        world.spawnParticle(Particle.SMOKE_LARGE,summon.getLocation(), 1,
+                                0.4 + offsetX,0.5 + offsetY, 0.4 + offsetZ,0.0,
+                                null
+                        );
+                    }else{
+                        world.spawnParticle(Particle.FALLING_OBSIDIAN_TEAR,summon.getLocation(), 1,
+                                0.4 + offsetX,0.5, 0.4 + offsetZ,0.0,
+                                null
+                        );
+                    }
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(), i * 5);
+        }
     }
     public static void playSummonDispelEffect(Location origin){
         World world = origin.getWorld();
@@ -176,9 +184,27 @@ public class AVFX {
         world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0.1,0),
                 10,0.2,0.1,0.2,0.05,new ItemStack(Material.STONE)
         );
-
     }
 
+    public static void playChestedPickup(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.BLOCK_WOOD_BREAK, 0.6f, 1.1f);
+        BlockData blockData = new ItemStack(Material.OAK_PLANKS).getType().createBlockData();
+        world.spawnParticle(Particle.BLOCK_DUST,origin,5,0.2,0.05,0.2,0,blockData);
+    }
+    public static void playChestedItemSizzle(Location origin, boolean sound){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.spawnParticle(Particle.SMOKE_NORMAL,origin,2,0,0.5,0,0.025,null);
+        if (sound) world.playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH,0.5f,1.1f);
+    }
+    public static void playChestedItemExplode(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ITEM_SHIELD_BREAK,0.5f, 1.4f);
+        world.spawnParticle(Particle.EXPLOSION_NORMAL,origin,5,0.1,0.1,0.1,0,null);
+    }
     public static void playFoxPounceLandExplosionEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;

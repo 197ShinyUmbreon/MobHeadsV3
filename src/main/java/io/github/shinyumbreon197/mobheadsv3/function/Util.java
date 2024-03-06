@@ -55,6 +55,7 @@ public class Util {
         return (ShulkerBox) blockStateMeta.getBlockState();
     }
 
+    // Strings ---------------------------------------------------------------------------------------------------------
     public static String getVariantString(LivingEntity target){
         EntityType type = target.getType();
         switch (type){
@@ -143,6 +144,49 @@ public class Util {
             blocks.add(originBlock.getRelative(BlockFace.WEST));
         }
         return blocks;
+    }
+
+    public static List<Block> getBlocksSurroundingEntity(Entity entity){
+        List<Block> blocks = new ArrayList<>();
+        for (int x = -1; x < 2; x++) {
+            for (int z = -1; z < 2; z++) {
+                for (int y = 0; y < 2; y++) {
+                    Location loc = entity.getLocation().clone().add(x,y,z);
+                    blocks.add(loc.getBlock());
+                }
+            }
+        }
+        return blocks;
+    }
+
+    public static Block getNearestVerticalSurface(Location origin, int maxDistance, boolean upwards, boolean downwards){ //boolean fluidSurface){
+        if (maxDistance < 0) maxDistance = 0;
+        if (!upwards && !downwards){
+            upwards = true;
+            downwards = true;
+        }
+        Block originBlock = origin.getBlock();
+        List<Block> aboveBlocks = new ArrayList<>();
+        List<Block> belowBlocks = new ArrayList<>();
+        for (int i = 1; i <= maxDistance; i++) {
+            if (upwards) aboveBlocks.add(originBlock.getRelative(BlockFace.UP, i));
+            if (downwards) belowBlocks.add(originBlock.getRelative(BlockFace.DOWN, i));
+        }
+        Block nearest = null;
+        Integer nearestDistance = null;
+        List<List<Block>> lists = List.of(List.of(originBlock), aboveBlocks, belowBlocks);
+        for (List<Block> list:lists){
+            for (Block block:list){
+                if (block.getCollisionShape().getBoundingBoxes().size() == 0)continue;
+                Block above = block.getRelative(BlockFace.UP);
+                if (above.getCollisionShape().getBoundingBoxes().size() != 0)continue;
+                int distance = Math.abs(block.getLocation().getBlockY() - origin.getBlockY());
+                if (nearestDistance != null && distance > nearestDistance)continue;
+                nearest = block;
+                nearestDistance = distance;
+            }
+        }
+        return nearest;
     }
 
     public static void addAbilityDamageData(Entity target, EntityType abilityType){
