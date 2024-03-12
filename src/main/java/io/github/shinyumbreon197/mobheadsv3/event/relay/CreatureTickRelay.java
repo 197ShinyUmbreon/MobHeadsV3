@@ -150,6 +150,7 @@ public class CreatureTickRelay {
             case PIGLIN -> {
             }
             case STRIDER -> {
+                CreatureEvents.striderWalkOnLava(target);
             }
             case ZOGLIN -> {
             }

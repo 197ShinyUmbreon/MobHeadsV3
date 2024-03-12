@@ -28,7 +28,7 @@ public class SpawnHeadedEntity implements CommandExecutor {
                         MobHeadGUI.openSummonGUI(player, List.of(strings));
                     }
                 }.run();
-            }else player.sendMessage(MobHeadsV3.nameColored(ChatColor.RED + "This command is for operators only."));
+            }else MobHeadsV3.messagePlayer(player, ChatColor.RED + "This command is for operators only.");
             return true;
         }
         return false;

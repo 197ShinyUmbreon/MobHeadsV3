@@ -178,6 +178,38 @@ public class MobHead implements Listener {
         if (uuidString == null)return null;
         return MobHead.getMobHeadFromUUID(UUID.fromString(uuidString));
     }
+    public static ItemStack repairMobheadItemstack(ItemStack held){
+        MobHead mobHead = getMobHeadFromSkullItemStack(held);
+        if (mobHead == null) mobHead = getMobHeadFromVanillaSkullItem(held);
+        if (mobHead == null && !held.getType().equals(Material.PLAYER_HEAD))return null;
+        if (mobHead == null){
+            SkullMeta meta = (SkullMeta) held.getItemMeta();
+            if (meta == null)return null;
+            PlayerProfile pp = meta.getOwnerProfile();
+            if (pp == null)return null;
+            UUID uuid = pp.getUniqueId();
+            if (uuid == null)return null;
+            for (MobHead head:getMobHeads()){
+                ItemStack headItem = head.getHeadItemStack();
+                if (!headItem.getType().equals(Material.PLAYER_HEAD))continue;
+                SkullMeta savedMeta = (SkullMeta) headItem.getItemMeta();
+                assert savedMeta != null;
+                PlayerProfile savedPP = savedMeta.getOwnerProfile();
+                assert savedPP != null;
+                UUID savedUUID = savedPP.getUniqueId();
+                assert savedUUID != null;
+                if (uuid.equals(savedUUID)){
+                    mobHead = head;
+                    break;
+                }
+            }
+        }
+        if (mobHead == null)return null;
+        ItemStack repairedHead = mobHead.getHeadItemStack().clone();
+        int count = held.getAmount();
+        repairedHead.setAmount(count);
+        return repairedHead;
+    }
     public static MobHead getMobHeadFromBrokenSkullItem(ItemStack skullItem){
         if (skullItem == null)return null;
         SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();

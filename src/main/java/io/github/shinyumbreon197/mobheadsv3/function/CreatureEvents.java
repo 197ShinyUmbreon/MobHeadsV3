@@ -11,6 +11,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.*;
+import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -27,6 +28,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -53,7 +55,8 @@ public class CreatureEvents {
         creatureWasGliding.add(livingEntity);
     }
     private static final Set<EntityDamageEvent.DamageCause> fireDamageTypes = Set.of(
-            EntityDamageEvent.DamageCause.FIRE, EntityDamageEvent.DamageCause.FIRE_TICK, EntityDamageEvent.DamageCause.LAVA
+            EntityDamageEvent.DamageCause.FIRE, EntityDamageEvent.DamageCause.FIRE_TICK, EntityDamageEvent.DamageCause.LAVA,
+            EntityDamageEvent.DamageCause.HOT_FLOOR
     );
     private static final Set<EntityType> fireDamageResistantTypes = Set.of(
             EntityType.MAGMA_CUBE, EntityType.BLAZE, EntityType.WITHER_SKELETON,
@@ -73,7 +76,7 @@ public class CreatureEvents {
 
         if (debug) System.out.println("damageTypeResistance() mobHead: " + headType + "\ndamageCause: " + damageCause); //debug
         switch (damageCause){
-            case FIRE,FIRE_TICK,LAVA,PROJECTILE -> {
+            case FIRE,FIRE_TICK,LAVA,PROJECTILE,HOT_FLOOR -> {
                 if (fireDamageResistantTypes.contains(headType)){
                     if (damageCause.equals(EntityDamageEvent.DamageCause.PROJECTILE)){
                         if (ede instanceof EntityDamageByEntityEvent){
@@ -262,12 +265,143 @@ public class CreatureEvents {
         if (!(attacker instanceof LivingEntity))return;
         if (damaged.equals(attacker))return;
         //Summon.spawnSummon(damagedLivEnt.getLocation(),headType,damagedLivEnt,attacker);
-        Summon.createNewSummon(damagedLivEnt, (LivingEntity) attacker, headType);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                Summon.createNewSummon(damagedLivEnt, (LivingEntity) attacker, headType);
+            }
+        }.runTaskLater(plugin, 1);
     }
 
     // Horses (Horse, Donkey, Mule, Skeleton Horse, Zombie Horse) ------------------------------------------------------
     public static void horseStepUp(Player horse){
         // Attribute will be added in 1.20.5
+    }
+
+    // Snowman ---------------------------------------------------------------------------------------------------------
+    private static final Set<Player> snowmanHarvestCooldown = new HashSet<>();
+    private static boolean snowmanIsOnCooldown(Player snowman){
+        return snowmanHarvestCooldown.contains(snowman);
+    }
+    private static final List<PotionEffect> snowmanHarvestPenalties = List.of(
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW, 2, 8*20),
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.WEAKNESS, 1, 8*20)
+    );
+    public static void snowmanHarvestSelf(Player snowman){
+        if (snowmanIsOnCooldown(snowman))return;
+        AVFX.playSnowmanHarvestSelfEffect(snowman.getLocation());
+        int amount = new Random().nextInt(8,17);
+        MobHeadsV3.messagePlayer(snowman,
+                ChatColor.YELLOW + "You harvest your body for " +
+                ChatColor.AQUA + amount +
+                ChatColor.YELLOW + " Snowballs..."
+        );
+        snowman.damage(3);
+        PotionEffectManager.addEffectsToEntity(snowman, snowmanHarvestPenalties);
+        ItemStack snowballs = new ItemStack(Material.SNOWBALL, amount);
+        Item snowballItem = snowman.getWorld().dropItem(snowman.getLocation(), snowballs);
+        snowballItem.setPickupDelay(0);
+        snowmanHarvestCooldown.add(snowman);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                snowmanHarvestCooldown.remove(snowman);
+            }
+        }.runTaskLater(plugin, 8*20);
+    }
+    public static boolean isSnowmanSnowball(Projectile projectile){
+        if (!(projectile instanceof Snowball))return false;
+        PersistentDataContainer data = projectile.getPersistentDataContainer();
+        return data.has(Key.master, PersistentDataType.STRING);
+    }
+    public static void snowmanThrowSnowball(LivingEntity snowman, Snowball snowball, boolean isSummon){
+        UUID sourceUUID;
+        if (isSummon){
+            Entity summoner = Summon.getOwnerFromSummon(snowman);
+            sourceUUID = summoner.getUniqueId();
+        }else sourceUUID = snowman.getUniqueId();
+        PersistentDataContainer data = snowball.getPersistentDataContainer();
+        data.set(Key.master, PersistentDataType.STRING, sourceUUID.toString());
+    }
+    public static void snowmanSnowballEffect(Entity hitEnt, Snowball snowball){
+        Location location = snowball.getLocation().clone();
+        ProjectileSource source = snowball.getShooter();
+        snowball.remove();
+        AVFX.playSnowmanSnowballHitEffect(location);
+        if (hitEnt == null)return;
+        if (hitEnt instanceof Damageable){
+            Damageable damageable = (Damageable) hitEnt;
+            if (damageable instanceof Player){
+                if (((Player)damageable).isBlocking() && ((Player) damageable).hasLineOfSight(snowball))return;
+            }
+            if (source instanceof LivingEntity){
+                if (damageable instanceof LivingEntity && Summon.isOwnerDamagedBySummon((LivingEntity) source, (LivingEntity) damageable))return;
+                damageable.damage(2, (LivingEntity) source);
+            }else damageable.damage(2);
+            int freezeTime = damageable.getFreezeTicks() + (3*20);
+            if (freezeTime > damageable.getMaxFreezeTicks()) freezeTime = damageable.getMaxFreezeTicks();
+            if (damageable instanceof LivingEntity){
+                PotionEffect slow = PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,1,3*20);
+                PotionEffectManager.addEffectToEntity(((LivingEntity)damageable),slow);
+            }
+            damageable.setFreezeTicks(freezeTime);
+        }
+    }
+
+    // Strider ---------------------------------------------------------------------------------------------------------
+    private static final Map<LivingEntity,Set<Block>> striderLavaReplaceMap = new HashMap<>();
+    public static void striderReplaceReset(LivingEntity strider){
+        Set<Block> wasLava = striderLavaReplaceMap.getOrDefault(strider, new HashSet<>());
+        for (Block block:wasLava){
+            block.setType(Material.LAVA);
+        }
+    }
+    public static void striderWalkOnLava(LivingEntity strider){
+        Set<Block> underneath;
+        if (strider instanceof Player && ((Player)strider).isSneaking()){
+            underneath = Set.of();
+        }else underneath = blocksBelow(strider);
+        Set<Block> lava = new HashSet<>();
+        Set<Block> wasLava = striderLavaReplaceMap.getOrDefault(strider, new HashSet<>());
+        for (Block block:underneath){
+            if (block.getType().equals(Material.LAVA)){
+                if (block.getRelative(BlockFace.UP).getType().equals(Material.LAVA)) continue;
+                Levelled lavaData = (Levelled) block.getBlockData();
+                if (lavaData.getLevel() != 0) continue;
+                lava.add(block);
+            }else if (block.getType().equals(Material.ORANGE_TERRACOTTA)){
+                if (!wasLava.contains(block)) continue;
+                lava.add(block);
+            }
+        }
+        Location striderLoc = strider.getLocation();
+        double depth = striderLoc.getY() - striderLoc.getBlockY();
+        if (lava.size() != 0 && depth > 0.7 && striderLoc.getBlock().getType().equals(Material.LAVA)){
+            strider.teleport(striderLoc.add(0.0,0.3,0.0), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        }
+        for (Block block:wasLava){
+            if (!lava.contains(block))block.setType(Material.LAVA);
+        }
+        for (Block block:lava){
+            block.setType(Material.ORANGE_TERRACOTTA);
+        }
+        striderLavaReplaceMap.put(strider,lava);
+    }
+    private static Set<Block> blocksBelow(Entity entity){
+        Location searchOrigin = entity.getLocation().add(0,-0.7, 0);
+        Set<Block> below = new HashSet<>();
+        for (int i = 0; i < 2; i++) {
+            below.add(searchOrigin.clone().add(0,-i,0).getBlock());
+            below.add(searchOrigin.clone().add(0.8,-i,0).getBlock());
+            below.add(searchOrigin.clone().add(-0.8,-i,0).getBlock());
+            below.add(searchOrigin.clone().add(0,-i,0.8).getBlock());
+            below.add(searchOrigin.clone().add(0,-i,-0.8).getBlock());
+            below.add(searchOrigin.clone().add(0.8,-i,0.8).getBlock());
+            below.add(searchOrigin.clone().add(0.8,-i,-0.8).getBlock());
+            below.add(searchOrigin.clone().add(-0.8,-i,0.8).getBlock());
+            below.add(searchOrigin.clone().add(-0.8,-i,-0.8).getBlock());
+        }
+        return below;
     }
 
     // Evoker ----------------------------------------------------------------------------------------------------------
@@ -1000,8 +1134,8 @@ public class CreatureEvents {
     // Frog ------------------------------------------------------------------------------------------------------------
     public static void frogLeap(Player player){
         Vector velocity = player.getVelocity();
-        Vector facing = player.getLocation().getDirection();
-        double yVel = facing.getY() * 0.3 + 0.2;
+        Vector facing = player.getLocation().getDirection().multiply(0.7);
+        double yVel = facing.getY() * 0.5 + 0.2;
         if (yVel < 0.1){
             yVel = 0.1;
         }else if (yVel > 0.5) yVel = 0.5;
@@ -1016,10 +1150,10 @@ public class CreatureEvents {
     );
     private static final Set<EntityType> frogAlwaysEdible = Set.of(
             EntityType.SHULKER_BULLET, EntityType.COD, EntityType.SALMON, EntityType.PUFFERFISH,
-            EntityType.TROPICAL_FISH, EntityType.RABBIT, EntityType.BAT, EntityType.FIREBALL, EntityType.DRAGON_FIREBALL
+            EntityType.TROPICAL_FISH, EntityType.RABBIT, EntityType.BAT, EntityType.FIREBALL
     );
     private static final Set<EntityType> frogInstantRemove = Set.of(
-            EntityType.SHULKER_BULLET, EntityType.FIREBALL, EntityType.DRAGON_FIREBALL
+            EntityType.SHULKER_BULLET, EntityType.FIREBALL
     );
     private static final Set<Player> frogsOnCooldown = new HashSet<>();
     private static boolean isOnFrogCooldown(Player player){
@@ -1162,10 +1296,7 @@ public class CreatureEvents {
         }
         if (frogAlwaysEdible.contains(eaten.getType())) return true;
         if (!(eaten instanceof LivingEntity)) return false;
-        if (eaten instanceof Slime && ((Slime)eaten).getSize() == 1) return true;
-        if (eaten instanceof MagmaCube && ((MagmaCube)eaten).getSize() == 1) return true;
-        if (eaten instanceof Slime && ((Slime)eaten).getSize() != 1) return false;
-        if (eaten instanceof MagmaCube && ((MagmaCube)eaten).getSize() != 1) return false;
+        if (eaten instanceof Slime)return ((Slime)eaten).getSize() == 1;
         LivingEntity livingEaten = (LivingEntity) eaten;
         double health = livingEaten.getHealth();
         AttributeInstance maxHealthAttribute = livingEaten.getAttribute(Attribute.GENERIC_MAX_HEALTH);
@@ -1558,13 +1689,18 @@ public class CreatureEvents {
         if (strength < 1) return;
         if (slime instanceof Player && ((Player)slime).isSneaking())return;
         Vector wasFacing;
+        double multiplier;
         if (fall){
             wasFacing = new Vector(0,125,0);
-        }else wasFacing = slime.getLocation().getDirection();
+            multiplier = 0.02;
+        }else{
+            wasFacing = slime.getLocation().getDirection();
+            multiplier = 0.1;
+        }
         double x = wasFacing.getX() * -1;
         double y = wasFacing.getY();
         double z = wasFacing.getZ() * -1;
-        Vector facing = new Vector(x,y,z).multiply(0.1 * strength);
+        Vector facing = new Vector(x,y,z).multiply(multiplier * strength);
         Location location = slime.getLocation().setDirection(facing);
         slime.teleport(location);
         slime.setVelocity(facing);
@@ -1686,6 +1822,8 @@ public class CreatureEvents {
             @Override
             public void run() {
                 if (source == null || source.isDead() || target == null || target.isDead())return;
+                MobHead mobHead = MobHead.getMobHeadWornByEntity(source);
+                if (mobHead == null || mobHead.getEntityType() == null || !mobHead.getEntityType().toString().contains("LLAMA"))return;
                 Location originLoc = source.getLocation().add(0,source.getEyeHeight()*0.8,0);
                 Vector origin = originLoc.toVector();
                 Vector destination = target.getLocation().add(0,target.getEyeHeight()*0.5,0).toVector();

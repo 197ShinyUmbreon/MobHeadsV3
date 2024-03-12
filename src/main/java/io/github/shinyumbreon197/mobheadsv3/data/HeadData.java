@@ -13,10 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class HeadData {
 
@@ -34,7 +31,7 @@ public class HeadData {
         list.add(Cow());
         list.addAll(Mooshrooms());
         list.addAll(Sheepies());
-        list.add(Wolf());
+        list.addAll(Wolves());
         list.add(Allay());
         list.add(Snowman());
         list.add(IronGolem());
@@ -46,6 +43,7 @@ public class HeadData {
         list.addAll(Llamas());
         list.addAll(TraderLlamas());
         list.add(Bee());
+        //list.add(Armadillo());
         list.add(Bat());
         list.addAll(Rabbits());
         list.addAll(Foxes());
@@ -84,6 +82,7 @@ public class HeadData {
         list.addAll(ZombieVillagers());
         list.add(Spider());
         list.add(CaveSpider());
+        //list.add(Breeze());
         list.add(Silverfish());
         list.add(Slime());
         list.add(Phantom());
@@ -142,7 +141,7 @@ public class HeadData {
                 null,
                 entityType,
                 head,
-                new ItemStack(Material.TNT, 4),
+                new ItemStack(Material.TNT, 8),
                 lore,
                 null,
                 enchants
@@ -192,14 +191,17 @@ public class HeadData {
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
                 "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
-        ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
+        ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid, enchants);
         return new MobHead(
                 uuid,
                 null,
                 entityType,
                 head,
                 new ItemStack(Material.WITHER_ROSE, 1),
-                lore
+                lore,
+                null,
+                enchants
         );
     }
     public static MobHead Zombie(){
@@ -218,6 +220,13 @@ public class HeadData {
                 lore
         );
     }
+    public static MobHead Piglin(){
+        UUID uuid = UUID.fromString("19413908-5fac-11ed-9b6a-0242ac120002");
+        List<String> lore = List.of();
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
+        ItemStack head = HeadItemStack.customVanillaHead(EntityType.PIGLIN,lore,uuid,enchants);
+        return new MobHead(uuid, null, EntityType.PIGLIN, head, new ItemStack(Material.GILDED_BLACKSTONE, 4), lore,null,enchants);
+    }
 
     // Single-Skin Passives --------------------------------------------------------------------------------------------
     public static MobHead Allay(){
@@ -235,12 +244,27 @@ public class HeadData {
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.ALLAY, head, new ItemStack(Material.MUSIC_DISC_11, 1), lore);
     }
+//    public static MobHead Armadillo(){
+//        UUID uuid = UUID.fromString("254451d6-031f-45b3-b6fa-cc262782d127");
+//        String name = "Armadillo";
+//        URL texture;
+//        try {
+//            texture = new URL("http://textures.minecraft.net/texture/9164ed0e0ef69b0ce7815e4300b4413a4828fcb0092918543545a418a48e0c3c");
+//        }catch (MalformedURLException e){
+//            throw new RuntimeException(e);
+//        }
+//        List<String> lore = List.of(
+//
+//        );
+//        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+//        return new MobHead(uuid, name, EntityType.ARMADILLO, head, new ItemStack(Material.ARMADILLO_SCUTE, 8), lore);
+//    }
     public static MobHead Bat(){
         UUID uuid = UUID.fromString("1941166c-5fac-11ed-9b6a-0242ac120002");
         String name = "Bat Head";
         URL texture;
         try {
-            texture = new URL("http://textures.minecraft.net/texture/6ffd808f8127b4ad458d9d2e181c690adf489a6ad32ee2aa4acfa6341fe842");
+            texture = new URL("http://textures.minecraft.net/texture/6de75a2cc1c950e82f62abe20d42754379dfad6f5ff546e58f1c09061862bb92");
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
@@ -386,7 +410,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Strength I, Resistance II,", "and Slowness III."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.IRON_GOLEM, head, new ItemStack(Material.POPPY, 1), lore);
     }
@@ -506,12 +532,13 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Gain Regeneration II in the snow,", "Wither I in the rain,",
-                "Speed I in cold biomes,", "and Slow I in hot biomes.",
-                "Thrown snowballs have a 90% chance", "of not being spent when thrown.",
-                "Snowballs inflict 2 damage and inflict", "2 seconds of Freezing.",
-                "A Snow Golem is summoned", "when damaged by an enemy.",
-                "Summon Cooldown: 5 Seconds.", "Summon Max Lifetime: 30 Seconds.", "Summon Affliction: Freezing, 2 seconds."
+                "Gain Regeneration II in the snow, Wither I when wet,",
+                "Speed I in cold biomes, and Slow I in hot biomes.",
+//                "Thrown snowballs have a 80% chance of", "not being spent when thrown.",
+                "Snowballs inflict 2 damage and inflict", "3 seconds of Slowness I & Freezing",
+                "Harvest Snowballs from your body by", "Sneak-Right-Clicking with a Shovel.",
+                "A Snow Golem is summoned when damaged by an enemy.",
+                "Summon Cooldown: 5 Seconds.", "Summon Max Lifetime: 30 Seconds.", "Summon Affliction: Slow I & Freezing, 3 seconds."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.SNOWMAN, head, new ItemStack(Material.SNOW_BLOCK, 3), lore);
@@ -542,9 +569,10 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
+                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
+                "Traverse across lava!", "Hold Sneak to descend into lava."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 3);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.STRIDER, head, new ItemStack(Material.LAVA_BUCKET, 1), lore,null,enchants);
     }
@@ -614,7 +642,7 @@ public class HeadData {
         String name = "Wolf Head";
         URL texture;
         try {
-            texture = new URL("http://textures.minecraft.net/texture/24d7727f52354d24a64bd6602a0ce71a7b484d05963da83b470360faa9ceab5f");
+            texture = new URL("https://textures.minecraft.net/texture/64bb00afbbe27872efddd6a51680c23258d8e7d73e770fdd0ebc3d342ec1418");
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
@@ -719,6 +747,22 @@ public class HeadData {
     }
 
     // Single-Skin Hostiles --------------------------------------------------------------------------------------------
+//        public static MobHead Breeze(){
+//        UUID uuid = UUID.fromString("417c2d09-09e6-4960-8ab1-6458678c2736");
+//        String name = "Breeze Core";
+//        URL texture;
+//        try {
+//            texture = new URL("http://textures.minecraft.net/texture/");
+//        }catch (MalformedURLException e){
+//            throw new RuntimeException(e);
+//        }
+//        List<String> lore = List.of(
+//                "Projectiles can be reflected", "back towards their source once", "every 3 seconds."
+//        );
+//        Map<Enchantment, Integer> enchants = new HashMap<>();
+//        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
+//        return new MobHead(uuid, name, EntityType.BREEZE, head, new ItemStack(Material.WIND_CHARGE, 32), lore,null,enchants);
+//    }
     public static MobHead Blaze(){
         UUID uuid = UUID.fromString("194146b4-5fac-11ed-9b6a-0242ac120002");
         String name = "Blaze Core";
@@ -829,7 +873,7 @@ public class HeadData {
                 "Hold Sneak while airborne to gain",
                 "Levitation III for up to 10 seconds."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.GHAST, head, new ItemStack(Material.GHAST_TEAR, 4), lore,null,enchants);
     }
@@ -858,7 +902,7 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.HOGLIN, head, new ItemStack(Material.PORKCHOP, 8), lore,null,enchants);
     }
@@ -934,25 +978,11 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        ItemStack loot = new ItemStack(Material.GOLDEN_AXE);
+        ItemStack loot = new ItemStack(Material.GOLDEN_AXE); // PLACEHOLDER
         return new MobHead(uuid, name, EntityType.PIGLIN_BRUTE, head, loot, lore,null,enchants);
     } // FIX LOOT
-    public static MobHead Piglin(){
-        UUID uuid = UUID.fromString("19413908-5fac-11ed-9b6a-0242ac120002");
-        String name = "Piglin Head";
-        URL texture;
-        try {
-            texture = new URL("http://textures.minecraft.net/texture/d71b3aee182b9a99ed26cbf5ecb47ae90c2c3adc0927dde102c7b30fdf7f4545");
-        }catch (MalformedURLException e){
-            throw new RuntimeException(e);
-        }
-        List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.PIGLIN, head, new ItemStack(Material.NETHER_GOLD_ORE, 1), lore,null,enchants);
-    }
     public static MobHead Pillager(){
         UUID uuid = UUID.fromString("19414fe2-5fac-11ed-9b6a-0242ac120002");
         String name = "Pillager Head";
@@ -989,7 +1019,7 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "Sneak while airborne to gain", "Levitation III & Speed I for", "up to 20 seconds.","Attacking a creature afflicts",
+                "Sneak while airborne to gain", "Levitation III & Speed I for", "up to 20 seconds.", "Attacking a creature afflicts",
                 "them with Levitation I,", "melee for 2 seconds,", "projectile for 4 seconds."
         );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_ENVIRONMENTAL,2);
@@ -1022,7 +1052,7 @@ public class HeadData {
             throw new RuntimeException(e);
         }
         List<String> lore = List.of(
-                "80% Reduction from Fall damage.", "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to jump high into the air."
+                "80% Reduction from Fall damage.", "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to bounce high into the air."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
         return new MobHead(uuid, name, EntityType.SLIME, head, new ItemStack(Material.SLIME_BLOCK, 4), lore);
@@ -1063,7 +1093,7 @@ public class HeadData {
         String name = "Vex Head";
         URL texture;
         try {
-            texture = new URL("http://textures.minecraft.net/texture/c2ec5a516617ff1573cd2f9d5f3969f56d5575c4ff4efefabd2a18dc7ab98cd");
+            texture = new URL("http://textures.minecraft.net/texture/b663134d7306bb604175d2575d686714b04412fe501143611fcf3cc19bd70abe");
         }catch (MalformedURLException e){
             throw new RuntimeException(e);
         }
@@ -1115,7 +1145,7 @@ public class HeadData {
                 "Gain Slowness I, Hunger I & Strength I.", "Your hunger will never", "drop below 19/20.",
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         return new MobHead(uuid, name, EntityType.ZOGLIN, head, new ItemStack(Material.ROTTEN_FLESH, 16), lore,null,enchants);
     }
@@ -1132,7 +1162,7 @@ public class HeadData {
                 "Gain Slowness I and Hunger I.", "Your hunger will never", "drop below 19/20.",
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 2);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
         ItemStack loot = new ItemStack(Material.GOLDEN_SWORD);
         return new MobHead(uuid, name, EntityType.ZOMBIFIED_PIGLIN, head, loot, lore,null,enchants);
@@ -1318,7 +1348,7 @@ public class HeadData {
         ItemStack loot = new ItemStack(Material.SLIME_BALL, 8);
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 2);
         List<String> lore = List.of(
-                "Gain Jump Boost I",
+                "Gain Jump Boost I.",
                 "Sneak-Jump to leap towards where you are looking.", "Sneak-Right-Clicking on a creature will attempt",
                 "to eat them.", "Eating creatures can restore your Hunger, Saturation", "and Air, as well as gain you various Potion effects.",
                 "Nearby creatures that can be eaten will Glow.", "Reduced fall damage."
@@ -1822,6 +1852,69 @@ public class HeadData {
             List<String> lore = List.of();
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
             heads.add(new MobHead(uuid,name,EntityType.VILLAGER,head,loot,lore,variant));
+        }
+        return heads;
+    }
+    public static List<MobHead> Wolves(){
+        List<UUID> uuids = List.of(
+                UUID.fromString("194100dc-5fac-11ed-9b6a-0242ac120002"),
+                UUID.fromString("c363c344-f9ed-4734-984f-383211d175e8"),
+                UUID.fromString("625c0f6f-d9d4-41ce-a136-fe86d7ad9128"),
+                UUID.fromString("7ad284d3-b3a5-44ec-8dbc-80c58f4fac13"),
+                UUID.fromString("fde9c51a-84a1-403e-8dcf-439d5fc3e465"),
+                UUID.fromString("569993fa-fefe-499b-beec-d1df044d17fb"),
+                UUID.fromString("1888531f-8aeb-4337-8acd-fb242b3dcef5"),
+                UUID.fromString("6f4eeaab-f2ea-4d07-9012-8745d2ee2f8c"),
+                UUID.fromString("995b8492-f789-4e76-a4f5-da832bd23311")
+        );
+        List<String> names = List.of(
+                "Pale Wolf Head",
+                "Rusty Wolf Head",
+                "Black Wolf Head",
+                "Striped Wolf Head",
+                "Snowy Wolf Head",
+                "Ashen Wolf Head",
+                "Woods Wolf Head",
+                "Spotted Wolf Head",
+                "Chestnut Wolf Head"
+        );
+        List<URL> textures = new ArrayList<>();
+        try {
+            textures.add(new URL("https://textures.minecraft.net/texture/549fa8831f07e9ca4feb087510379ea37c9c112259576b0d78d8713199292e42"));
+            textures.add(new URL("https://textures.minecraft.net/texture/af904900ea732b77e696422266d4ce883b72695a707ba9ccb17925f6c37600e"));
+            textures.add(new URL("https://textures.minecraft.net/texture/be454d963a9a1ec0a51368c3c7e908ebbbe152293e07b87fed13e61e7e852c0d"));
+            textures.add(new URL("https://textures.minecraft.net/texture/3e0cda2200fda9fd07b319e1156a48cccf34ae657e5d7843995dd1fc7eed4265"));
+            textures.add(new URL("https://textures.minecraft.net/texture/5e9702a29dd3464927ec6b452b0b24f95ab1fb161bed3814c4ab691e18adde37"));
+            textures.add(new URL("https://textures.minecraft.net/texture/665f8d2cf8f830c3011615736da5a8624290dd490e199f3d09050e68e32b353c"));
+            textures.add(new URL("https://textures.minecraft.net/texture/de929c290b21eea8662a1757ab93d627ab65503ff02e3cde15441e1cbb41f6cd"));
+            textures.add(new URL("https://textures.minecraft.net/texture/cb5c6b95536d77e9570133266f3c620120e15c89073c683b3855a595d0a1f129"));
+            textures.add(new URL("https://textures.minecraft.net/texture/ec99ecac21148139186bfb4da0169ad579a9bea39be021aaa9a848e4c7f8694"));
+        }catch (MalformedURLException e){
+            throw new RuntimeException(e);
+        }
+        List<String> variants = List.of(
+                "PALE",
+                "RUSTY",
+                "BLACK",
+                "STRIPED",
+                "SNOWY",
+                "ASHEN",
+                "WOODS",
+                "SPOTTED",
+                "CHESTNUT"
+        );
+        ItemStack loot = new ItemStack(Material.STICK, 1);
+        List<String> lore = List.of(
+                "Summon a Wolf to fight for", "you when attacked.", "Summon Cooldown: 5 Seconds.", "Summon Max Lifetime: 60 Seconds."
+        );
+        List<MobHead> heads = new ArrayList<>();
+        for (int i = 0; i < uuids.size(); i++) {
+            UUID uuid = uuids.get(i);
+            String name = names.get(i);
+            URL texture = textures.get(i);
+            String variant = variants.get(i);
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+            heads.add(new MobHead(uuid,name,EntityType.WOLF,head,loot,lore,variant));
         }
         return heads;
     }

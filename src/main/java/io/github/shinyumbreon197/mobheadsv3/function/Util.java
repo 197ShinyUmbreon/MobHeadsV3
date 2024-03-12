@@ -82,6 +82,7 @@ public class Util {
             }
             case VILLAGER -> {return ((Villager)target).getVillagerType().toString();}
             case ZOMBIE_VILLAGER -> {return ((ZombieVillager)target).getVillagerType().toString();}
+            case WOLF -> {return "PALE";}
         }
         return null;
     }

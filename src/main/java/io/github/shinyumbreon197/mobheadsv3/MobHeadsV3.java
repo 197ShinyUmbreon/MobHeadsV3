@@ -1,6 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
-import io.github.shinyumbreon197.mobheadsv3.command.OpenHeadSpawnGUI;
+import io.github.shinyumbreon197.mobheadsv3.command.HeadCommands;
 import io.github.shinyumbreon197.mobheadsv3.command.SpawnHeadedEntity;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.*;
@@ -34,7 +34,7 @@ public final class MobHeadsV3 extends JavaPlugin {
     public static PlayerRegistry playerRegistry;
     private static final String pluginName = "[MobHeadsV3] ";
     public static String getPluginName(){return pluginName;}
-    public static String getPluginNameColored(){return ChatColor.YELLOW+pluginName+ChatColor.RESET+"";}
+    public static String getPluginNameColored(){return ChatColor.YELLOW+pluginName+ChatColor.RESET;}
     public static boolean protocolLibEnabled = false;
 
     @Override
@@ -81,7 +81,7 @@ public final class MobHeadsV3 extends JavaPlugin {
     }
 
     private void registerCommands(){
-        getCommand("mobheads").setExecutor(new OpenHeadSpawnGUI());
+        getCommand("mobheads").setExecutor(new HeadCommands());
         getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
         //if (debug) getCommand("center").setExecutor(new TestCommands());
     }
@@ -103,7 +103,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new BlockPlaceAndBreak(),this);
         pm.registerEvents(new ItemSpawnDespawnEvents(),this);
         pm.registerEvents(new InventoryEvents(),this);
-        if (Config.headEffects) pm.registerEvents(new ProjectileLand(),this);
+        if (Config.headEffects) pm.registerEvents(new ProjectileEvents(),this);
         if (Config.headEffects) pm.registerEvents(new IncrementStatistic(),this);
         if (Config.headEffects) pm.registerEvents(new PlayerMove(),this);
         if (Config.headEffects) pm.registerEvents(new PlayerToggleSneak(),this);
@@ -170,11 +170,11 @@ public final class MobHeadsV3 extends JavaPlugin {
     }
 
     public static String nameColored(String output){
-        return ChatColor.YELLOW+getPluginName()+ChatColor.RESET+""+output;
+        return ChatColor.GOLD+getPluginName()+ChatColor.RESET+output;
     }
 
     public static void messagePlayer(Player player, String message){
-        player.sendMessage(ChatColor.YELLOW + getPluginName() + "" + ChatColor.RESET + message);
+        player.sendMessage(nameColored(message));
     }
 
     public static void cOut(String message){

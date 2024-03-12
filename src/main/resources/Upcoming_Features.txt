@@ -2,10 +2,10 @@ Key:
     "-" Not Completed.
     "-X-" Completed.
 
--Donkey/Mule/Llama/Trader Llama can pick up containers. Contents are serialized and written to a container ItemStack.
+-X- Donkey/Mule/Llama/Trader Llama can pick up containers. Contents are serialized and written to a container ItemStack.
     Every container gives a level of Slowness (Half if Llama). If the head is removed while carrying Wither I will be imposed. If
     killed or dropped, all items will spill onto the ground (like bundles).
--Head-by-head toggle for effects in Config
+- Head-by-head toggle for effects in Config
 -X- Replace Nether Mob's Infinite Fire Resistance I with an on-damage system, granting Fire Resistance I for a short time.
     (Magma Cube, Blaze, Wither Skeleton, Zombie Piglin, Ghast, Strider, Zoglin)
 -X- Replace Slime/Magma Cube's no fall damage with a drastic reduction in fall damage instead (80%?).

@@ -4,6 +4,8 @@ import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.Decollation;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.data.Key;
+import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,15 +14,35 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.UUID;
 
-public class ProjectileLand implements Listener {
+public class ProjectileEvents implements Listener {
+
+    @EventHandler
+    public static void onProjectileLaunch(ProjectileLaunchEvent ple){
+        Projectile projectile = ple.getEntity();
+        ProjectileSource source = projectile.getShooter();
+
+        if (source instanceof LivingEntity){
+            LivingEntity livingSource = (LivingEntity) source;
+            MobHead mobHead = MobHead.getMobHeadWornByEntity(livingSource);
+            boolean isSummon = Summon.isEntitySummon(livingSource);
+            if (projectile.getType().equals(EntityType.SNOWBALL) && (isSummon || mobHead != null && mobHead.getEntityType().equals(EntityType.SNOWMAN))){
+                CreatureEvents.snowmanThrowSnowball(livingSource, (Snowball) projectile, isSummon);
+            }
+        }
+
+    }
 
     @EventHandler
     public static void onProjectileLand(ProjectileHitEvent phe){
@@ -34,6 +56,10 @@ public class ProjectileLand implements Listener {
         if (Decollation.isDecollationPearlEntity(projectile)){
             phe.setCancelled(true);
             Decollation.runDecollationPearlHit((EnderPearl) projectile, hitEnt, hitBlock);
+        }
+        if (CreatureEvents.isSnowmanSnowball(projectile)){
+            phe.setCancelled(true);
+            CreatureEvents.snowmanSnowballEffect(hitEnt, (Snowball) projectile);
         }
         if (wasEntity && hitEnt instanceof LivingEntity && MobHead.isWearingHead(hitEnt)){
             MobHead mobHead = MobHead.getMobHeadWornByEntity(hitEnt);

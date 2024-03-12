@@ -41,6 +41,8 @@ public class Data {
         map.put(Material.SKELETON_WALL_SKULL, EntityType.SKELETON);
         map.put(Material.WITHER_SKELETON_WALL_SKULL, EntityType.WITHER_SKELETON);
         map.put(Material.DRAGON_WALL_HEAD, EntityType.ENDER_DRAGON);
+        map.put(Material.PIGLIN_WALL_HEAD, EntityType.PIGLIN);
+        map.put(Material.PIGLIN_HEAD, EntityType.PIGLIN);
         return map;
     }
 
@@ -51,11 +53,13 @@ public class Data {
         map.put(EntityType.WITHER_SKELETON, new ItemStack(Material.WITHER_SKELETON_SKULL));
         map.put(EntityType.CREEPER, new ItemStack(Material.CREEPER_HEAD));
         map.put(EntityType.ENDER_DRAGON, new ItemStack(Material.DRAGON_HEAD));
+        map.put(EntityType.PIGLIN, new ItemStack(Material.PIGLIN_HEAD));
         return map;
     }
 
     public static final Set<EntityType> vanillaHeadEntTypes = Set.of(
-            EntityType.CREEPER, EntityType.ZOMBIE, EntityType.SKELETON, EntityType.WITHER_SKELETON, EntityType.ENDER_DRAGON
+            EntityType.CREEPER, EntityType.ZOMBIE, EntityType.SKELETON, EntityType.WITHER_SKELETON,
+            EntityType.ENDER_DRAGON, EntityType.PIGLIN
     );
 
     private static List<Material> foodMats;

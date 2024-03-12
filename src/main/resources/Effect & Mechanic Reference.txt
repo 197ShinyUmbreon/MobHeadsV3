@@ -47,7 +47,7 @@ Wither Skeleton:
 		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
 			Affliction: Wither, Lv2, 4 Sec.
 		Mechanic:
-	Enchantments:
+	Enchantments: Fire Protection, Lv4.
 Ender Dragon: 
 	Tick:
 		Effect:
@@ -97,7 +97,7 @@ Donkey:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Mountable by other Players (WIP). Step up 1-high (NYI). Pick up and move containers (WIP).
+		Mechanic: Mountable by other Players (NYI). Step up 1-high (NYI). Pick up and move containers.
 	Enchantments:
 Mule: 
 	Tick:
@@ -105,7 +105,7 @@ Mule:
 		Mechanic:
 	Event:
 		Effect: Speed, Lv2, Infinite.
-		Mechanic: Mountable by other Players (WIP). Step up 1-high (NYI). Pick up and move containers (WIP).
+		Mechanic: Mountable by other Players (NYI). Step up 1-high (NYI). Pick up and move containers.
 	Enchantments:
 Dolphin: 
 	Tick:
@@ -163,7 +163,7 @@ Strider:
 	Event:
 		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
 		Mechanic: Halve Fire/Lava damage. Mountable by other Players.
-	Enchantments: Fire Resistance, Lv3.
+	Enchantments: Fire Resistance, Lv4.
 Goat: 
 	Tick:
 		Effect:
@@ -199,20 +199,21 @@ Bat:
 	Enchantments:
 Ocelot: 
 	Tick:
-		Effect: Speed, Lv1, Infinite; Jump, Lv1, Infinite;
+		Effect: Speed, Lv1, Infinite;
 		Mechanic:
 	Event:
-		Effect:
+		Effect: Hold Sneak to gain Jump Lv5.
 		Mechanic: 80% damage reduction from falls.
 	Enchantments:
 Snowman: 
 	Tick:
-		Effect: If exposed to Snowfall; Regeneration, Lv1, Infinite; Speed, Lv1, Infinite; If exposed to Water; Wither, Lv1, Infinite;
+		Effect: If exposed to Snowfall; Regeneration, Lv2, Infinite; Speed, Lv1, Infinite; If exposed to Water; Wither, Lv1, Infinite;
 		Mechanic:
 	Event:
 		Effect: 
-			Affliction: If snowball; Freezing ticks (NYI)
-		Mechanic: Increases damage of Snowballs. (NYI), Summons a Snowman to fight for you when hit.
+			Affliction: If snowball; Slow I & Freezing for 3 seconds.
+		Mechanic: Increases damage of Snowballs to 2. Summons a Snowman to fight for you when hit. Harvest 8-16 Snowballs from your body
+		          by Sneak-Right-Clicking with a shovel.
 	Enchantments:
 Polar Bear: 
 	Tick:
@@ -357,7 +358,7 @@ Hoglin:
 	Event:
 		Effect:
 		Mechanic:
-	Enchantments: Fire Resistance, Lv2.
+	Enchantments: Fire Resistance, Lv4.
 Zoglin: 
 	Tick:
 		Effect: Hunger, Lv1, Infinite. Attack Up, Lv1, Infinite;
@@ -366,7 +367,7 @@ Zoglin:
 	Event:
 		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
 		Mechanic: Halve Fire/Lava damage. No hunger depletion under 19/20.
-	Enchantments: Fire Resistance, Lv2.
+	Enchantments: Fire Resistance, Lv4.
 Piglin: 
 	Tick:
 		Effect:
@@ -374,7 +375,7 @@ Piglin:
 	Event:
 		Effect:
 		Mechanic:
-	Enchantments: Fire Resistance, Lv2.
+	Enchantments: Fire Resistance, Lv4.
 Piglin Brute: 
 	Tick:
 		Effect:
@@ -382,7 +383,7 @@ Piglin Brute:
 	Event:
 		Effect:
 		Mechanic:
-	Enchantments: Fire Resistance, Lv2.
+	Enchantments: Fire Resistance, Lv4.
 Witch: 
 	Tick:
 		Effect:
@@ -447,7 +448,7 @@ Ghast:
 	Event:
 		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
 		Mechanic: Halve Fire/Lava damage.  On sneak-jump, gain Levitation 2 for up to 10 seconds with the option to descend by holding sneak.
-	Enchantments: Fire Resistance, Lv2.
+	Enchantments: Fire Resistance, Lv4.
 Blaze: 
 	Tick:
 		Effect: Slow Fall, Lv1, Infinite.
@@ -575,10 +576,10 @@ Axolotl:
 	Enchantments:
 Cat:
 	Tick:
-		Effect: Speed, Lv1, Infinite; Jump, Lv1, Infinite;
+		Effect: Speed, Lv1, Infinite;
 		Mechanic:
 	Event:
-		Effect:
+		Effect: Hold Sneak to gain Jump Lv5.
 		Mechanic: 80% damage reduction from falls.
 	Enchantments:
 Horse:
@@ -595,7 +596,7 @@ Llama:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: On damage from entity, spits at attacker.
+		Mechanic: On damage from entity, spits at attacker. Pick up and move containers.
 	Enchantments:
 Trader Llama:
 	Tick:
@@ -603,7 +604,7 @@ Trader Llama:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: On damage from entity, spits at attacker.
+		Mechanic: On damage from entity, spits at attacker. Pick up and move containers.
 	Enchantments:
 Parrot:
 	Tick:
@@ -616,10 +617,10 @@ Parrot:
 Fox:
 	Tick:
 		Effect:
-		Mechanic: (Packet) Nearby items will glow.
+		Mechanic: (Packet) Nearby items will glow. (NYI)
 	Event:
 		Effect:
-		Mechanic: Immunity to Berry Bushes.
+		Mechanic: Immunity to Berry Bushes. Sneak-Jump to pounce and damage creatures in a small area. (Janky, WIP)
 	Enchantments:
 Panda:
 	Tick:
@@ -635,7 +636,7 @@ Sheep:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: Eat grass and other grass types to restore hunger and saturation, and gain other effects. NYI
+		Mechanic: Eat grass and other grass types to restore hunger and saturation, and gain other effects.
 	Enchantments:
 Mooshroom:
 	Tick:
@@ -643,7 +644,8 @@ Mooshroom:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic: You can be milked for soup when right-clicked with a bowl or empty hand, or milked for milk with a Bucket. (If Brown and in proximity to a flower, make the stew sus).
+		Mechanic: You can be milked for soup when right-clicked with a bowl or empty hand, or milked for milk with a Bucket.
+		          (If Brown and in proximity to a flower, make the stew sus).
                   You can milk yourself for stew or milk by Sneak-Right-Clicking with an empty bucket or empty bowl.
 	Enchantments:
 Frog:

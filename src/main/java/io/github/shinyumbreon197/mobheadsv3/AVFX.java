@@ -138,27 +138,20 @@ public class AVFX {
     }
     public static void playSummonContinuousEffect(Mob summon){
         World world = summon.getWorld();
-        for (int i = 0; i <= 1; i++) {
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    double offsetX = random.nextDouble(-0.4, 0.5);
-                    double offsetY = random.nextDouble(-0.4, 0.5);
-                    double offsetZ = random.nextDouble(-0.4, 0.5);
-                    boolean flip = random.nextBoolean();
-                    if (flip){
-                        world.spawnParticle(Particle.SMOKE_LARGE,summon.getLocation(), 1,
-                                0.4 + offsetX,0.5 + offsetY, 0.4 + offsetZ,0.0,
-                                null
-                        );
-                    }else{
-                        world.spawnParticle(Particle.FALLING_OBSIDIAN_TEAR,summon.getLocation(), 1,
-                                0.4 + offsetX,0.5, 0.4 + offsetZ,0.0,
-                                null
-                        );
-                    }
-                }
-            }.runTaskLater(MobHeadsV3.getPlugin(), i * 5);
+        double offsetX = random.nextDouble(-0.4, 0.5);
+        double offsetY = random.nextDouble(-0.4, 0.5);
+        double offsetZ = random.nextDouble(-0.4, 0.5);
+        boolean flip = random.nextBoolean();
+        if (flip){
+            world.spawnParticle(Particle.SMOKE_LARGE,summon.getLocation(), 1,
+                    0.4 + offsetX,0.5 + offsetY, 0.4 + offsetZ,0.0,
+                    null
+            );
+        }else{
+            world.spawnParticle(Particle.FALLING_OBSIDIAN_TEAR,summon.getLocation(), 1,
+                    0.4 + offsetX,0.5, 0.4 + offsetZ,0.0,
+                    null
+            );
         }
     }
     public static void playSummonDispelEffect(Location origin){
@@ -170,7 +163,7 @@ public class AVFX {
     public static void playWolfSummonEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
-        world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.1f, 1.0f);
+        world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.05f, 1.1f);
     }
     public static void playBeeSummonEffect(Location location){
         World world = location.getWorld();
@@ -186,6 +179,23 @@ public class AVFX {
         );
     }
 
+    public static void playSnowmanSnowballHitEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.BLOCK_SNOW_BREAK,0.5f, 1.1f);
+        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0.1,0),
+                10,0.2,0.1,0.2,0.05,new ItemStack(Material.SNOWBALL)
+        );
+    }
+    public static void playSnowmanHarvestSelfEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        origin.add(0,1,0);
+        world.playSound(origin,Sound.BLOCK_SNOW_BREAK,1.0f, 0.85f);
+        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0,0),
+                18,0.3,0.2,0.3,0.05,new ItemStack(Material.SNOWBALL)
+        );
+    }
     public static void playChestedPickup(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
@@ -436,7 +446,7 @@ public class AVFX {
             case GOAT -> hurtSound = Sound.ENTITY_GOAT_SCREAMING_HURT;
             case SQUID -> hurtSound = Sound.ENTITY_SQUID_HURT;
             case BEE -> hurtSound = Sound.ENTITY_BEE_HURT;
-            case BAT -> {hurtSound = Sound.ENTITY_BAT_HURT; volume = 0.4F;}
+            case BAT -> {hurtSound = Sound.ENTITY_BAT_HURT; volume = 0.2F;}
             case OCELOT -> hurtSound = Sound.ENTITY_OCELOT_HURT;
             case SNOWMAN -> hurtSound = Sound.ENTITY_SNOW_GOLEM_HURT;
             case PANDA -> hurtSound = Sound.ENTITY_PANDA_HURT;
@@ -538,7 +548,7 @@ public class AVFX {
             case GOAT -> deathSound = Sound.ENTITY_GOAT_SCREAMING_DEATH;
             case SQUID -> deathSound = Sound.ENTITY_SQUID_DEATH;
             case BEE -> deathSound = Sound.ENTITY_BEE_DEATH;
-            case BAT -> {deathSound = Sound.ENTITY_BAT_DEATH; volume = 0.25F;}
+            case BAT -> {deathSound = Sound.ENTITY_BAT_DEATH; volume = 0.2F;}
             case OCELOT -> deathSound = Sound.ENTITY_OCELOT_DEATH;
             case SNOWMAN -> deathSound = Sound.ENTITY_SNOW_GOLEM_DEATH;
             case PANDA -> deathSound = Sound.ENTITY_PANDA_DEATH;

@@ -14,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -21,8 +22,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-
-import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class Summon implements Listener {
 
@@ -104,30 +103,38 @@ public class Summon implements Listener {
         Item nameTag = summonObj.getNameTag();
         AVFX.playSummonDispelEffect(summon.getLocation());
         nameTag.remove();
-        summon.setHealth(0);
         summon.remove();
     }
     public static void createNewSummon(LivingEntity owner, LivingEntity target, EntityType summonType){
+        if (owner == null || owner.isDead() || target == null || owner.isDead())return;
+        MobHead mobHead = MobHead.getMobHeadWornByEntity(owner);
+        if (mobHead == null)return;
         if (summonersOnCooldown.contains(owner))return;
         World world = owner.getWorld();
         Location spawnLocation = summonSpawnLocation(owner, summonType);
         Mob summon;
+        List<PotionEffect> potionEffects = new ArrayList<>();
         int lifespan = summonLifespanMap.getOrDefault(summonType, 0);
+        int lifespanTicks = lifespan * 10;
         int cooldown = summonCooldownMap.getOrDefault(summonType, 0);
         if (lifespan == 0 || cooldown == 0)return;
         Vector velocity = new Vector();
         switch (summonType){
             case WOLF -> {
                 Wolf wolf = (Wolf) world.spawnEntity(spawnLocation, EntityType.WOLF);
+                //wolf.setVariant(Wolf.Variant().valueOf(mobHead.getVariant()));
                 wolf.setCollarColor(DyeColor.BLACK);
                 wolf.setAngry(true);
                 wolf.setAdult();
                 wolf.setBreed(false);
-                wolf.setHealth(8);
+                potionEffects.add(new PotionEffect(PotionEffectType.HEALTH_BOOST, lifespanTicks, 0, false, false, false));
+                potionEffects.add(new PotionEffect(PotionEffectType.SPEED, lifespanTicks,0,false,false,false));
                 summon = wolf;
             }
             case SILVERFISH -> {
                 Silverfish silverfish = (Silverfish) world.spawnEntity(spawnLocation, EntityType.SILVERFISH);
+                silverfish.setHealth(4);
+                potionEffects.add(new PotionEffect(PotionEffectType.SPEED, lifespanTicks,0,false,false,false));
                 summon = silverfish;
             }
             case BEE -> {
@@ -143,16 +150,15 @@ public class Summon implements Listener {
                 Vex vex = (Vex) world.spawnEntity(spawnLocation, EntityType.VEX);
                 vex.setLifeTicks(1200);
                 vex.setHealth(6);
-                PotionEffect pe = new PotionEffect(PotionEffectType.WEAKNESS,lifespan,0, false, false, false);
-                vex.addPotionEffect(pe);
+                potionEffects.add(new PotionEffect(PotionEffectType.WEAKNESS,lifespanTicks,0, false, false, false));
                 velocity = owner.getLocation().getDirection().multiply(-0.6).add(new Vector(0.0,0.1,0.0));
                 summon = vex;
             }
             case SNOWMAN -> {
                 Snowman snowman = (Snowman) world.spawnEntity(spawnLocation, EntityType.SNOWMAN);
                 snowman.setDerp(true);
-                PotionEffect pe = new PotionEffect(PotionEffectType.SPEED, lifespan,1,false, false, false);
-                snowman.addPotionEffect(pe);
+                potionEffects.add(new PotionEffect(PotionEffectType.SLOW, lifespanTicks, 9, false, false, false));
+                potionEffects.add(new PotionEffect(PotionEffectType.HEALTH_BOOST, lifespanTicks, 2, false, false, false));
                 summon = snowman;
             }
             default -> {return;}
@@ -175,6 +181,8 @@ public class Summon implements Listener {
         summon.addPassenger(nameTag);
         summon.setTarget(target);
 
+        PotionEffectManager.addEffectsToEntity(summon, potionEffects);
+
         AVFX.playSummonEffect(summon.getLocation(), summonType);
 
         Summon summonObj = new Summon(summon, owner, target, nameTag, lifespan);
@@ -193,7 +201,7 @@ public class Summon implements Listener {
                 List<Block> surrounding = Util.getBlocksSurroundingEntity(owner);
                 List<Block> valid = new ArrayList<>();
                 for (Block block:surrounding){
-                    if (!block.getType().isAir() && !block.isLiquid())continue;
+                    if (!block.isPassable() || block.getType().equals(Material.LAVA))continue;
                     Block below = block.getRelative(BlockFace.DOWN);
                     if (!below.getType().isSolid() && !below.isLiquid())continue;
                     valid.add(block);
@@ -246,6 +254,20 @@ public class Summon implements Listener {
         for (Summon summon:summons) if (summon.getSummon().equals(mob))return summon;
         return null;
     }
+    public static LivingEntity getOwnerFromSummon(Entity entity){
+        if (!(entity instanceof LivingEntity))return null;
+        LivingEntity summon = (LivingEntity) entity;
+        for (Summon summonObj:summons) if (summonObj.getSummon().equals(summon)) return summonObj.getOwner();
+        return null;
+    }
+    public static boolean isOwnerDamagedBySummon(Entity attacker, LivingEntity damaged){
+        if (!(attacker instanceof Mob))return false;
+        Mob mob = (Mob) attacker;
+        Summon summon = getSummonFromEntity(mob);
+        if (summon == null)return false;
+        LivingEntity owner = summon.getOwner();
+        return owner.equals(damaged);
+    }
 
     @EventHandler
     public static void summonAttemptTargetChange(EntityTargetLivingEntityEvent etlee){
@@ -281,6 +303,22 @@ public class Summon implements Listener {
         if (summon == null)return;
         ede.setDroppedExp(0);
         ede.getDrops().clear();
+    }
+
+    @EventHandler
+    public static void summonProjectileHit(ProjectileHitEvent phe){
+        Entity hit = phe.getHitEntity();
+        if (hit == null)return;
+        Projectile projectile = phe.getEntity();
+        if (!(projectile.getShooter() instanceof Mob))return;
+        Mob source = (Mob) projectile.getShooter();
+        Summon summon = getSummonFromEntity(source);
+        if (summon == null)return;
+        LivingEntity owner = summon.getOwner();
+        if (owner.equals(hit)){
+            phe.setCancelled(true);
+            projectile.remove();
+        }
     }
 
     private Mob summon;

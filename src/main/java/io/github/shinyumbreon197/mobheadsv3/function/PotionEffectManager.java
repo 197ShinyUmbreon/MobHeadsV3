@@ -236,7 +236,7 @@ public class PotionEffectManager {
                 }else add.add(effect0);
             }
             case SNOWMAN -> {
-                PotionEffect effect0 = headEffect(PotionEffectType.REGENERATION,1,-1,false);
+                PotionEffect effect0 = headEffect(PotionEffectType.REGENERATION,2,-1,false);
                 PotionEffect effect1 = headEffect(PotionEffectType.WITHER,1,-1,false);
                 if (exposedToSnow){
                     add.add(effect0);

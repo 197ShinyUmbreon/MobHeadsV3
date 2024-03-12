@@ -9,7 +9,7 @@ Chicken
 Cow
 Mooshrooms @
 Sheep @
-Wolf
+Wolves @
 Allay
 Snow Golem
 Iron Golem
@@ -21,6 +21,7 @@ Zombified Horse
 Llamas @
 Trader-Llamas @
 Bee
+Armadillo
 Bat
 Rabbits @
 Foxes @
@@ -59,6 +60,7 @@ Husk
 Zombie Villagers @
 Spider
 Cave Spider
+Breeze
 Slime
 Phantom
 

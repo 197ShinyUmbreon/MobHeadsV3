@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.playerRegistry;
 
 public class PlayerInteractEvents implements Listener {
 
@@ -92,6 +93,7 @@ public class PlayerInteractEvents implements Listener {
         Action action = pie.getAction();
         List<Action> rightClickActions = List.of(Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK);
         Player player = pie.getPlayer();
+        boolean isSneaking = player.isSneaking();
 
         switch (headType){
             case PIG -> {
@@ -107,6 +109,11 @@ public class PlayerInteractEvents implements Listener {
             case COW, MUSHROOM_COW -> {
                 if (rightClickActions.contains(action) && player.isSneaking()){
                     CreatureEvents.milkCows(player, player, mobHead);
+                }
+            }
+            case SNOWMAN -> {
+                if (isSneaking && rightClickActions.contains(action) && itemStack.getType().toString().contains("SHOVEL")){
+                    CreatureEvents.snowmanHarvestSelf(player);
                 }
             }
         }

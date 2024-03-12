@@ -26,7 +26,7 @@ public class MobHeadGUI implements Listener {
             Material.PLAYER_HEAD, Material.STONE_BUTTON,
             Material.POLISHED_BLACKSTONE_BUTTON, Material.BARRIER,
             Material.CREEPER_HEAD, Material.ZOMBIE_HEAD, Material.SKELETON_SKULL,
-            Material.WITHER_SKELETON_SKULL, Material.DRAGON_HEAD
+            Material.WITHER_SKELETON_SKULL, Material.DRAGON_HEAD, Material.PIGLIN_HEAD
     );
 
     @EventHandler
@@ -55,7 +55,7 @@ public class MobHeadGUI implements Listener {
                 case POLISHED_BLACKSTONE_BUTTON:
                     player.openInventory(headInvs().get(pageIndex+1));
                     break;
-                case PLAYER_HEAD, ZOMBIE_HEAD, SKELETON_SKULL, WITHER_SKELETON_SKULL, CREEPER_HEAD, DRAGON_HEAD:
+                case PLAYER_HEAD, ZOMBIE_HEAD, SKELETON_SKULL, WITHER_SKELETON_SKULL, CREEPER_HEAD, DRAGON_HEAD, PIGLIN_HEAD:
                     if (player.isOp() || player.getGameMode().equals(GameMode.CREATIVE)){
                         if (argsMap.containsKey(player)){
                             spawnHeadedEntity(player, clickedItem);
@@ -82,7 +82,7 @@ public class MobHeadGUI implements Listener {
     // Private Functions ----------------------------------------------------------------
     private static void close(Player player){
         player.closeInventory();
-        player.updateInventory();
+        //player.updateInventory();
         argsMap.remove(player);
     }
 
@@ -92,7 +92,7 @@ public class MobHeadGUI implements Listener {
         boolean stack = clickType.equals(ClickType.SHIFT_LEFT);
         int emptySlot = player.getInventory().firstEmpty();
         if (emptySlot == -1){
-            player.sendMessage(MobHeadsV3.nameColored(ChatColor.RED+"Your inventory is full!"));
+            MobHeadsV3.messagePlayer(player, ChatColor.RED+"Your inventory is full!");
             return;
         }
         boolean merge = false;

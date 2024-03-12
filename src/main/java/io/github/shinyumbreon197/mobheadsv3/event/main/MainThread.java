@@ -133,6 +133,7 @@ public class MainThread {
             case SLIME, MAGMA_CUBE -> {
                 CreatureEvents.slimeReset(target);
             }
+            case STRIDER -> CreatureEvents.striderReplaceReset(target);
         }
     }
     private static void updatePlayerList(){

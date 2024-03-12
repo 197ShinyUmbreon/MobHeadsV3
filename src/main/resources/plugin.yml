@@ -8,6 +8,7 @@ description: All creatures have a chance to drop their head when killed by a Pla
 website: https://github.com/197ShinyUmbreon
 commands:
   mobheads:
+    aliases: mh
     description: Opens a GUI displaying all Vanilla, Player, and Custom heads provided by the plugin.
   summonheaded:
     description: Summons an Entity with a MobHead in their Helmet slot.

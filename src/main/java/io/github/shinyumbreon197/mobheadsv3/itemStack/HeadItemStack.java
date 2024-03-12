@@ -34,6 +34,7 @@ public class HeadItemStack {
         map.put(EntityType.SKELETON, Material.SKELETON_SKULL);
         map.put(EntityType.WITHER_SKELETON, Material.WITHER_SKELETON_SKULL);
         map.put(EntityType.ZOMBIE, Material.ZOMBIE_HEAD);
+        map.put(EntityType.PIGLIN, Material.PIGLIN_HEAD);
         return map;
     }
     public static ItemStack customVanillaHead(EntityType headType, List<String> lore, UUID uuid){

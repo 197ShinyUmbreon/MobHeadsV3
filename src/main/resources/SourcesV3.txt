@@ -25,9 +25,6 @@ http://textures.minecraft.net/texture/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6d
 Chicken: X
 1940ff9c-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/45b4e2229de94c15dbfcf2bae49e80f0e4d65914a49a312c0417929a29bb7
-Wolf: X
-194100dc-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/24d7727f52354d24a64bd6602a0ce71a7b484d05963da83b470360faa9ceab5f
 Donkey: X
 19410442-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/dfb6c3c052cf787d236a2915f8072b77c547497715d1d2f8cbc9d241d88a
@@ -66,7 +63,8 @@ Bee: X
 http://textures.minecraft.net/texture/59ac16f296b461d05ea0785d477033e527358b4f30c266aa02f020157ffca736
 Bat: X
 1941166c-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/6ffd808f8127b4ad458d9d2e181c690adf489a6ad32ee2aa4acfa6341fe842
+6de75a2cc1c950e82f62abe20d42754379dfad6f5ff546e58f1c09061862bb92
+http://textures.minecraft.net/texture/6ffd808f8127b4ad458d9d2e181c690adf489a6ad32ee2aa4acfa6341fe842 (old)
 Ocelot: X
 194117a2-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/51f07e3f2e5f256bfade666a8de1b5d30252c95e98f8a8ecc6e3c7b7f67095
@@ -103,6 +101,9 @@ http://textures.minecraft.net/texture/87ad920a66e38cc3426a5bff084667e8772116915e
 Camel:
 2dacfe06-20f2-11ee-be56-0242ac120002
 http://textures.minecraft.net/texture/ba4c95bfa0b61722255389141b505cf1a38bad9b0ef543de619f0cc9221ed974
+Armadillo:
+254451d6-031f-45b3-b6fa-cc262782d127
+9164ed0e0ef69b0ce7815e4300b4413a4828fcb0092918543545a418a48e0c3c
 
 Single-Skin Hostiles
 
@@ -147,7 +148,8 @@ Ravager: X
 http://textures.minecraft.net/texture/cd20bf52ec390a0799299184fc678bf84cf732bb1bd78fd1c4b441858f0235a8
 Vex: X
 19413f16-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/c2ec5a516617ff1573cd2f9d5f3969f56d5575c4ff4efefabd2a18dc7ab98cd
+b663134d7306bb604175d2575d686714b04412fe501143611fcf3cc19bd70abe
+http://textures.minecraft.net/texture/c2ec5a516617ff1573cd2f9d5f3969f56d5575c4ff4efefabd2a18dc7ab98cd (old)
 Evoker: X
 1941406a-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/d954135dc82213978db478778ae1213591b93d228d36dd54f1ea1da48e7cba6
@@ -187,6 +189,12 @@ http://textures.minecraft.net/texture/6deaec344ab095b48cead7527f7dee61b063ff791f
 Illusioner: X
 1941524e-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/4639d325f4494258a473a93a3b47f34a0c51b3fceaf59fee87205a5e7ff31f68
+Bogged:
+191e395c-1862-4817-b86d-d312bf53cff2
+http://textures.minecraft.net/texture/483474a813a0389e52fc5aebd5e69e09a7254164288153b13bd05963bf239611
+Breeze:
+417c2d09-09e6-4960-8ab1-6458678c2736
+cd6e602f76f80c0657b5aed64e267eeea702b31e6dae86346c8506f2535ced02
 
 Boss Mobs
 
@@ -450,6 +458,36 @@ Taiga Villager:
 766c884e-5fe3-11ed-9b6a-0242ac120002
 https://textures.minecraft.net/texture/61e897719b54b844fa059f04817e13db8abd97e6bdb0624093032b4512f7a1c6
 
+Wolves
+Pale Wolf: X
+194100dc-5fac-11ed-9b6a-0242ac120002
+https://textures.minecraft.net/texture/64bb00afbbe27872efddd6a51680c23258d8e7d73e770fdd0ebc3d342ec1418
+http://textures.minecraft.net/texture/24d7727f52354d24a64bd6602a0ce71a7b484d05963da83b470360faa9ceab5f (old)
+Rusty Wolf:
+c363c344-f9ed-4734-984f-383211d175e8
+https://textures.minecraft.net/texture/af904900ea732b77e696422266d4ce883b72695a707ba9ccb17925f6c37600e
+Black Wolf:
+625c0f6f-d9d4-41ce-a136-fe86d7ad9128
+https://textures.minecraft.net/texture/be454d963a9a1ec0a51368c3c7e908ebbbe152293e07b87fed13e61e7e852c0d
+Striped Wolf:
+7ad284d3-b3a5-44ec-8dbc-80c58f4fac13
+https://textures.minecraft.net/texture/3e0cda2200fda9fd07b319e1156a48cccf34ae657e5d7843995dd1fc7eed4265
+Snowy Wolf:
+fde9c51a-84a1-403e-8dcf-439d5fc3e465
+https://textures.minecraft.net/texture/5e9702a29dd3464927ec6b452b0b24f95ab1fb161bed3814c4ab691e18adde37
+Ashen Wolf:
+569993fa-fefe-499b-beec-d1df044d17fb
+https://textures.minecraft.net/texture/665f8d2cf8f830c3011615736da5a8624290dd490e199f3d09050e68e32b353c
+Woods Wolf:
+1888531f-8aeb-4337-8acd-fb242b3dcef5
+https://textures.minecraft.net/texture/de929c290b21eea8662a1757ab93d627ab65503ff02e3cde15441e1cbb41f6cd
+Spotted Wolf:
+6f4eeaab-f2ea-4d07-9012-8745d2ee2f8c
+https://textures.minecraft.net/texture/cb5c6b95536d77e9570133266f3c620120e15c89073c683b3855a595d0a1f129
+Chestnut Wolf:
+995b8492-f789-4e76-a4f5-da832bd23311
+https://textures.minecraft.net/texture/ec99ecac21148139186bfb4da0169ad579a9bea39be021aaa9a848e4c7f8694
+
 Multi-Skin Hostiles
 
 Zombie Villagers
@@ -475,3 +513,7 @@ Taiga Zombie Villager:
 766c9c3a-5fe3-11ed-9b6a-0242ac120002
 https://textures.minecraft.net/texture/279862124fcf95aece708624d40a4fe4658351113e436524eb5f20f8fe5e66b6
 
+Bonus Heads
+Charged Creeper:
+c6999bc1-1ee3-42f4-8e7b-6fe823c61dbf
+f2ceb39dd4de24a7adfe291a3a0cfc7cf4f645de59b603fcfe06c6b5a06e26
