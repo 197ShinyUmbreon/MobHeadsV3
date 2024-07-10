@@ -55,7 +55,7 @@ public class Groups {
         return boss.contains(type);
     }
     private static final List<EntityType> skeletal = List.of(
-            EntityType.SKELETON, EntityType.SKELETON_HORSE, EntityType.WITHER_SKELETON, EntityType.STRAY, EntityType.WITHER
+            EntityType.SKELETON, EntityType.SKELETON_HORSE, EntityType.WITHER_SKELETON, EntityType.STRAY, EntityType.WITHER, EntityType.BOGGED
     );
     public static boolean isSkeletal(EntityType type){
         return skeletal.contains(type);
@@ -89,7 +89,7 @@ public class Groups {
     public static boolean isWinged(EntityType type){
         return winged.contains(type);
     }
-    private static final List<EntityType> cow = List.of(EntityType.COW, EntityType.MUSHROOM_COW);
+    private static final List<EntityType> cow = List.of(EntityType.COW, EntityType.MOOSHROOM);
     public static boolean isCow(EntityType type){
         return cow.contains(type);
     }
@@ -159,7 +159,8 @@ public class Groups {
     private static final List<EntityType> undead = List.of(
             EntityType.ZOMBIE, EntityType.ZOMBIE_HORSE, EntityType.ZOMBIFIED_PIGLIN, EntityType.ZOMBIE_VILLAGER,
             EntityType.SKELETON, EntityType.SKELETON_HORSE, EntityType.WITHER_SKELETON, EntityType.WITHER,
-            EntityType.STRAY, EntityType.PHANTOM, EntityType.DROWNED, EntityType.HUSK, EntityType.ZOGLIN
+            EntityType.STRAY, EntityType.PHANTOM, EntityType.DROWNED, EntityType.HUSK, EntityType.ZOGLIN,
+            EntityType.BOGGED
     );
     public static boolean isUndead(EntityType type){
         return undead.contains(type);

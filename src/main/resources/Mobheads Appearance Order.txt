@@ -54,6 +54,7 @@ Guardian
 Creeper
 Skeleton
 Stray
+Bogged
 Zombie
 Drowned
 Husk
@@ -61,6 +62,7 @@ Zombie Villagers @
 Spider
 Cave Spider
 Breeze
+Silverfish
 Slime
 Phantom
 

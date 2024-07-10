@@ -23,10 +23,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
-import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.playerRegistry;
 
 public class PlayerInteractEvents implements Listener {
 
@@ -90,6 +88,10 @@ public class PlayerInteractEvents implements Listener {
         EntityType headType = mobHead.getEntityType();
         ItemStack itemStack = pie.getItem();
         assert itemStack != null;
+        EquipmentSlot hand = pie.getHand();
+        Block block = pie.getClickedBlock();
+        boolean interactable = block != null && block.getType().isInteractable();
+        if (debug) System.out.println("headedPlayerInteractItem() item: " + itemStack.getType() + " hand: " + hand + " interactable: " + interactable); //debug
         Action action = pie.getAction();
         List<Action> rightClickActions = List.of(Action.RIGHT_CLICK_AIR, Action.RIGHT_CLICK_BLOCK);
         Player player = pie.getPlayer();
@@ -97,23 +99,42 @@ public class PlayerInteractEvents implements Listener {
 
         switch (headType){
             case PIG -> {
-                if (rightClickActions.contains(action) && Data.getFoodMats().contains(itemStack.getType())){
+                if (!interactable && rightClickActions.contains(action) && Data.getFoodMats().contains(itemStack.getType())){
                     CreatureEvents.pigGobble(pie);
                 }
             }
             case CREEPER -> {
-                if (rightClickActions.contains(action) && itemStack.getType().equals(Material.GUNPOWDER)){
+                if (!interactable && rightClickActions.contains(action) && itemStack.getType().equals(Material.GUNPOWDER)){
                     CreatureEvents.creeperExplodeGunpowder(pie);
                 }
             }
-            case COW, MUSHROOM_COW -> {
+            case COW, MOOSHROOM -> {
                 if (rightClickActions.contains(action) && player.isSneaking()){
                     CreatureEvents.milkCows(player, player, mobHead);
                 }
             }
-            case SNOWMAN -> {
-                if (isSneaking && rightClickActions.contains(action) && itemStack.getType().toString().contains("SHOVEL")){
+            case SNOW_GOLEM -> {
+                if (isSneaking && !interactable && rightClickActions.contains(action) && itemStack.getType().toString().contains("SHOVEL")){
                     CreatureEvents.snowmanHarvestSelf(player);
+                }
+            }
+            case BLAZE -> {
+                if (!interactable && rightClickActions.contains(action)){
+                    if (itemStack.getType().equals(Material.BLAZE_ROD)){
+                        if (isSneaking){
+                            if (blockInteract) CreatureEvents.blazeSetFire(player, block, pie.getBlockFace());
+                        }else CreatureEvents.blazeShootFireball(player);
+                    }else if (itemStack.getType().equals(Material.BLAZE_POWDER) && player.isGliding()){
+                        CreatureEvents.blazeStartBoost(player);
+                    }
+                }
+            }
+            case ENDER_DRAGON -> {
+                if (interactable || !rightClickActions.contains(action))return;
+                if (isSneaking && itemStack.getType().equals(Material.GLASS_BOTTLE)){
+                    CreatureEvents.dragonFillBottle(player);
+                }else if (itemStack.getType().equals(Material.DRAGON_BREATH)){
+                    CreatureEvents.dragonUseBreathAttack(player);
                 }
             }
         }
@@ -153,7 +174,7 @@ public class PlayerInteractEvents implements Listener {
         EntityType headType = mobHead.getEntityType();
 
         switch (headType){
-            case COW, MUSHROOM_COW -> CreatureEvents.milkCows(player,livHeadedEnt, mobHead);
+            case COW, MOOSHROOM -> CreatureEvents.milkCows(player,livHeadedEnt, mobHead);
             //case MUSHROOM_COW -> CreatureEvents.soupMooshroom(player,livHeadedEnt);
         }
     }

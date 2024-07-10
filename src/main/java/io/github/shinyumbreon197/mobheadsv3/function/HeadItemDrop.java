@@ -130,22 +130,25 @@ public class HeadItemDrop {
                 }
             }
         }
-        if (!success) success = dropSuccess(weapon);
+        if (!success) success = dropSuccess(weapon, weaponLocation == 3);
         if (!success) return;
         eDeathe.getDrops().add(MobHead.getHeadItemOfEntity(killed));
         AVFX.playHeadDropEffect(killed.getEyeLocation());
     }
 
-    private static boolean dropSuccess(ItemStack wielding){
-        int max = 200;
-        int target = 5;
+    private static boolean dropSuccess(ItemStack wielding, boolean abilityKill){
+        double max = 100;
+        double target = 2.5;
         boolean guaranteed = false; //debug
-        if (wielding != null && wielding.containsEnchantment(Enchantment.LOOT_BONUS_MOBS)){
-            int lv = wielding.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
-            target = target + lv*2;
+        if (abilityKill){
+            if (debug) System.out.println("Ability kill!");
+            target = 5.5;
+        }else if (wielding != null && wielding.containsEnchantment(Enchantment.LOOTING)){
+            int lv = wielding.getEnchantmentLevel(Enchantment.LOOTING);
+            target = target + lv;
         }
         Random random = new Random();
-        int roll = random.nextInt(0,max);
+        double roll = random.nextDouble(0,max);
         return guaranteed || roll <= target;
     }
 

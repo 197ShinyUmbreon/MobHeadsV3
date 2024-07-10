@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3.head;
 
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.data.HeadData;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadItemStack;
@@ -78,13 +79,15 @@ public class PlayerHead {
 
     public static ItemStack buildPlayerHeadItem(Player player){
         String headName = player.getName()+"'s Head";
-        return HeadItemStack.customHead(headName,player.getUniqueId(),player.getPlayerProfile(), List.of());
+        return HeadItemStack.customHead(headName,player.getUniqueId(),player.getPlayerProfile(), List.of(), EntityType.PLAYER);
     }
 
     public static MobHead rebuildPlayerHead(ItemStack headItem){
         MobHead mobHead = null;
         SkullMeta skullMeta = (SkullMeta) headItem.getItemMeta();
         if (skullMeta != null){
+            skullMeta.setNoteBlockSound(Data.getEntityTypeNoteblockSound(EntityType.PLAYER).getKey());
+            headItem.setItemMeta(skullMeta);
             PlayerProfile pp = skullMeta.getOwnerProfile();
             if (pp != null){
                 String headName = pp.getName()+"'s Head";

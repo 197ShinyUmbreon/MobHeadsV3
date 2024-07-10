@@ -2,6 +2,8 @@ Key:
     "-" Not Fixed.
     "-X-" Fixed.
 
+-X- Constant damage sources (Magma Block, Suffocation) would trigger the damage sound of a head every tick
+-Decollation Smithing recipe is broken and now requires Dirt as a template temporarily.
 -X- Damage type "Hot Floor" was not taken into account for fire-resistant creatures. (Magma Block)
 -X- Chested Heads would disallow gliding regardless of containers held
 - Slime/Magma Cube heads will occasionally store a jump that will unleash on teleport/camera move/reapplication of head after death.

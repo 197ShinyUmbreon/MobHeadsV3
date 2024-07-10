@@ -3,30 +3,64 @@ package io.github.shinyumbreon197.mobheadsv3.function;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
-import org.apache.logging.log4j.core.appender.rolling.action.IfAll;
 import org.bukkit.Location;
-import org.bukkit.block.BlastFurnace;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BrewingStand;
 import org.bukkit.block.data.type.Furnace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.BrewingStartEvent;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceStartSmeltEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class WorldEvents {
 
+    public static void brewingStandStartBrewing(BrewingStartEvent e, Block witchHead){
+        int brewTime = (int) (e.getTotalBrewTime() * 0.5);
+        e.setTotalBrewTime(brewTime);
+        BrewingStand brewingStand = (BrewingStand) e.getBlock().getState();
+        Location headLoc = witchHead.getLocation().add(0.5,0.25,0.5);
+        Location standLoc = brewingStand.getLocation().add(0.5,0.2,0.5);
+        AVFX.playWitchBrewEffect(headLoc, standLoc, true);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                boolean standExists = standLoc.getBlock().getType().equals(Material.BREWING_STAND);
+                MobHead mobHead = MobHead.getMobHeadFromBlock(headLoc.getBlock());
+                boolean headExists = mobHead != null && mobHead.getEntityType().equals(EntityType.WITCH);
+                BrewingStand standNow = (BrewingStand) standLoc.getBlock().getState();
+                boolean brewing = standNow.getBrewingTime() != 0;
+                if (!standExists || !headExists || !brewing){
+                    cancel();
+                    if (standExists){
+                        int remaining = standNow.getBrewingTime();
+                        if (remaining > 2){
+                            standNow.setBrewingTime(remaining * 2);
+                            standNow.update();
+                        }
+                    }
+                    return;
+                }
+                AVFX.playWitchBrewEffect(headLoc, standLoc, false);
+            }
+        }.runTaskTimer(MobHeadsV3.getPlugin(),0,2);
+    }
+
     public static void furnaceStartCooking(FurnaceStartSmeltEvent e, Block blazeHead){
-        e.setTotalCookTime(e.getTotalCookTime()/2);
+        e.setTotalCookTime((int) (e.getTotalCookTime() * 0.5));
         Location headLoc = blazeHead.getLocation().add(0.5, 0.1, 0.5);
         Location furnaceLoc = furnaceFXLocation(e.getBlock());
         BlockFace facing = getFurnaceFacing(e.getBlock());

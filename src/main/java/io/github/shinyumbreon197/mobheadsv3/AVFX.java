@@ -1,5 +1,9 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.WrappedParticle;
+import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -7,7 +11,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -27,7 +30,7 @@ public class AVFX {
     public static void playHeadDropEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
-        world.spawnParticle(Particle.EXPLOSION_LARGE,location,1);
+        world.spawnParticle(Particle.EXPLOSION,location,1);
         world.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.2F, 1.2F);
         world.playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
     }
@@ -87,8 +90,8 @@ public class AVFX {
             case COW -> {interactSound = Sound.ENTITY_COW_AMBIENT;}
             case CHICKEN -> {interactSound = Sound.ENTITY_CHICKEN_AMBIENT;}
             case SQUID -> {interactSound = Sound.ENTITY_SQUID_SQUIRT;}
-            case MUSHROOM_COW -> {interactSound = Sound.ENTITY_COW_AMBIENT;}
-            case SNOWMAN -> {interactSound = Sound.BLOCK_SNOW_STEP;}
+            case MOOSHROOM -> {interactSound = Sound.ENTITY_COW_AMBIENT;}
+            case SNOW_GOLEM -> {interactSound = Sound.BLOCK_SNOW_STEP;}
             case IRON_GOLEM -> {interactSound = Sound.ENTITY_IRON_GOLEM_DAMAGE;}
             case HORSE -> {interactSound = Sound.ENTITY_HORSE_AMBIENT;}
             case POLAR_BEAR -> {interactSound = Sound.ENTITY_POLAR_BEAR_WARNING; volume = 0.4f;}
@@ -119,6 +122,9 @@ public class AVFX {
             case WARDEN -> {interactSound = Sound.ENTITY_WARDEN_HEARTBEAT;}
             case CAMEL -> {interactSound = Sound.ENTITY_CAMEL_AMBIENT;}
             case SNIFFER -> {interactSound = Sound.ENTITY_SNIFFER_SEARCHING;}
+            case ARMADILLO -> {interactSound = Sound.ENTITY_ARMADILLO_AMBIENT;}
+            case BREEZE -> {interactSound = Sound.ENTITY_BREEZE_IDLE_GROUND;}
+            case BOGGED -> {interactSound = Sound.ENTITY_BOGGED_AMBIENT;}
         }
         if (debug) System.out.println("playHeadInteractEffect() interactSound " + interactSound); //debug
         if (interactSound != null) world.playSound(location, interactSound, volume, 1.0F);
@@ -128,7 +134,7 @@ public class AVFX {
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin, Sound.BLOCK_SOUL_SAND_BREAK,1.8f,1.1f);
-        world.spawnParticle(Particle.SMOKE_LARGE,origin,16,0.4,0.5, 0.4,0.0, null);
+        world.spawnParticle(Particle.LARGE_SMOKE,origin,16,0.4,0.5, 0.4,0.0, null);
         switch (summonType){
             case WOLF -> playWolfSummonEffect(origin);
             case BEE -> playBeeSummonEffect(origin);
@@ -143,7 +149,7 @@ public class AVFX {
         double offsetZ = random.nextDouble(-0.4, 0.5);
         boolean flip = random.nextBoolean();
         if (flip){
-            world.spawnParticle(Particle.SMOKE_LARGE,summon.getLocation(), 1,
+            world.spawnParticle(Particle.LARGE_SMOKE,summon.getLocation(), 1,
                     0.4 + offsetX,0.5 + offsetY, 0.4 + offsetZ,0.0,
                     null
             );
@@ -157,13 +163,13 @@ public class AVFX {
     public static void playSummonDispelEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
-        world.playSound(origin, Sound.BLOCK_SOUL_SAND_BREAK,1.8f,0.8f);
-        world.spawnParticle(Particle.SMOKE_LARGE,origin,16,0.4,0.5, 0.4,0.0, null);
+        world.playSound(origin, Sound.BLOCK_SOUL_SAND_BREAK,1.8f,random.nextFloat(0.6f,0.9f));
+        world.spawnParticle(Particle.LARGE_SMOKE,origin,16,0.4,0.5, 0.4,0.0, null);
     }
     public static void playWolfSummonEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
-        world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.05f, 1.1f);
+        world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.05f, random.nextFloat(0.9f,1.2f));
     }
     public static void playBeeSummonEffect(Location location){
         World world = location.getWorld();
@@ -174,16 +180,55 @@ public class AVFX {
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.BLOCK_STONE_BREAK,1.0f, 1.0f);
-        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0.1,0),
+        world.spawnParticle(Particle.ITEM,origin.add(0,0.1,0),
                 10,0.2,0.1,0.2,0.05,new ItemStack(Material.STONE)
         );
     }
-
+    public static void playGuardianChargeAttackEffect(LivingEntity guardian, @Nullable LivingEntity target, int charge, boolean shoot, boolean elder){
+        World world = guardian.getWorld();
+        Location inFrontOf = guardian.getEyeLocation().add(guardian.getLocation().getDirection().multiply(0.5));
+        Particle particle = Particle.ELECTRIC_SPARK;
+        if (shoot){
+            particle = Particle.END_ROD;
+            world.playSound(inFrontOf, Sound.ITEM_WOLF_ARMOR_DAMAGE, 0.6f, random.nextFloat(0.8f,1.1f));
+        }else world.playSound(inFrontOf, Sound.BLOCK_NOTE_BLOCK_BIT, 0.1f, (float) (0.6f + (charge * 0.015)));
+        if (target == null)return;
+        Vector originPoint = inFrontOf.toVector();
+        Vector destPoint = target.getEyeLocation().toVector();
+        double step = 1.2;
+        Vector direction = destPoint.clone().subtract(originPoint).normalize().multiply(step);
+        double distance = originPoint.distance(destPoint);
+        Vector current = originPoint.clone();
+        EntityType entityType;
+        if (elder){
+            entityType = EntityType.ELDER_GUARDIAN;
+        }else entityType = EntityType.GUARDIAN;
+        double spread = ((charge * -1) + CreatureEvents.guardianChargeTimeMap.getOrDefault(entityType, 60)) * 0.03;
+        if (spread == 0) spread = 0.01;
+        if (debug) System.out.println("Spread: " + spread);
+        for (double i = 0; i < distance; i = i + step) {
+            current = current.clone().add(direction);
+            for (int j = 0; j < 3; j++) {
+                double x = current.getX() + random.nextDouble(-spread,spread);
+                double y = current.getY() + random.nextDouble(-spread,spread);
+                double z = current.getZ() + random.nextDouble(-spread,spread);
+                world.spawnParticle(particle,x,y,z,0,0,0,0,null);
+            }
+//            for (int degree = 0; degree < 360; degree++) {
+//                double radians = Math.toRadians(degree);
+//                double x = Math.cos(radians);
+//                double y = Math.cos(radians);
+//                double z = Math.sin(radians);
+//                Vector circumference =  current.clone().add(new Vector(x,y,z));
+//                world.spawnParticle(Particle.ENCHANTED_HIT,circumference.getX(), circumference.getY(), circumference.getZ(),0,0,0,0, null);
+//            }
+        }
+    }
     public static void playSnowmanSnowballHitEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.BLOCK_SNOW_BREAK,0.5f, 1.1f);
-        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0.1,0),
+        world.spawnParticle(Particle.ITEM,origin.add(0,0.1,0),
                 10,0.2,0.1,0.2,0.05,new ItemStack(Material.SNOWBALL)
         );
     }
@@ -192,7 +237,7 @@ public class AVFX {
         if (world == null)return;
         origin.add(0,1,0);
         world.playSound(origin,Sound.BLOCK_SNOW_BREAK,1.0f, 0.85f);
-        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0,0),
+        world.spawnParticle(Particle.ITEM,origin.add(0,0,0),
                 18,0.3,0.2,0.3,0.05,new ItemStack(Material.SNOWBALL)
         );
     }
@@ -201,25 +246,25 @@ public class AVFX {
         if (world == null)return;
         world.playSound(origin,Sound.BLOCK_WOOD_BREAK, 0.6f, 1.1f);
         BlockData blockData = new ItemStack(Material.OAK_PLANKS).getType().createBlockData();
-        world.spawnParticle(Particle.BLOCK_DUST,origin,5,0.2,0.05,0.2,0,blockData);
+        world.spawnParticle(Particle.BLOCK,origin,5,0.2,0.05,0.2,0,blockData);
     }
     public static void playChestedItemSizzle(Location origin, boolean sound){
         World world = origin.getWorld();
         if (world == null)return;
-        world.spawnParticle(Particle.SMOKE_NORMAL,origin,2,0,0.5,0,0.025,null);
+        world.spawnParticle(Particle.SMOKE,origin,2,0,0.5,0,0.025,null);
         if (sound) world.playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH,0.5f,1.1f);
     }
     public static void playChestedItemExplode(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin, Sound.ITEM_SHIELD_BREAK,0.5f, 1.4f);
-        world.spawnParticle(Particle.EXPLOSION_NORMAL,origin,5,0.1,0.1,0.1,0,null);
+        world.spawnParticle(Particle.EXPLOSION,origin,5,0.1,0.1,0.1,0,null);
     }
     public static void playFoxPounceLandExplosionEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_GENERIC_EXPLODE,1.0f, 1.1f);
-        world.spawnParticle(Particle.EXPLOSION_HUGE, origin, 8,1.5,1.5,1.5);
+        world.spawnParticle(Particle.EXPLOSION, origin, 8,1.5,1.5,1.5);
     }
     public static void playFoxPounceEffect(Location origin){
         World world = origin.getWorld();
@@ -237,15 +282,15 @@ public class AVFX {
         BlockData blockData = block.getType().createBlockData();
         Sound sound = blockData.getSoundGroup().getBreakSound();
         world.playSound(origin, sound, 1.6f, 1.2f);
-        world.spawnParticle(Particle.BLOCK_DUST, origin,10, blockData);
+        world.spawnParticle(Particle.BLOCK, origin,10, blockData);
     }
     public static void playSheepEatEffect(Location blockLoc, Block block, Location playerMouthLoc){
         World world = blockLoc.getWorld();
         if (world == null)return;
         world.playSound(blockLoc,Sound.BLOCK_GRASS_BREAK,0.5f,1.0f);
         world.playSound(playerMouthLoc,Sound.ENTITY_GENERIC_EAT,0.5f,1.0f);
-        world.spawnParticle(Particle.BLOCK_DUST,blockLoc,10,block.getType().createBlockData());
-        world.spawnParticle(Particle.BLOCK_DUST,playerMouthLoc,5,Material.GRASS.createBlockData());
+        world.spawnParticle(Particle.BLOCK,blockLoc,10,block.getType().createBlockData());
+        world.spawnParticle(Particle.BLOCK,playerMouthLoc,5,Material.SHORT_GRASS.createBlockData());
     }
     public static void playGoatRamBeginEffect(Location location){
         World world = location.getWorld();
@@ -258,7 +303,7 @@ public class AVFX {
     public static void playFrogJumpEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
-        world.spawnParticle(Particle.WATER_SPLASH, location.add(0, 0.3, 0), 10, 0.3, 0.1, 0.3);
+        world.spawnParticle(Particle.SPLASH, location.add(0, 0.3, 0), 10, 0.3, 0.1, 0.3);
         world.playSound(location,Sound.ENTITY_FROG_LONG_JUMP, 1.6f, 0.8f);
     }
 
@@ -266,17 +311,37 @@ public class AVFX {
         World world = location.getWorld();
         if (world == null)return;
         world.playSound(location,Sound.ENTITY_GENERIC_EXPLODE,1.0F,1.0F);
-        world.spawnParticle(Particle.EXPLOSION_LARGE,location,5, 0.5, 0.5, 0.5, 0, null);
+        world.spawnParticle(Particle.EXPLOSION,location,5, 0.5, 0.5, 0.5, 0, null);
     }
     public static void playFrogEatCowEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_GENERIC_DRINK,0.6F,1.0F);
     }
-    public static void playFrogFireballSpit(Location origin){
+    public static void playFrogFireballSpitEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.ITEM_FIRECHARGE_USE,1.0f,1.1f);
+    }
+    public static void playBreezeReflectProjectileEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.ENTITY_BREEZE_DEFLECT,0.5f, 1.1f);
+        world.playSound(origin,Sound.ENTITY_BREEZE_WIND_BURST, 0.5f, 1.1f);
+        world.spawnParticle(Particle.GUST,origin,1);
+    }
+    public static void playBreezeReflectionTrailEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        double x = origin.getX() + random.nextDouble(-0.2,0.2);
+        double y = origin.getY() + random.nextDouble(-0.2,0.2);
+        double z = origin.getZ() + random.nextDouble(-0.2,0.2);
+        world.spawnParticle(Particle.CLOUD,x,y,z,0,0,0,0, null);
+    }
+    public static void playBreezeLandEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.ENTITY_BREEZE_LAND,0.5f, random.nextFloat(0.8f,1.2f));
     }
 
     private static final List<Vector> blazeHeadParticleVectors = Arrays.asList(
@@ -299,10 +364,10 @@ public class AVFX {
         }else{
             pitch = 1.4F;
             volume = 0.02F;
-            particle = Particle.SMOKE_NORMAL;
+            particle = Particle.SMOKE;
             speed = 0.005;
         }
-        if (invalid) particle = Particle.SMOKE_NORMAL;
+        if (invalid) particle = Particle.SMOKE;
         if (!furnaceBlock && !invalid){
             for (Vector vector: blazeHeadParticleVectors){
                 Location loc = origin.clone();
@@ -353,14 +418,47 @@ public class AVFX {
             Location spawnLoc = headPos.clone();
             spawnLoc.add(point).add(0,-0.2,0);
 
-            world.spawnParticle(Particle.SMOKE_LARGE,spawnLoc,0,xVar,0.1,zVar, 0.2, null);
+            world.spawnParticle(Particle.LARGE_SMOKE,spawnLoc,0,xVar,0.1,zVar, 0.2, null);
         }
+    }
+    public static void playBlazeShootFireballEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ENTITY_BLAZE_SHOOT,0.7f, 1.1f);
+    }
+    public static void playBlazeSmeltBlockDropsEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH, 0.05f, 1.1f);
+        world.spawnParticle(Particle.SMALL_FLAME, origin,3,0.2,0.2,0.2,0.01,null);
+    }
+
+    public static void playWitchBrewEffect(Location headLoc, Location standLoc, boolean start){
+        World world = headLoc.getWorld();
+        if (world == null)return;
+        if (start){
+            world.playSound(headLoc,Sound.ENTITY_WITCH_CELEBRATE,0.3f,1.1f);
+            world.playSound(standLoc,Sound.ENTITY_ILLUSIONER_CAST_SPELL,0.5f, 1.1f);
+        }else{
+            world.spawnParticle(Particle.WITCH,headLoc,0,0.01,0.1,0.01,0.01,null);
+            world.spawnParticle(Particle.WITCH,standLoc,0,0.01,0.1,0.01,0.01,null);
+        }
+    }
+    public static void playWitchDrinkPotionEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ENTITY_WITCH_DRINK,0.5f, 1.1f);
     }
 
     public static void playDecollationPearlEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
         world.strikeLightningEffect(location);
+    }
+    public static void playDecollationPearlTeleportEffect(Location location){
+        World world = location.getWorld();
+        if (world == null)return;
+        world.playSound(location, Sound.ENTITY_PLAYER_TELEPORT,0.6f, 1.2f);
     }
 
     public static void playShulkerAfflictionEffect(Location entityBottom, double entityEyeHeight, boolean quiet){
@@ -378,7 +476,7 @@ public class AVFX {
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_TURTLE_EGG_CRACK,0.3f,1.2f);
         world.playSound(origin,Sound.ENTITY_CHICKEN_AMBIENT, 0.5f,1.5f);
-        world.spawnParticle(Particle.ITEM_CRACK,origin,10,0.1,0.1,0.1, 0.1, new ItemStack(Material.EGG));
+        world.spawnParticle(Particle.ITEM,origin,10,0.1,0.1,0.1, 0.1, new ItemStack(Material.EGG));
     }
 
     public static void playAllayAttractEffect(Location origin){
@@ -393,7 +491,7 @@ public class AVFX {
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_PANDA_EAT,0.6F, 1.0F);
-        world.spawnParticle(Particle.ITEM_CRACK,origin,8,0.2,0.1,0.2,0.05,new ItemStack(Material.BAMBOO));
+        world.spawnParticle(Particle.ITEM,origin,8,0.2,0.1,0.2,0.05,new ItemStack(Material.BAMBOO));
     }
 
     public static void playSlimeBounceEffect(Location origin, EntityType type){
@@ -402,7 +500,7 @@ public class AVFX {
         ItemStack itemStack = new ItemStack(Material.SLIME_BALL);
         if (type.equals(EntityType.MAGMA_CUBE)) itemStack = new ItemStack(Material.MAGMA_CREAM);
         world.playSound(origin,Sound.ENTITY_SLIME_SQUISH,0.5f,1.2f);
-        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0.1,0),10,0.2,0.1,0.2,0.05,itemStack);
+        world.spawnParticle(Particle.ITEM,origin.add(0,0.1,0),10,0.2,0.1,0.2,0.05,itemStack);
     }
     public static void playSlimeJumpEffect(Location origin, EntityType type){
         World world = origin.getWorld();
@@ -410,14 +508,14 @@ public class AVFX {
         ItemStack itemStack = new ItemStack(Material.SLIME_BALL);
         if (type.equals(EntityType.MAGMA_CUBE)) itemStack = new ItemStack(Material.MAGMA_CREAM);
         world.playSound(origin,Sound.ENTITY_SLIME_JUMP,0.5f,1.2f);
-        world.spawnParticle(Particle.ITEM_CRACK,origin.add(0,0.1,0),10,0.2,0.1,0.2,0.05,itemStack);
+        world.spawnParticle(Particle.ITEM,origin.add(0,0.1,0),10,0.2,0.1,0.2,0.05,itemStack);
     }
 
     public static void playCreeperExplosionEffect(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_GENERIC_EXPLODE,0.8f,1.0f);
-        world.spawnParticle(Particle.EXPLOSION_LARGE,origin,5,1.2,1.2,1.2,0.5);
+        world.spawnParticle(Particle.EXPLOSION,origin,5,1.2,1.2,1.2,0.5);
     }
 
 
@@ -431,7 +529,7 @@ public class AVFX {
             case PLAYER -> {hurtSound = Sound.ENTITY_PLAYER_HURT;}
             case AXOLOTL -> {hurtSound = Sound.ENTITY_AXOLOTL_HURT; volume = 1.2F;}
             case PIG -> hurtSound = Sound.ENTITY_PIG_HURT;
-            case COW, MUSHROOM_COW -> {hurtSound = Sound.ENTITY_COW_HURT;}
+            case COW, MOOSHROOM -> {hurtSound = Sound.ENTITY_COW_HURT;}
             case CHICKEN -> hurtSound = Sound.ENTITY_CHICKEN_HURT;
             case WOLF -> {hurtSound = Sound.ENTITY_WOLF_HURT;}
             case DONKEY -> hurtSound = Sound.ENTITY_DONKEY_HURT;
@@ -448,7 +546,7 @@ public class AVFX {
             case BEE -> hurtSound = Sound.ENTITY_BEE_HURT;
             case BAT -> {hurtSound = Sound.ENTITY_BAT_HURT; volume = 0.2F;}
             case OCELOT -> hurtSound = Sound.ENTITY_OCELOT_HURT;
-            case SNOWMAN -> hurtSound = Sound.ENTITY_SNOW_GOLEM_HURT;
+            case SNOW_GOLEM -> hurtSound = Sound.ENTITY_SNOW_GOLEM_HURT;
             case PANDA -> hurtSound = Sound.ENTITY_PANDA_HURT;
             case POLAR_BEAR -> hurtSound = Sound.ENTITY_POLAR_BEAR_HURT;
             case SKELETON_HORSE -> hurtSound = Sound.ENTITY_SKELETON_HORSE_HURT;
@@ -514,6 +612,13 @@ public class AVFX {
             case TADPOLE -> {hurtSound = Sound.ENTITY_TADPOLE_HURT;}
             case CAMEL -> {hurtSound = Sound.ENTITY_CAMEL_HURT;}
             case SNIFFER -> {hurtSound = Sound.ENTITY_SNIFFER_HURT;}
+            case ARMADILLO -> {
+                if (CreatureEvents.armadilloIsProtecting(livingEntity)){
+                    hurtSound = Sound.ENTITY_ARMADILLO_HURT_REDUCED;
+                }else hurtSound = Sound.ENTITY_ARMADILLO_HURT;
+            }
+            case BREEZE -> {hurtSound = Sound.ENTITY_BREEZE_HURT;}
+            case BOGGED -> {hurtSound = Sound.ENTITY_BOGGED_HURT;}
         }
         if (hurtSound != null){
             livingEntity.getWorld().playSound(livingEntity.getLocation(), hurtSound, volume, 1.0F);
@@ -533,7 +638,7 @@ public class AVFX {
             case PLAYER -> {deathSound = Sound.ENTITY_PLAYER_DEATH;}
             case AXOLOTL -> {deathSound = Sound.ENTITY_AXOLOTL_DEATH;volume = 1.0F;}
             case PIG -> deathSound = Sound.ENTITY_PIG_DEATH;
-            case COW, MUSHROOM_COW -> {deathSound = Sound.ENTITY_COW_DEATH;}
+            case COW, MOOSHROOM -> {deathSound = Sound.ENTITY_COW_DEATH;}
             case CHICKEN -> deathSound = Sound.ENTITY_CHICKEN_DEATH;
             case WOLF -> deathSound = Sound.ENTITY_WOLF_DEATH;
             case DONKEY -> deathSound = Sound.ENTITY_DONKEY_DEATH;
@@ -550,7 +655,7 @@ public class AVFX {
             case BEE -> deathSound = Sound.ENTITY_BEE_DEATH;
             case BAT -> {deathSound = Sound.ENTITY_BAT_DEATH; volume = 0.2F;}
             case OCELOT -> deathSound = Sound.ENTITY_OCELOT_DEATH;
-            case SNOWMAN -> deathSound = Sound.ENTITY_SNOW_GOLEM_DEATH;
+            case SNOW_GOLEM -> deathSound = Sound.ENTITY_SNOW_GOLEM_DEATH;
             case PANDA -> deathSound = Sound.ENTITY_PANDA_DEATH;
             case POLAR_BEAR -> deathSound = Sound.ENTITY_POLAR_BEAR_DEATH;
             case SKELETON_HORSE -> deathSound = Sound.ENTITY_SKELETON_HORSE_DEATH;
@@ -616,12 +721,32 @@ public class AVFX {
             case TADPOLE -> {deathSound = Sound.ENTITY_TADPOLE_DEATH;}
             case CAMEL -> {deathSound = Sound.ENTITY_CAMEL_DEATH;}
             case SNIFFER -> {deathSound = Sound.ENTITY_SNIFFER_DEATH;}
+            case ARMADILLO -> {deathSound = Sound.ENTITY_ARMADILLO_DEATH;}
+            case BREEZE -> {deathSound = Sound.ENTITY_BREEZE_DEATH;}
+            case BOGGED -> {deathSound = Sound.ENTITY_BOGGED_DEATH;}
         }
         if (deathSound != null){
             world.playSound(origin,deathSound,volume, 1.0F);
         }
     }
 
+    public static void playArmadilloArmorEffect(Location origin, int stage){
+        World world = origin.getWorld();
+        if (world == null)return;
+        if (stage == 0){
+            world.playSound(origin,Sound.ENTITY_ARMADILLO_ROLL,1.1f, 0.5f);
+        }else if (stage == 1){
+            world.playSound(origin,Sound.ENTITY_ARMADILLO_UNROLL_FINISH, 1.1f, 0.5f);
+        }else if (stage == 2){
+            world.playSound(origin, Sound.ENTITY_ARMADILLO_BRUSH, 1.1f, 0.5f);
+        }
+    }
+
+    public static void playSnifferSniffEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ENTITY_SNIFFER_SCENTING, 1.0f, 1.1f);
+    }
     public static void playFrogTongueSound(Location location){
         World world = location.getWorld();
         if (world == null)return;
@@ -672,11 +797,22 @@ public class AVFX {
         if (world == null)return;
         world.playSound(location,Sound.ITEM_CHORUS_FRUIT_TELEPORT, 0.4F, 1.0F);
     }
-
     public static void playEndermanRegeneratePearlSound(Location location){
         World world = location.getWorld();
         if (world == null)return;
         world.playSound(location, Sound.ITEM_CHORUS_FRUIT_TELEPORT,0.5f, 1.5f);
+    }
+    public static void playEndermanTeleportEffect(Location start, Location end){
+        World world = start.getWorld();
+        if (world == null) return;
+        Particle particle = Particle.PORTAL;
+        double distance = start.toVector().distance(end.toVector());
+        Vector increment = end.toVector().subtract(start.toVector()).normalize().multiply(0.1);
+        Location pos = start.clone();
+        for (double i = -0.1; i <= distance; i = i + 0.1) {
+            pos.add(increment);
+            world.spawnParticle(particle,pos,1,0.2,0.2,0.2,0,null);
+        }
     }
 
     public static void playLlamaSpitSound(Location location){
@@ -739,6 +875,22 @@ public class AVFX {
         if (world == null)return;
         world.playSound(origin,Sound.ENTITY_ENDER_DRAGON_FLAP, 0.6f, 1.0f);
     }
+    public static void playEnderDragonFillBottleEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ITEM_BOTTLE_FILL_DRAGONBREATH, 0.6f, 1.1f);
+    }
+    public static void playEnderDragonBreathTrailEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.spawnParticle(Particle.DRAGON_BREATH,origin,1,0,0,0,0.01);
+    }
+    public static void playEnderDragonShootBreathEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        float pitch = random.nextFloat(0.8f, 1.2f);
+        world.playSound(origin,Sound.ENTITY_ENDER_DRAGON_SHOOT, 0.12f, pitch);
+    }
 
     public static void playCamelDashSound(Location origin){
         World world = origin.getWorld();
@@ -755,14 +907,14 @@ public class AVFX {
     public static void playImpostorParticles(Location location){
         World world = location.getWorld();
         if (world == null)return;
-        world.spawnParticle(Particle.VILLAGER_ANGRY,location,3, 0.5, 0, 0.5,null);
+        world.spawnParticle(Particle.ANGRY_VILLAGER,location,3, 0.5, 0, 0.5,null);
     }
 
     public static void playGoatRamTrail(Location location){
         World world = location.getWorld();
         if (world == null)return;
         Particle.DustTransition dustTransition = new Particle.DustTransition(Color.GRAY, Color.WHITE, 1.0f);
-        world.spawnParticle(Particle.REDSTONE, location.add(0, 0.9, 0), 2, 0.4, 0.8, 0.4, dustTransition);
+        world.spawnParticle(Particle.DUST, location.add(0, 0.9, 0), 2, 0.4, 0.8, 0.4, dustTransition);
     }
 
     public static void playGhastFlightParticles(Location location){
@@ -798,12 +950,14 @@ public class AVFX {
     public static void playFeatheredGlideParticles(Location origin){
         World world = origin.getWorld();
         if (world == null)return;
-        world.spawnParticle(Particle.ITEM_CRACK,origin,1,0.2,0.2,0.2, 0.01, new ItemStack(Material.FEATHER));
+        world.spawnParticle(Particle.ITEM,origin,1,0.2,0.2,0.2, 0.01, new ItemStack(Material.FEATHER));
     }
-    public static void playBlazeGlideParticles(Location origin){
+    public static void playBlazeGlideParticles(Location origin, boolean flame){
         World world = origin.getWorld();
         if (world == null)return;
-        world.spawnParticle(Particle.SMALL_FLAME,origin,2,0.2,0.2,0.2, 0.01);
+        Particle particle = Particle.SMOKE;
+        if (flame) particle = Particle.SMALL_FLAME;
+        world.spawnParticle(particle,origin,2,0.2,0.2,0.2, 0.01);
     }
 
     //SOUND BUILDERS --------------------------------------------------------------------------------------

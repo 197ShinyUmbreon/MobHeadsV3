@@ -7,7 +7,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 import java.util.Arrays;
@@ -17,10 +16,9 @@ public class HeadLootItemStack {
 
     public static ItemStack pufferfishLoot(){
         ItemStack potion = new ItemStack(Material.POTION);
-        PotionData potionData = new PotionData(PotionType.POISON, false, false);
         PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
         assert potionMeta != null;
-        potionMeta.setBasePotionData(potionData);
+        potionMeta.setBasePotionType(PotionType.POISON);
         potion.setItemMeta(potionMeta);
         return potion;
     }
@@ -43,17 +41,23 @@ public class HeadLootItemStack {
         ItemStack arrows = new ItemStack(Material.TIPPED_ARROW, 16);
         PotionMeta potionMeta = (PotionMeta) arrows.getItemMeta();
         assert potionMeta != null;
-        PotionData potionData = new PotionData(PotionType.SLOWNESS,false,false);
-        potionMeta.setBasePotionData(potionData);
+        potionMeta.setBasePotionType(PotionType.SLOWNESS);
+        arrows.setItemMeta(potionMeta);
+        return arrows;
+    }
+    public static ItemStack boggedLoot(){
+        ItemStack arrows = new ItemStack(Material.TIPPED_ARROW, 16);
+        PotionMeta potionMeta = (PotionMeta) arrows.getItemMeta();
+        assert potionMeta != null;
+        potionMeta.setBasePotionType(PotionType.POISON);
         arrows.setItemMeta(potionMeta);
         return arrows;
     }
     public static ItemStack axolotlLoot(){
         ItemStack potion = new ItemStack(Material.POTION);
-        PotionData potionData = new PotionData(PotionType.REGEN, true, false);
         PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
         assert potionMeta != null;
-        potionMeta.setBasePotionData(potionData);
+        potionMeta.setBasePotionType(PotionType.LONG_REGENERATION);
         potion.setItemMeta(potionMeta);
         return potion;
     }
@@ -71,10 +75,9 @@ public class HeadLootItemStack {
     }
     public static ItemStack villagerLoot(){
         ItemStack potion = new ItemStack(Material.SPLASH_POTION);
-        PotionData potionData = new PotionData(PotionType.WEAKNESS, false, false);
         PotionMeta potionMeta = (PotionMeta) potion.getItemMeta();
         assert potionMeta != null;
-        potionMeta.setBasePotionData(potionData);
+        potionMeta.setBasePotionType(PotionType.WEAKNESS);
         potion.setItemMeta(potionMeta);
         return potion;
     }

@@ -1,11 +1,9 @@
 package io.github.shinyumbreon197.mobheadsv3.function;
 
+import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
-import org.bukkit.DyeColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.ShulkerBox;
@@ -20,11 +18,15 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.getPlugin;
 
 public class Util {
 
@@ -66,7 +68,7 @@ public class Util {
             case HORSE -> {return ((Horse)target).getColor().toString();}
             case LLAMA -> {return ((Llama)target).getColor().toString();}
             case TRADER_LLAMA -> {return ((TraderLlama)target).getColor().toString();}
-            case MUSHROOM_COW -> {return ((MushroomCow)target).getVariant().toString();}
+            case MOOSHROOM -> {return ((MushroomCow)target).getVariant().toString();}
             case PANDA -> {
                 Panda.Gene gene0 = ((Panda)target).getMainGene();
                 Panda.Gene gene1 = ((Panda)target).getHiddenGene();
@@ -82,7 +84,7 @@ public class Util {
             }
             case VILLAGER -> {return ((Villager)target).getVillagerType().toString();}
             case ZOMBIE_VILLAGER -> {return ((ZombieVillager)target).getVillagerType().toString();}
-            case WOLF -> {return "PALE";}
+            case WOLF -> {return ((Wolf)target).getVariant().toString();}
         }
         return null;
     }
@@ -190,6 +192,15 @@ public class Util {
         return nearest;
     }
 
+    public static List<LivingEntity> nearbyLivingEnts(Location origin, double x, double y, double z){
+        World world = origin.getWorld();
+        if (world == null)return new ArrayList<>();
+        return world.getNearbyEntities(origin,x,y,z).stream()
+                .filter(entity -> entity instanceof LivingEntity).map(LivingEntity.class::cast)
+                .collect(Collectors.toList()
+                );
+    }
+
     public static void addAbilityDamageData(Entity target, EntityType abilityType){
         if (debug) System.out.println("addAbilityDamageData() ->add() target: " + target); //debug
         PersistentDataContainer data = target.getPersistentDataContainer();
@@ -201,7 +212,7 @@ public class Util {
                 PersistentDataContainer data = target.getPersistentDataContainer();
                 data.remove(Key.tookAbilityDamage);
             }
-        }.runTaskLater(MobHeadsV3.getPlugin(),1);
+        }.runTaskLater(MobHeadsV3.getPlugin(),5);
     }
     public static EntityType getAbilityDamageData(Entity target){
         PersistentDataContainer data = target.getPersistentDataContainer();
@@ -251,7 +262,15 @@ public class Util {
     public static Entity getTrueAttacker(Entity entity){
         if (entity instanceof Projectile){
             ProjectileSource projectileSource = ((Projectile)entity).getShooter();
-            if (projectileSource instanceof Entity)return (Entity) projectileSource;
+            if (projectileSource instanceof Entity){
+                PersistentDataContainer data = entity.getPersistentDataContainer();
+                String stringUUID = data.get(Key.breezeReflectionKey, PersistentDataType.STRING);
+                UUID uuid = null;
+                if (stringUUID != null) uuid = UUID.fromString(stringUUID);
+                if (uuid != null){
+                    return Bukkit.getEntity(uuid);
+                }else return (Entity) projectileSource;
+            }
         }
         return entity;
     }
@@ -543,6 +562,57 @@ public class Util {
             }
         }
         return blocks;
+    }
+
+    /*
+    source (Entity) - Optional; The source of the damage. Should typically align with origin.
+    origin (Location) - Origin of the effect
+    range (double) - Maximum distance that entities will be affected.
+    damage (double) - Maximum damage inflicted. Decays if falloff is > 0. Triggers a DamageEvent if not set to 0.
+    knockback (double) - Maximum knockback velocity. Decays if falloff is > 0.
+    falloff (float) - Must be between 0 and 1. Determines reduction of Damage and Knockback when further from the Origin.
+        0 means no Damage or Knockback falloff while in range, 1 means a 100% reduction at the furthest edge of range.
+    exclusions (List<Entity>) - A list of entities that will be excluded from the effect if in range.
+     */
+    public static void explosionKnockbackEffect(@Nullable Entity source, Location origin, double range, double damage, double knockback, float falloff, @Nullable List<Entity> exclusions){
+        if (debug) System.out.println(
+                "explosionKnockbackEffect()\nsource: " + source + "\norigin: " + origin + "\nrange: " + range + "\ndamage: " + damage +
+                "\nknockback: " + knockback + "\nfalloff: " + falloff + "\nexclusions: " + exclusions
+        );
+        World world = origin.getWorld();
+        if (world == null)return;
+        List<LivingEntity> livingEntities = world.getNearbyEntities(origin, range,range,range).stream()
+                .filter(entity -> entity instanceof LivingEntity)
+                .map(LivingEntity.class::cast)
+                .collect(Collectors.toList())
+        ;
+        if (debug) System.out.println("nearbyEntities: " + livingEntities);
+        List<LivingEntity> targets = new ArrayList<>();
+        Vector originVector = origin.toVector();
+        for (LivingEntity livingEntity:livingEntities){
+            if (exclusions != null && exclusions.contains(livingEntity))continue;
+            if (livingEntity.getLocation().equals(origin)){
+                targets.add(livingEntity);
+                continue;
+            }
+            RayTraceResult rayTrace = world.rayTraceEntities(origin,Util.getDirection(originVector,livingEntity.getLocation().toVector()),range,0.2, entity -> !(entity.equals(source)));
+            if (rayTrace != null && rayTrace.getHitEntity() != null && rayTrace.getHitEntity().equals(livingEntity))targets.add(livingEntity);
+        }
+        if (debug) System.out.println("targets: " + targets);
+        if (targets.size() == 0)return;
+        for (LivingEntity livingEntity:targets){
+            Vector targetLocationVector = livingEntity.getEyeLocation().toVector();
+            Vector direction = Util.getDirection(originVector,targetLocationVector);
+            double distance = originVector.distance(targetLocationVector);
+            double multiplier = (distance / range);
+            if (falloff != 0) multiplier = multiplier / falloff;
+            double finalDamage = damage * multiplier;
+            if (damage >= 1){
+                livingEntity.damage(finalDamage, source);
+            }else livingEntity.teleport(livingEntity.getLocation().add(0,0.1,0));
+            Vector velocity = direction.multiply(knockback * multiplier);
+            livingEntity.setVelocity(livingEntity.getVelocity().add(velocity));
+        }
     }
 
 

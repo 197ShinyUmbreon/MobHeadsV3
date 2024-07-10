@@ -48,5 +48,7 @@ public class Key {
     public static String chestedKeyString = "chested";
     // Frog ----------------------------------------------------------
     public static NamespacedKey frogFood = new NamespacedKey(plugin, "frogfood");
+    // Breeze --------------------------------------------------------
+    public static final NamespacedKey breezeReflectionKey = new NamespacedKey(plugin,"reflected");
 
 }

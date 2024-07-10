@@ -39,6 +39,7 @@ public class MobHeadGUI implements Listener {
         if (e.getClickedInventory() == null){
             e.setCancelled(true); close(player); return;
         }else if (clickedItem != null && e.getClickedInventory().equals(e.getView().getTopInventory())){
+            clickedItem = clickedItem.clone();
             Material clickedItemMaterial = clickedItem.getType();
             int pageIndex;
             try{
@@ -99,7 +100,7 @@ public class MobHeadGUI implements Listener {
         int invIndex = -1;
         for (ItemStack item:player.getInventory().getContents()){
             invIndex++;
-            if (item == null) continue;
+            if (item == null)continue;
             if (headItem.getItemMeta() == null || item.getItemMeta() == null)continue;
             if (!headItem.getType().equals(item.getType())) continue;
             if (item.getAmount() >= item.getType().getMaxStackSize())continue;
@@ -124,17 +125,10 @@ public class MobHeadGUI implements Listener {
         }
         if (headItem.getItemMeta() == null)return;
 
-        if (headItem.getType().equals(Material.PLAYER_HEAD)){
-            player.sendMessage(MobHeadsV3.getPluginNameColored() + ChatColor.AQUA +
-                    "Spawned in " + headItem.getItemMeta().getDisplayName() +
-                    ChatColor.AQUA+" x"+added
-            );
-        }else{
-            player.sendMessage(MobHeadsV3.getPluginNameColored() + ChatColor.AQUA +
-                    "Spawned in " +ChatColor.YELLOW + headItem.getType() +
-                    ChatColor.AQUA+" x"+added
-            );
-        }
+        player.sendMessage(MobHeadsV3.getPluginNameColored() + ChatColor.AQUA +
+                "Spawned in " + headItem.getItemMeta().getDisplayName() +
+                ChatColor.AQUA+" x"+added
+        );
     }
 
     private static void spawnHeadedEntity(Player player, ItemStack headItem){

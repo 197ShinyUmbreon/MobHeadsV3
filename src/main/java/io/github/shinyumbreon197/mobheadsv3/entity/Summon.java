@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.entity;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.*;
@@ -15,7 +16,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ArmorMeta;
+import org.bukkit.inventory.meta.ColorableArmorMeta;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -23,13 +30,15 @@ import org.bukkit.util.Vector;
 
 import java.util.*;
 
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
+
 public class Summon implements Listener {
 
     private static final Set<Entity> summonersOnCooldown = new HashSet<>();
     private static final List<Summon> summons = new ArrayList<>();
 
     private static final Set<EntityType> summonTypes = Set.of(
-            EntityType.WOLF, EntityType.SILVERFISH, EntityType.BEE, EntityType.VEX, EntityType.SNOWMAN
+            EntityType.WOLF, EntityType.SILVERFISH, EntityType.BEE, EntityType.VEX, EntityType.SNOW_GOLEM
     );
     public static boolean isSummonType(EntityType entityType){
         return summonTypes.contains(entityType);
@@ -39,21 +48,21 @@ public class Summon implements Listener {
             EntityType.SILVERFISH, 15*2,
             EntityType.BEE, 30*2,
             EntityType.VEX, 20*2,
-            EntityType.SNOWMAN, 30*2
+            EntityType.SNOW_GOLEM, 30*2
     );
     private static final Map<EntityType,Integer> summonCooldownMap = Map.of(
             EntityType.WOLF, 5*20,
             EntityType.SILVERFISH, 1,
             EntityType.BEE, 2*20,
             EntityType.VEX, 3*20,
-            EntityType.SNOWMAN, 5*20
+            EntityType.SNOW_GOLEM, 5*20
     );
     private static final Map<EntityType,EntityType> summonCommandingTypeMap = Map.of(
             EntityType.WOLF, EntityType.WOLF,
             EntityType.SILVERFISH, EntityType.SILVERFISH,
             EntityType.BEE, EntityType.BEE,
             EntityType.VEX, EntityType.VEX,
-            EntityType.SNOWMAN, EntityType.SNOWMAN
+            EntityType.SNOW_GOLEM, EntityType.SNOW_GOLEM
     );
 
     public static void watchSummons(){
@@ -97,6 +106,21 @@ public class Summon implements Listener {
             AVFX.playSummonContinuousEffect(summonEnt);
         }
     }
+    private static ItemStack wolfArmor;
+    private static ItemStack getWolfArmor(){
+        if (wolfArmor != null)return wolfArmor;
+        ItemStack armor = new ItemStack(Material.WOLF_ARMOR);
+        ColorableArmorMeta armorMeta = (ColorableArmorMeta) armor.getItemMeta();
+        assert armorMeta != null;
+        armorMeta.setColor(Color.fromRGB(50,0,100));
+        armor.setItemMeta(armorMeta);
+        Damageable damageMeta = (Damageable) armor.getItemMeta();
+        assert damageMeta != null;
+        damageMeta.setDamage(63);
+        armor.setItemMeta(damageMeta);
+        wolfArmor = armor;
+        return wolfArmor;
+    }
     public static void removeSummon(Summon summonObj){
         summons.remove(summonObj);
         Mob summon = summonObj.getSummon();
@@ -113,7 +137,6 @@ public class Summon implements Listener {
         World world = owner.getWorld();
         Location spawnLocation = summonSpawnLocation(owner, summonType);
         Mob summon;
-        List<PotionEffect> potionEffects = new ArrayList<>();
         int lifespan = summonLifespanMap.getOrDefault(summonType, 0);
         int lifespanTicks = lifespan * 10;
         int cooldown = summonCooldownMap.getOrDefault(summonType, 0);
@@ -122,19 +145,29 @@ public class Summon implements Listener {
         switch (summonType){
             case WOLF -> {
                 Wolf wolf = (Wolf) world.spawnEntity(spawnLocation, EntityType.WOLF);
-                //wolf.setVariant(Wolf.Variant().valueOf(mobHead.getVariant()));
+                String headVariant = mobHead.getVariant();
+                Wolf.Variant variant = Data.getWolfVariantMap().get(headVariant);
+                if (debug) System.out.println("Summon.java::createNewSummon():[Wolf]:headVariant:" + headVariant); //debug
+                if (variant == null) variant = Wolf.Variant.PALE;
+                wolf.setVariant(variant);
                 wolf.setCollarColor(DyeColor.BLACK);
                 wolf.setAngry(true);
                 wolf.setAdult();
                 wolf.setBreed(false);
-                potionEffects.add(new PotionEffect(PotionEffectType.HEALTH_BOOST, lifespanTicks, 0, false, false, false));
-                potionEffects.add(new PotionEffect(PotionEffectType.SPEED, lifespanTicks,0,false,false,false));
+                EntityEquipment entityEquipment = wolf.getEquipment();
+                assert entityEquipment != null;
+                entityEquipment.setItem(EquipmentSlot.BODY,getWolfArmor(), true);
+                entityEquipment.setChestplateDropChance(0.0f);
+                PotionEffectManager.addEffectToEntity(wolf, new PotionEffect(PotionEffectType.HEALTH_BOOST, lifespanTicks, 1, false, false, false));
+                PotionEffectManager.addEffectToEntity(wolf, new PotionEffect(PotionEffectType.SPEED, lifespanTicks,0,false,false,false));
+                PotionEffectManager.addEffectToEntity(wolf, new PotionEffect(PotionEffectType.STRENGTH, lifespanTicks, 0, false, false, false));
+                wolf.setHealth(16);
                 summon = wolf;
             }
             case SILVERFISH -> {
                 Silverfish silverfish = (Silverfish) world.spawnEntity(spawnLocation, EntityType.SILVERFISH);
                 silverfish.setHealth(4);
-                potionEffects.add(new PotionEffect(PotionEffectType.SPEED, lifespanTicks,0,false,false,false));
+                PotionEffectManager.addEffectToEntity(silverfish, new PotionEffect(PotionEffectType.SPEED, lifespanTicks,0,false,false,false));
                 summon = silverfish;
             }
             case BEE -> {
@@ -150,22 +183,21 @@ public class Summon implements Listener {
                 Vex vex = (Vex) world.spawnEntity(spawnLocation, EntityType.VEX);
                 vex.setLifeTicks(1200);
                 vex.setHealth(6);
-                potionEffects.add(new PotionEffect(PotionEffectType.WEAKNESS,lifespanTicks,0, false, false, false));
+                PotionEffectManager.addEffectToEntity(vex, new PotionEffect(PotionEffectType.WEAKNESS,lifespanTicks,0, false, false, false));
                 velocity = owner.getLocation().getDirection().multiply(-0.6).add(new Vector(0.0,0.1,0.0));
                 summon = vex;
             }
-            case SNOWMAN -> {
-                Snowman snowman = (Snowman) world.spawnEntity(spawnLocation, EntityType.SNOWMAN);
+            case SNOW_GOLEM -> {
+                Snowman snowman = (Snowman) world.spawnEntity(spawnLocation, EntityType.SNOW_GOLEM);
                 snowman.setDerp(true);
-                potionEffects.add(new PotionEffect(PotionEffectType.SLOW, lifespanTicks, 9, false, false, false));
-                potionEffects.add(new PotionEffect(PotionEffectType.HEALTH_BOOST, lifespanTicks, 2, false, false, false));
+                PotionEffectManager.addEffectToEntity(snowman, new PotionEffect(PotionEffectType.SLOWNESS, lifespanTicks, 9, false, false, false));
+                PotionEffectManager.addEffectToEntity(snowman, new PotionEffect(PotionEffectType.HEALTH_BOOST, lifespanTicks, 2, false, false, false));
                 summon = snowman;
             }
             default -> {return;}
         }
 
         ItemStack nameTagItem = MobHead.getHeadItemOfEntity(owner);
-        if (nameTagItem == null) nameTagItem = new ItemStack(Material.ARMOR_STAND);
         Item nameTag = (Item) world.dropItem(owner.getLocation(), nameTagItem);
         nameTag.setPickupDelay(999999);
         nameTag.setCustomName(ChatColor.RED + owner.getName());
@@ -181,7 +213,6 @@ public class Summon implements Listener {
         summon.addPassenger(nameTag);
         summon.setTarget(target);
 
-        PotionEffectManager.addEffectsToEntity(summon, potionEffects);
 
         AVFX.playSummonEffect(summon.getLocation(), summonType);
 
@@ -197,7 +228,7 @@ public class Summon implements Listener {
     }
     private static Location summonSpawnLocation(LivingEntity owner, EntityType summonType){
         switch (summonType){
-            case WOLF, SILVERFISH, SNOWMAN -> {
+            case WOLF, SILVERFISH, SNOW_GOLEM -> {
                 List<Block> surrounding = Util.getBlocksSurroundingEntity(owner);
                 List<Block> valid = new ArrayList<>();
                 for (Block block:surrounding){
@@ -225,7 +256,7 @@ public class Summon implements Listener {
                 return (LivingEntity) edbee.getDamager();
             }
         }
-        List<Entity> nearby = owner.getNearbyEntities(10,6,10);
+        List<Entity> nearby = owner.getNearbyEntities(20,6,20);
         List<Mob> hostile = new ArrayList<>();
         for (Entity entity:nearby){
             if (!(entity instanceof Mob))continue;

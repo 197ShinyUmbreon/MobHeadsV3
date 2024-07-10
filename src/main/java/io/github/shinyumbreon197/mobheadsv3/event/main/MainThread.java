@@ -6,6 +6,7 @@ import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.relay.CreatureTickRelay;
+import io.github.shinyumbreon197.mobheadsv3.function.AttributeManager;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
@@ -117,6 +118,7 @@ public class MainThread {
             headWearersMap.put(wear, mobHead.getUuid());
             UUID uuid = mobHead.getUuid();
             if (Config.headEffects){
+                AttributeManager.setAttributes(wear, mobHead.getEntityType(), true);
                 PotionEffectManager.updateEffects(wear, uuid);
                 CreatureTickRelay.tickRelay(wear, uuid);
             }
@@ -126,6 +128,7 @@ public class MainThread {
         if (debug) System.out.println("headRemovalEffects() target: " + target.getName() + " MobHead: " + mobHead.getHeadName()); //debug
         if (mobHead == null)return;
         EntityType headType = mobHead.getEntityType();
+        AttributeManager.setAttributes(target,headType,false);
         switch (headType){
             case BAT, WARDEN, FROG -> {
                 if (target instanceof Player) Packets.removeGlow((Player) target);
@@ -134,6 +137,7 @@ public class MainThread {
                 CreatureEvents.slimeReset(target);
             }
             case STRIDER -> CreatureEvents.striderReplaceReset(target);
+            case ARMADILLO -> CreatureEvents.armadilloResetKnockbackResist(target);
         }
     }
     private static void updatePlayerList(){

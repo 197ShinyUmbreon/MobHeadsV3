@@ -1,6 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3.itemStack;
 
 import io.github.shinyumbreon197.mobheadsv3.Config;
+import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.Bukkit;
@@ -42,9 +43,10 @@ public class HeadItemStack {
     }
     public static ItemStack customVanillaHead(EntityType headType, List<String> lore, UUID uuid, Map<Enchantment,Integer> enchantments){
         ItemStack itemStack = new ItemStack(getVanillaHeadMap().get(headType));
-        ItemMeta itemMeta = addEnchantments(itemStack.getItemMeta(), enchantments);
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        addEnchantments(itemMeta, enchantments);
         assert itemMeta != null;
-        itemMeta = addLoreToHeadMeta(itemMeta,lore);
+        addLoreToHeadMeta(itemMeta,lore);
         String name = Util.friendlyMaterialName(itemStack.getType());
         itemMeta.setDisplayName(ChatColor.YELLOW + name);
         PersistentDataContainer data = itemMeta.getPersistentDataContainer();
@@ -53,10 +55,9 @@ public class HeadItemStack {
         return itemStack;
     }
 
-    private static ItemMeta addLoreToHeadMeta(ItemMeta itemMeta, List<String> lore){
-        if (!Config.headEffects)return itemMeta;
+    private static void addLoreToHeadMeta(ItemMeta itemMeta, List<String> lore){
+        if (!Config.headEffects)return;
         itemMeta.setLore(colorLore(lore));
-        return itemMeta;
     }
 
     private static List<String> colorLore(List<String> lore){
@@ -66,41 +67,41 @@ public class HeadItemStack {
         }
         return newLore;
     }
-    public static ItemStack customHead(String headName, UUID uuid, URL texture, List<String> lore){
-        return customHead(headName,uuid,texture,lore,new HashMap<>());
+    public static ItemStack customHead(String headName, UUID uuid, URL texture, List<String> lore, EntityType entityType){
+        return customHead(headName,uuid,texture,lore,new HashMap<>(), entityType);
     }
-    public static ItemStack customHead(String headName, UUID uuid, URL texture, List<String> lore, Map<Enchantment, Integer> enchantments) {
-        PlayerProfile pp = customPlayerProfile(headName, uuid, texture);
-        return customHead(headName, uuid, pp, lore, enchantments);
+    public static ItemStack customHead(String headName, UUID uuid, PlayerProfile pp, List<String> lore, EntityType entityType){
+        return customHead(headName,uuid,pp,lore,new HashMap<>(), entityType);
     }
-    public static ItemStack customHead(String headName, UUID uuid, PlayerProfile pp, List<String> lore){
-        return customHead(headName,uuid,pp,lore,new HashMap<>());
+    public static ItemStack customHead(String headName, UUID uuid, URL texture, List<String> lore, Map<Enchantment, Integer> enchantments, EntityType entityType) {
+        PlayerProfile pp = customPlayerProfile(uuid, texture);
+        return customHead(headName, uuid, pp, lore, enchantments, entityType);
     }
-    public static ItemStack customHead(String headName, UUID uuid, PlayerProfile pp, List<String> lore, Map<Enchantment,Integer> enchantments){
+    public static ItemStack customHead(String headName, UUID uuid, PlayerProfile pp, List<String> lore, Map<Enchantment,Integer> enchantments, EntityType entityType){
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta headMeta = (SkullMeta) head.getItemMeta();
-        headMeta = (SkullMeta) addEnchantments(headMeta, enchantments);
+        addEnchantments(headMeta, enchantments);
         assert headMeta != null;
         headMeta.setOwnerProfile(pp);
         headMeta.setDisplayName(ChatColor.YELLOW+headName);
-        headMeta = (SkullMeta) addLoreToHeadMeta(headMeta,lore);
+        headMeta.setNoteBlockSound(Data.getEntityTypeNoteblockSound(entityType).getKey());
+        addLoreToHeadMeta(headMeta,lore);
         PersistentDataContainer data = headMeta.getPersistentDataContainer();
         data.set(Key.headUUID, PersistentDataType.STRING, uuid.toString());
         head.setItemMeta(headMeta);
         return head;
     }
 
-    private static ItemMeta addEnchantments(ItemMeta headMeta, Map<Enchantment,Integer> enchantments){
-        if (!Config.headEffects)return headMeta;
+    private static void addEnchantments(ItemMeta headMeta, Map<Enchantment,Integer> enchantments){
+        if (!Config.headEffects)return;
         for (Enchantment enchantment:enchantments.keySet()){
             headMeta.addEnchant(enchantment,enchantments.get(enchantment), true);
         }
         //headMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        return headMeta;
     }
 
-    private static PlayerProfile customPlayerProfile(String headName, UUID uuid, URL texture){
-        PlayerProfile pp = Bukkit.createPlayerProfile(uuid,headName);
+    private static PlayerProfile customPlayerProfile(UUID uuid, URL texture){
+        PlayerProfile pp = Bukkit.createPlayerProfile(uuid,"MobHead_Head");
         PlayerTextures pt = pp.getTextures();
         pt.setSkin(texture);
         return pp;

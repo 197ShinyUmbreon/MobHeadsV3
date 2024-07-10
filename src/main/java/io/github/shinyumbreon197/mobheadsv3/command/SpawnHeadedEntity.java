@@ -18,7 +18,7 @@ public class SpawnHeadedEntity implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (commandSender instanceof ConsoleCommandSender){
-            System.out.println(MobHeadsV3.namePlain("This command is usable by Players only!"));
+            System.out.println(MobHeadsV3.getPluginName() + "This command is usable by Players only!");
             return true;
         }else if (commandSender instanceof Player){
             Player player = (Player) commandSender;

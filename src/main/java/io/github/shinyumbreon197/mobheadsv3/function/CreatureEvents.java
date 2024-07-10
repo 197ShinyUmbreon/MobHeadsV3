@@ -13,7 +13,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.*;
-import org.bukkit.event.Event;
+import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -28,8 +28,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -44,6 +46,30 @@ public class CreatureEvents {
     private static final MobHeadsV3 plugin = MobHeadsV3.getPlugin();
 
     // Global ----------------------------------------------------------------------------------------------------------
+    private static final Map<LivingEntity,Set<Mob>> attackAggroMap = new HashMap<>();
+    public static boolean hasMobBeenAttacked(LivingEntity attacker, Mob mob){
+        return attackAggroMap.getOrDefault(attacker, new HashSet<>()).contains(mob);
+    }
+    public static void addToAttackAggroMap(LivingEntity attacker, Mob mob){
+        Set<Mob> mobs = attackAggroMap.getOrDefault(attacker, new HashSet<>());
+        mobs.add(mob);
+        attackAggroMap.put(attacker,mobs);
+    }
+    public static void removeFromAttackAggroMap(LivingEntity attacker, Mob mob){
+        Set<Mob> mobs = attackAggroMap.getOrDefault(attacker, new HashSet<>());
+        mobs.remove(mob);
+        attackAggroMap.put(attacker,mobs);
+    }
+    public static void removeFromAttackAggroMap(Mob mob){
+        for (LivingEntity attackerSearch:attackAggroMap.keySet()){
+            for (Mob mobSearch:attackAggroMap.get(attackerSearch)){
+                if (mobSearch.equals(mob)){
+                    removeFromAttackAggroMap(attackerSearch,mob);
+                    return;
+                }
+            }
+        }
+    }
     private static final Set<LivingEntity> creatureWasGliding = new HashSet<>();
     public static boolean wasCreatureGliding(LivingEntity livingEntity){
         return creatureWasGliding.contains(livingEntity);
@@ -94,7 +120,7 @@ public class CreatureEvents {
         }
         switch (headType){
             case WITHER, WITHER_SKELETON -> {if (damageCause.equals(EntityDamageEvent.DamageCause.WITHER)) canceled = true;}
-            case CAVE_SPIDER -> {if (damageCause.equals(EntityDamageEvent.DamageCause.POISON)) canceled = true;}
+            case CAVE_SPIDER, BOGGED -> {if (damageCause.equals(EntityDamageEvent.DamageCause.POISON)) canceled = true;}
             case SLIME, MAGMA_CUBE -> {
                 switch (damageCause){
                     case FALL -> {
@@ -169,9 +195,18 @@ public class CreatureEvents {
                     canceled = foxIsInBerryBush((LivingEntity) ede.getEntity());
                 }
             }
+            case BREEZE -> {
+                if (damageCause.equals(EntityDamageEvent.DamageCause.FALL) || damageCause.equals(EntityDamageEvent.DamageCause.FLY_INTO_WALL)){
+                    if (!(damaged instanceof Player) || !((Player)damaged).isSneaking()){
+                        canceled = true;
+                        breezeFallDamage(damaged, damageCause);
+                    }
+                }
+            }
         }
         ede.setCancelled(canceled);
     }
+
     public static void damageTypeReactions(EntityType damagedHeadType, EntityDamageEvent ede){
         LivingEntity target = (LivingEntity) ede.getEntity();
         EntityDamageEvent.DamageCause cause = ede.getCause();
@@ -179,7 +214,8 @@ public class CreatureEvents {
         List<EntityDamageEvent.DamageCause> attackCauses = List.of(
                 EntityDamageEvent.DamageCause.ENTITY_ATTACK, EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK,
                 EntityDamageEvent.DamageCause.PROJECTILE, EntityDamageEvent.DamageCause.DRAGON_BREATH,
-                EntityDamageEvent.DamageCause.CONTACT, EntityDamageEvent.DamageCause.ENTITY_EXPLOSION,
+                //EntityDamageEvent.DamageCause.CONTACT,
+                EntityDamageEvent.DamageCause.ENTITY_EXPLOSION,
                 EntityDamageEvent.DamageCause.MAGIC, EntityDamageEvent.DamageCause.SONIC_BOOM,
                 EntityDamageEvent.DamageCause.THORNS
         );
@@ -202,22 +238,30 @@ public class CreatureEvents {
             }
             case AXOLOTL -> {if (attackCauses.contains(cause)) CreatureEvents.axolotlRegeneration(target);}
             case ENDERMAN -> {
-                if ((cause.equals(EntityDamageEvent.DamageCause.CUSTOM) || attackCauses.contains(cause))){
+                if (ede.getFinalDamage() == 0)return;
+                if ((cause.equals(EntityDamageEvent.DamageCause.CUSTOM) || fireDamageTypes.contains(cause) || attackCauses.contains(cause))){
                     CreatureEvents.endermanTeleportNearby(target,false);
                 }
             }
+            case WITCH -> {witchDamageReaction(target, cause);}
+            case ARMADILLO -> {if (attackCauses.contains(cause)) CreatureEvents.armadilloResistance(target);}
         }
     }
     public static void applyAfflictionsToTarget(EntityType attackerType, LivingEntity target, boolean projectile){
         List<PotionEffect> afflictionEffects = getAfflictionPotionEffects(attackerType, projectile);
-        runAfflictions(attackerType, target);
+        runAfflictions(attackerType, target, projectile);
         addEffectsToEntity(target, afflictionEffects);
     }
-    private static void runAfflictions(EntityType attackerType, LivingEntity target){
+    private static void runAfflictions(EntityType attackerType, LivingEntity target, boolean projectile){
         switch (attackerType){
             case ELDER_GUARDIAN -> {if (target instanceof Player){runElderGuardianAfflictionFX(target);}}
             case SHULKER -> {AVFX.playShulkerAfflictionEffect(target.getLocation(), target.getEyeHeight(),false);}
             case STRAY -> {}
+            case BLAZE -> {
+                int fireTicks = target.getFireTicks();
+                if (fireTicks < 60) fireTicks = 60;
+                target.setFireTicks(fireTicks);
+            }
         }
     }
 
@@ -231,18 +275,20 @@ public class CreatureEvents {
         switch (defenderType){
             case LLAMA, TRADER_LLAMA -> {llamaRetaliationSpit(damaged, damager);}
             case EVOKER -> evokerRetaliation(damaged, damager);
+            case BREEZE -> {if (!projectile) breezeRetaliateWindCharge(damaged, damager);}
         }
     }
 
     public static void nearbyTargetImposter(Mob targeter, LivingEntity targeted, EntityType targetedHeadType){
         List<Entity> nearby = targeter.getNearbyEntities(10,5,10)
-                .stream().filter(entity -> entity instanceof Mob).collect(Collectors.toList()
+                .stream().filter(entity -> entity instanceof Mob)
+                .filter(targeted::hasLineOfSight)
+                .collect(Collectors.toList()
         );
         List<Mob> nearbyNeutral = new ArrayList<>(List.of(targeter));
         for (Entity ent:nearby){
             if (ent.equals(targeter))continue;
-            boolean ng = Groups.neutralTarget(ent.getType(), targetedHeadType);
-            if (!ng)continue;
+            if (!Groups.neutralTarget(ent.getType(), targetedHeadType))continue;
             nearbyNeutral.add((Mob) ent);
         }
         for (Mob mob:nearbyNeutral){
@@ -273,9 +319,469 @@ public class CreatureEvents {
         }.runTaskLater(plugin, 1);
     }
 
+    // Guardian / Elder Guardian ---------------------------------------------------------------------------------------
+    private static final Map<LivingEntity,LivingEntity> guardianTargetMap = new HashMap<>();
+    private static final Map<LivingEntity,Integer> guardianAttackTimer = new HashMap<>();
+    public static void guardianToggleLockOn(Player player){
+        if (guardianTargetMap.containsKey(player)){
+            guardianRemoveLockedOnTarget(player);
+        }else{
+            guardianLockOnTarget(player);
+        }
+    }
+    public static void guardianRemoveLockedOnTarget(LivingEntity livingEntity){
+        LivingEntity livingTarget = guardianTargetMap.get(livingEntity);
+        if (livingTarget != null && livingEntity instanceof Player){
+            Packets.toggleGlow(((Player)livingEntity), livingTarget, false);
+        }
+        guardianTargetMap.remove(livingEntity);
+    }
+    private static void guardianLockOnTarget(Player player){
+        if (debug) System.out.println("guardianLockOnTarget()");
+        Vector direction = player.getLocation().getDirection().clone();
+        RayTraceResult rayTrace = player.getWorld().rayTraceEntities(
+                player.getEyeLocation().add(direction.clone().multiply(-0.3)),direction, 26.0, 0.8,
+                entity -> entity instanceof LivingEntity && !entity.equals(player) && player.hasLineOfSight(entity)
+        );
+        if (debug) System.out.println("rayTraceResult: " + rayTrace);
+        if (rayTrace == null)return;
+        Entity target = rayTrace.getHitEntity();
+        if (debug) System.out.println("rayTraceHitEntity: " + target);
+        if (!(target instanceof LivingEntity))return;
+        LivingEntity livingTarget = (LivingEntity) target;
+        guardianTargetMap.put(player, livingTarget);
+        Packets.toggleGlow(player, livingTarget, true);
+        if (!guardianAttackTimer.containsKey(player)) guardianChargeAttack(player);
+    }
+    public static final Map<EntityType,Integer> guardianChargeTimeMap = Map.of(EntityType.GUARDIAN, 40, EntityType.ELDER_GUARDIAN, 60);
+    private static void guardianChargeAttack(LivingEntity guardian){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                MobHead mobHead = MobHead.getMobHeadWornByEntity(guardian);
+                EntityType headType;
+                if (mobHead == null || !(mobHead.getEntityType().equals(EntityType.GUARDIAN) || mobHead.getEntityType().equals(EntityType.ELDER_GUARDIAN))){
+                    cancel();
+                    guardianRemoveLockedOnTarget(guardian);
+                    guardianAttackTimer.remove(guardian);
+                    return;
+                }else if (mobHead.getEntityType().equals(EntityType.ELDER_GUARDIAN)){
+                    headType = EntityType.ELDER_GUARDIAN;
+                }else headType = EntityType.GUARDIAN;
+                int chargeTime = guardianChargeTimeMap.getOrDefault(headType, 40);
+                LivingEntity target = guardianTargetMap.get(guardian);
+                boolean hasTarget = target != null && !target.isDead() && guardian.hasLineOfSight(target);
+                if (debug) System.out.println("Guardian hasTarget: " + hasTarget);
+                int charge = guardianAttackTimer.getOrDefault(guardian, 0);
+                if (debug) System.out.println("Guardian charge: " + charge);
+                if (guardian instanceof Player) Hud.progressBar(((Player)guardian), chargeTime, charge, true, "Beam Charge:", true);
+                if (!hasTarget){
+                    guardianRemoveLockedOnTarget(guardian);
+                    charge--;
+                    if (charge <= 0){
+                        cancel();
+                        guardianAttackTimer.remove(guardian);
+                        if (guardian instanceof Player)Hud.progressBarEnd(((Player)guardian));
+                        return;
+                    }
+                }else{
+                    charge++;
+                    if (charge >= chargeTime){
+                        guardianShootTarget(guardian, headType);
+                        guardianRemoveLockedOnTarget(guardian);
+                        guardianAttackTimer.remove(guardian);
+                        cancel();
+                        return;
+                    }
+                }
+                AVFX.playGuardianChargeAttackEffect(guardian, target, charge, false, headType.equals(EntityType.ELDER_GUARDIAN));
+                guardianAttackTimer.put(guardian, charge);
+            }
+        }.runTaskTimer(plugin,0,1);
+    }
+    private static void guardianShootTarget(LivingEntity guardian, EntityType entityType){
+        LivingEntity livingTarget = guardianTargetMap.get(guardian);
+        if (livingTarget == null)return;
+        Util.addAbilityDamageData(livingTarget, EntityType.GUARDIAN);
+        boolean elder = entityType.equals(EntityType.ELDER_GUARDIAN);
+        double damage;
+        if (elder){
+            damage = 14;
+        }else damage = 8;
+        livingTarget.damage(damage, guardian);
+        //livingTarget.damage(1, DamageSource.builder(DamageType.MAGIC).build());
+        AVFX.playGuardianChargeAttackEffect(guardian, livingTarget, guardianChargeTimeMap.getOrDefault(entityType, 40), true, elder);
+    }
+
+    // Armadillo -------------------------------------------------------------------------------------------------------
+    private static final List<PotionEffect> armadilloResistEffects = List.of(
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,2,10*20),
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS, 1, 10*20)
+    );
+    private static void armadilloResistance(LivingEntity armadillo){
+        if (armadilloIsOnCooldown(armadillo))return;
+        armadillosOnCooldown.add(armadillo);
+        armadillosProtecting.add(armadillo);
+        armadilloAddKnockbackResist(armadillo);
+        PotionEffectManager.addEffectsToEntity(armadillo,armadilloResistEffects);
+        AVFX.playArmadilloArmorEffect(armadillo.getEyeLocation().add(armadillo.getLocation().getDirection().multiply(0.4)), 0);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                armadilloRemoveFromCooldown(armadillo);
+            }
+        }.runTaskLater(plugin, 20*20);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                armadilloRemoveFromProtecting(armadillo);
+                armadilloResetKnockbackResist(armadillo);
+            }
+        }.runTaskLater(plugin, 10*20);
+    }
+    private static final Set<LivingEntity> armadillosOnCooldown = new HashSet<>();
+    private static final Set<LivingEntity> armadillosProtecting = new HashSet<>();
+    private static boolean armadilloIsOnCooldown(LivingEntity armadillo){
+        return armadillosOnCooldown.contains(armadillo);
+    }
+    private static void armadilloRemoveFromCooldown(LivingEntity armadillo){
+        armadillosOnCooldown.remove(armadillo);
+    }
+    public static boolean armadilloIsProtecting(LivingEntity armadillo){
+        return armadillosProtecting.contains(armadillo);
+    }
+    private static void armadilloRemoveFromProtecting(LivingEntity armadillo){
+        armadillosProtecting.remove(armadillo);
+    }
+    private static void armadilloAddKnockbackResist(LivingEntity armadillo){
+        AttributeInstance knockback = armadillo.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        if (knockback == null)return;
+        knockback.setBaseValue(1.0);
+    }
+    public static void armadilloResetKnockbackResist(LivingEntity armadillo){
+        AttributeInstance knockback = armadillo.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        if (knockback == null)return;
+        knockback.setBaseValue(knockback.getDefaultValue());
+    }
+
+    // Breeze ----------------------------------------------------------------------------------------------------------
+    private static void breezeFallDamage(LivingEntity breeze, EntityDamageEvent.DamageCause cause){
+        if (cause.equals(EntityDamageEvent.DamageCause.FLY_INTO_WALL)){
+        }else AVFX.playBreezeLandEffect(breeze.getLocation());
+//        WindCharge windCharge = (WindCharge) breeze.getWorld().spawnEntity(breeze.getLocation().add(offset),EntityType.WIND_CHARGE);
+//        windCharge.explode();
+        //Util.explosionKnockbackEffect(breeze, breeze.getLocation(), 8, 0, 1.0, 1f, List.of(breeze));
+
+    }
+    public static void breezeElytraWindCharge(LivingEntity breeze){
+        Vector facing = breeze.getLocation().getDirection();
+        Vector offset = new Vector(-facing.getX() * 0.5, 0, -facing.getZ() * 0.5);
+        WindCharge windCharge = (WindCharge) breeze.getWorld().spawnEntity(breeze.getLocation().add(offset),EntityType.WIND_CHARGE);
+        windCharge.explode();
+    }
+    public static void breezeSneakJump(Player player){
+        Vector facing = player.getLocation().getDirection();
+        Vector offset = new Vector(-facing.getX() * 0.8, 0, -facing.getZ() * 0.8);
+        WindCharge windCharge = (WindCharge) player.getWorld().spawnEntity(player.getLocation().add(offset),EntityType.WIND_CHARGE);
+        windCharge.explode();
+    }
+    public static void breezeRetaliateWindCharge(LivingEntity breeze, LivingEntity attacker){
+        Location origin = breeze.getLocation().add(0,1.2,0);
+        WindCharge windCharge = (WindCharge) breeze.getWorld().spawnEntity(origin, EntityType.WIND_CHARGE);
+        Vector velocity = Util.projectileVector(origin,attacker.getLocation(), 0.8);
+        PersistentDataContainer data = windCharge.getPersistentDataContainer();
+        data.set(Key.abilityProjectile, PersistentDataType.STRING, EntityType.BREEZE.toString());
+        windCharge.setShooter(breeze);
+        windCharge.setVelocity(velocity);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (!windCharge.isDead()){
+                    windCharge.explode();
+                }
+            }
+        }.runTaskLater(plugin, 10);
+        //breeze.launchProjectile(WindCharge.class, Util.projectileVector(breeze.getEyeLocation(),attacker.getLocation(), 1.0));
+    }
+    public static boolean isBreezeReflection(Projectile projectile){
+        PersistentDataContainer data = projectile.getPersistentDataContainer();
+        return data.has(Key.breezeReflectionKey, PersistentDataType.STRING);
+    }
+    public static void breezeReflectProjectile(LivingEntity headed, Projectile projectile){
+        PersistentDataContainer data = projectile.getPersistentDataContainer();
+        String uuidString = data.get(Key.breezeReflectionKey, PersistentDataType.STRING);
+        String headedUUIDString = headed.getUniqueId().toString();
+        if (uuidString != null && uuidString.matches(headedUUIDString))return;
+        AVFX.playBreezeReflectProjectileEffect(projectile.getLocation());
+        data.set(Key.breezeReflectionKey,PersistentDataType.STRING,headedUUIDString);
+        data.set(Key.abilityProjectile, PersistentDataType.STRING, EntityType.BREEZE.toString());
+
+        ProjectileSource source = projectile.getShooter();
+        Location sourceLoc;
+        if (source == null){
+            projectile.setVelocity(new Vector());
+            return;
+        }else if (source instanceof BlockProjectileSource){
+            sourceLoc = ((BlockProjectileSource)source).getBlock().getLocation().add(0.5,0.5,0.5);
+        }else{
+            LivingEntity livingSource = (LivingEntity) source;
+            sourceLoc = livingSource.getLocation().add(0,0.3,0);
+        }
+        Vector velocity = Util.projectileVector(headed.getEyeLocation(), sourceLoc, 1.7);
+        projectile.setVelocity(new Vector(0,0.1,0));
+        Location shootLoc = headed.getEyeLocation();
+        //shootLoc.setDirection(shootLoc.getDirection().multiply(-1));
+        switch (projectile.getType()){
+            case BREEZE_WIND_CHARGE, WIND_CHARGE, FIREBALL, DRAGON_FIREBALL, SMALL_FIREBALL, EGG, SNOWBALL, LLAMA_SPIT,
+                    SHULKER_BULLET -> {
+                projectile.setShooter(headed);
+            }
+        }
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                projectile.teleport(shootLoc);
+                projectile.setVelocity(velocity);
+            }
+        }.runTaskLater(plugin,1);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                Projectile reflected = (Projectile) Bukkit.getEntity(projectile.getUniqueId());
+                if (reflected == null || reflected.isDead() || reflected.isOnGround()){
+                    cancel();
+                    return;
+                }
+                AVFX.playBreezeReflectionTrailEffect(reflected.getLocation());
+            }
+        }.runTaskTimer(plugin,1,1);
+    }
+
     // Horses (Horse, Donkey, Mule, Skeleton Horse, Zombie Horse) ------------------------------------------------------
-    public static void horseStepUp(Player horse){
-        // Attribute will be added in 1.20.5
+
+    // Blaze -----------------------------------------------------------------------------------------------------------
+    private static final Map<Player,Integer> blazesBoosting = new HashMap<>();
+    public static boolean blazeIsBoosting(Player blaze){
+        return blazesBoosting.containsKey(blaze);
+    }
+    private static final double blazeBoostMaxSpeed = 1.0;
+    private static final int blazeBoostMaxTime = 100;
+    public static void blazeStartBoost(Player blaze){
+        if (blazesBoosting.containsKey(blaze))return;
+        EquipmentSlot hand = EquipmentSlot.HAND;
+        if (!blaze.getInventory().getItemInMainHand().getType().equals(Material.BLAZE_POWDER)){
+            hand = EquipmentSlot.OFF_HAND;
+            if (!blaze.getInventory().getItemInOffHand().getType().equals(Material.BLAZE_POWDER))return;
+        }
+        ItemStack target;
+        if (hand.equals(EquipmentSlot.HAND)){
+            target = blaze.getInventory().getItemInMainHand();
+        }else target = blaze.getInventory().getItemInOffHand();
+        target.setAmount(target.getAmount() - 1);
+        blazesBoosting.put(blaze, blazeBoostMaxTime);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (!blazesBoosting.containsKey(blaze)){
+                    Hud.progressBarEnd(blaze);
+                    cancel();
+                    return;
+                }
+                boolean gliding = blaze.isGliding() && !blaze.isInWater();
+                MobHead mobHead = MobHead.getMobHeadWornByEntity(blaze);
+                boolean hasHead = mobHead != null && mobHead.getEntityType().equals(EntityType.BLAZE);
+                int boost = blazesBoosting.getOrDefault(blaze, 0);
+                if (debug) System.out.println("BlazeBoost: " + boost);
+                if (hasHead) Hud.progressBar(blaze,blazeBoostMaxTime,boost,true,"Blazing:",true);
+                if (boost <= 0 || !hasHead || !gliding){
+                    blazesBoosting.remove(blaze);
+                }else{
+                    boost--;
+                    blazesBoosting.put(blaze, boost);
+                }
+                if ((gliding && hasHead && boost != 0)){
+                    double multiplier = 1.0;
+                    Vector facing = blaze.getLocation().getDirection();
+                    if (facing.getY() > 0.9) multiplier = 2.5;
+                    facing.add(new Vector(0,facing.getY() * multiplier,0));
+                    Vector additional = facing.clone().multiply(0.022);
+                    Vector playerVelocity = blaze.getVelocity();
+                    Vector boostedVelocity = playerVelocity.clone().add(additional);
+                    double speed = boostedVelocity.distance(new Vector());
+                    if (speed < blazeBoostMaxSpeed){
+                        blaze.setVelocity(boostedVelocity);
+                    }else if (debug) System.out.println("MAX SPEED REACHED, THROTTLING.");
+                }
+            }
+        }.runTaskTimer(plugin,0,1);
+    }
+    public static boolean isBlazeFireball(Projectile projectile){
+        if (!(projectile instanceof SmallFireball))return false;
+        SmallFireball fireball = (SmallFireball) projectile;
+        PersistentDataContainer data = fireball.getPersistentDataContainer();
+        return data.has(Key.abilityProjectile, PersistentDataType.STRING);
+    }
+    public static void blazeShootFireball(Player blaze){
+        if (isBlazeOnCooldown(blaze))return;
+        blazeCooldown.add(blaze);
+        blazeAddToCooldown(blaze);
+        Vector direction = blaze.getLocation().getDirection();
+        Vector playerVelocity = blaze.getVelocity();
+        Location origin = blaze.getEyeLocation().add(0,-0.5,0).add(direction);
+        SmallFireball fireball = blaze.launchProjectile(SmallFireball.class, direction.clone().multiply(0.6).add(playerVelocity)); //(SmallFireball) blaze.getWorld().spawnEntity(origin, EntityType.SMALL_FIREBALL);
+        PersistentDataContainer data = fireball.getPersistentDataContainer();
+        data.set(Key.abilityProjectile, PersistentDataType.STRING, "BLAZE");
+
+        //fireball.setShooter(blaze);
+        //fireball.setDirection(direction);
+        fireball.setIsIncendiary(false);
+        AVFX.playBlazeShootFireballEffect(origin);
+    }
+    public static void blazeSetFire(Player blaze, Block block, BlockFace blockFace){
+        if (isBlazeOnCooldown(blaze))return;
+        Block fire = block.getRelative(blockFace);
+        if (!fire.getType().isAir())return;
+        blazeCooldown.add(blaze);
+        blazeAddToCooldown(blaze);
+        Material fireType = Material.FIRE;
+        Block under = fire.getRelative(BlockFace.DOWN);
+        if (under.getType().toString().contains("SOUL")){
+            fireType = Material.SOUL_FIRE;
+        }
+        fire.setType(fireType);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (fire.getType().toString().contains("FIRE")){
+                    AVFX.playBlazeShootFireballEffect(fire.getLocation().add(0.5,0.5,0.5));
+                }
+            }
+        }.runTaskLater(plugin, 1);
+    }
+    private static void blazeAddToCooldown(Player blaze){
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                blazeCooldown.remove(blaze);
+            }
+        }.runTaskLater(plugin, 15);
+    }
+    private static final Set<Player> blazeCooldown = new HashSet<>();
+    private static boolean isBlazeOnCooldown(Player blaze){
+        return blazeCooldown.contains(blaze);
+    }
+    public static void blazeBreakBlock(Player blaze, Location dropLoc, List<Item> droppedItems){
+        boolean smelted = false;
+        List<ItemStack> newDrops = new ArrayList<>();
+        for (Item item:droppedItems){
+            ItemStack itemStack = item.getItemStack();
+            Material newType = null;
+            Iterator<Recipe> iterator = Bukkit.recipeIterator();
+            while (iterator.hasNext()){
+                Recipe recipe = iterator.next();
+                if (!(recipe instanceof FurnaceRecipe))continue;
+                if (!((FurnaceRecipe)recipe).getInputChoice().test(itemStack))continue;
+                newType = recipe.getResult().getType();
+                smelted = true;
+                break;
+            }
+            if (newType != null) itemStack.setType(newType);
+            newDrops.add(itemStack);
+        }
+        World world = blaze.getWorld();
+        for (ItemStack itemStack:newDrops){
+            world.dropItem(dropLoc, itemStack);
+        }
+        if (smelted) AVFX.playBlazeSmeltBlockDropsEffect(dropLoc);
+    }
+
+    // Witch -----------------------------------------------------------------------------------------------------------
+    private static final Map<LivingEntity,Set<EntityDamageEvent.DamageCause>> witchCooldownMap = new HashMap<>();
+    private static boolean witchIsOnCooldown(LivingEntity witch, EntityDamageEvent.DamageCause cause){
+        Set<EntityDamageEvent.DamageCause> causes = witchCooldownMap.getOrDefault(witch, new HashSet<>());
+        return causes.contains(cause);
+    }
+    private static void witchRemoveFromCooldown(LivingEntity witch, EntityDamageEvent.DamageCause cause){
+        Set<EntityDamageEvent.DamageCause> causes = witchCooldownMap.getOrDefault(witch, new HashSet<>());
+        causes.remove(cause);
+        if (causes.size() == 0){
+            witchCooldownMap.remove(witch);
+        }else{
+            witchCooldownMap.put(witch, causes);
+        }
+    }
+    private static void witchAddToCooldown(LivingEntity witch, EntityDamageEvent.DamageCause cause){
+        Set<EntityDamageEvent.DamageCause> causes = witchCooldownMap.getOrDefault(witch, new HashSet<>());
+        causes.add(cause);
+        witchCooldownMap.put(witch, causes);
+    }
+    private static void witchSendHeadsUp(LivingEntity witch, EntityDamageEvent.DamageCause cause, boolean activated){
+        if (!(witch instanceof Player))return;
+        Player player = (Player) witch;
+        List<String> strings = new ArrayList<>();
+        strings.add(ChatColor.YELLOW + "Your");
+        switch (cause){
+            case FIRE -> strings.add("§c§l" + "Fire Resistance Potion");
+            case DROWNING -> strings.add("§9§l" + "Water Breathing Potion");
+            case CUSTOM -> strings.add("§a§l" + "Regeneration Potion");
+            case ENTITY_ATTACK -> strings.add("§6§l" + "Damage Resistance Potion");
+        }
+        if (activated){
+            strings.add(ChatColor.YELLOW + "will recharge in");
+            strings.add("§b§l" + "30");
+            strings.add(ChatColor.YELLOW + "seconds.");
+        }else{
+            strings.add(ChatColor.YELLOW + "is");
+            strings.add("§b§l" + "recharged" + ChatColor.YELLOW + ".");
+        }
+        Hud.headsUp(player,strings);
+    }
+
+    private static void witchDamageReaction(LivingEntity witch, EntityDamageEvent.DamageCause cause) {
+        PotionEffect regen = PotionEffectManager.buildSimpleEffect(PotionEffectType.REGENERATION, 2, 10 * 20);
+        Map<EntityDamageEvent.DamageCause, PotionEffect> causeEffectMap = new HashMap<>();
+        switch (cause) {
+            case FIRE, FIRE_TICK, LAVA, HOT_FLOOR -> {
+                cause = EntityDamageEvent.DamageCause.FIRE;
+                causeEffectMap.put(cause, PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE, 1, 10 * 20));
+            }
+            case DROWNING -> {
+                causeEffectMap.put(cause, PotionEffectManager.buildSimpleEffect(PotionEffectType.WATER_BREATHING, 1, 10 * 20));
+            }
+            case POISON, WITHER -> {
+                cause = EntityDamageEvent.DamageCause.CUSTOM;
+                causeEffectMap.put(cause, regen);
+            }
+            case CONTACT, PROJECTILE, ENTITY_ATTACK, ENTITY_SWEEP_ATTACK, SONIC_BOOM, MAGIC, DRAGON_BREATH, BLOCK_EXPLOSION, ENTITY_EXPLOSION -> {
+                cause = EntityDamageEvent.DamageCause.ENTITY_ATTACK;
+                causeEffectMap.put(cause, PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE, 1, 10 * 20));
+            }
+        }
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if (witch.isDead())return; // ~Ding Dong~
+                if (witch.getHealth() <= 6) {
+                    causeEffectMap.put(EntityDamageEvent.DamageCause.CUSTOM, regen);
+                }
+                if (causeEffectMap.size() == 0)return;
+                AVFX.playWitchDrinkPotionEffect(witch.getEyeLocation());
+                for (EntityDamageEvent.DamageCause dc : causeEffectMap.keySet()) {
+                    if (witchIsOnCooldown(witch, dc))continue;
+                    witchSendHeadsUp(witch, dc, true);
+                    witchAddToCooldown(witch, dc);
+                    PotionEffect effect = causeEffectMap.get(dc);
+                    PotionEffectManager.addEffectToEntity(witch, effect);
+                    new BukkitRunnable(){
+                        @Override
+                        public void run() {
+                            witchRemoveFromCooldown(witch, dc);
+                            witchSendHeadsUp(witch, dc, false);
+                        }
+                    }.runTaskLater(plugin, 30*20);
+                }
+            }
+        }.runTaskLater(plugin, 1);
     }
 
     // Snowman ---------------------------------------------------------------------------------------------------------
@@ -284,18 +790,19 @@ public class CreatureEvents {
         return snowmanHarvestCooldown.contains(snowman);
     }
     private static final List<PotionEffect> snowmanHarvestPenalties = List.of(
-            PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW, 2, 8*20),
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS, 2, 8*20),
             PotionEffectManager.buildSimpleEffect(PotionEffectType.WEAKNESS, 1, 8*20)
     );
     public static void snowmanHarvestSelf(Player snowman){
         if (snowmanIsOnCooldown(snowman))return;
         AVFX.playSnowmanHarvestSelfEffect(snowman.getLocation());
         int amount = new Random().nextInt(8,17);
-        MobHeadsV3.messagePlayer(snowman,
+        List<String> message = List.of(
                 ChatColor.YELLOW + "You harvest your body for " +
-                ChatColor.AQUA + amount +
-                ChatColor.YELLOW + " Snowballs..."
+                        "§b§l" + amount +
+                        ChatColor.YELLOW + " Snowballs..."
         );
+        Hud.headsUp(snowman, message);
         snowman.damage(3);
         PotionEffectManager.addEffectsToEntity(snowman, snowmanHarvestPenalties);
         ItemStack snowballs = new ItemStack(Material.SNOWBALL, amount);
@@ -341,7 +848,7 @@ public class CreatureEvents {
             int freezeTime = damageable.getFreezeTicks() + (3*20);
             if (freezeTime > damageable.getMaxFreezeTicks()) freezeTime = damageable.getMaxFreezeTicks();
             if (damageable instanceof LivingEntity){
-                PotionEffect slow = PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,1,3*20);
+                PotionEffect slow = PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,1,3*20);
                 PotionEffectManager.addEffectToEntity(((LivingEntity)damageable),slow);
             }
             damageable.setFreezeTicks(freezeTime);
@@ -590,27 +1097,27 @@ public class CreatureEvents {
         List<PotionEffect> chestedEffects = chestedPotionEffects(livingEntity, headType);
         Map<PotionEffectType, PotionEffect> chestedEffectMap = new HashMap<>();
         for (PotionEffect potionEffect:chestedEffects) chestedEffectMap.put(potionEffect.getType(), potionEffect);
-        if (chestedEffectMap.containsKey(PotionEffectType.SLOW)){
+        if (chestedEffectMap.containsKey(PotionEffectType.SLOWNESS)){
             if (livingEntity.hasPotionEffect(PotionEffectType.SPEED)){
                 PotionEffect speed = livingEntity.getPotionEffect(PotionEffectType.SPEED);
                 assert speed != null;
                 if (speed.getDuration() != -1) livingEntity.removePotionEffect(PotionEffectType.SPEED);
             }
         }else if (chestedEffectMap.containsKey(PotionEffectType.SPEED)){
-            if (livingEntity.hasPotionEffect(PotionEffectType.SLOW)){
-                PotionEffect slow = livingEntity.getPotionEffect(PotionEffectType.SLOW);
+            if (livingEntity.hasPotionEffect(PotionEffectType.SLOWNESS)){
+                PotionEffect slow = livingEntity.getPotionEffect(PotionEffectType.SLOWNESS);
                 assert slow != null;
-                if (slow.getDuration() != -1) livingEntity.removePotionEffect(PotionEffectType.SLOW);
+                if (slow.getDuration() != -1) livingEntity.removePotionEffect(PotionEffectType.SLOWNESS);
             }
         }
-        if (livingEntity.hasPotionEffect(PotionEffectType.SLOW)){
-            PotionEffect slow = livingEntity.getPotionEffect(PotionEffectType.SLOW);
+        if (livingEntity.hasPotionEffect(PotionEffectType.SLOWNESS)){
+            PotionEffect slow = livingEntity.getPotionEffect(PotionEffectType.SLOWNESS);
             assert slow != null;
-            if (!chestedEffectMap.containsKey(PotionEffectType.SLOW)){
-                if (slow.getDuration() == -1) livingEntity.removePotionEffect(PotionEffectType.SLOW);
+            if (!chestedEffectMap.containsKey(PotionEffectType.SLOWNESS)){
+                if (slow.getDuration() == -1) livingEntity.removePotionEffect(PotionEffectType.SLOWNESS);
             }else{
-                PotionEffect newSlow = chestedEffectMap.get(PotionEffectType.SLOW);
-                if (!slow.equals(newSlow)) livingEntity.removePotionEffect(PotionEffectType.SLOW);
+                PotionEffect newSlow = chestedEffectMap.get(PotionEffectType.SLOWNESS);
+                if (!slow.equals(newSlow)) livingEntity.removePotionEffect(PotionEffectType.SLOWNESS);
             }
         }
         if (livingEntity.hasPotionEffect(PotionEffectType.SPEED)){
@@ -637,7 +1144,7 @@ public class CreatureEvents {
     }
     private static List<PotionEffect> chestedMaxPenalty(){
         List<PotionEffect> effects = new ArrayList<>();
-        effects.add(PotionEffectManager.headEffect(PotionEffectType.SLOW, 5, -1, false));
+        effects.add(PotionEffectManager.headEffect(PotionEffectType.SLOWNESS, 5, -1, false));
         effects.add(PotionEffectManager.headEffect(PotionEffectType.WITHER, 1, -1, true));
         return effects;
     }
@@ -662,7 +1169,7 @@ public class CreatureEvents {
             return effects;
         }else{
             if (speed >= -5){
-                effects.add(PotionEffectManager.headEffect(PotionEffectType.SLOW, speed * -1, -1, false));
+                effects.add(PotionEffectManager.headEffect(PotionEffectType.SLOWNESS, speed * -1, -1, false));
                 return effects;
             }else{
                 return chestedMaxPenalty();
@@ -867,11 +1374,11 @@ public class CreatureEvents {
         return reduced;
     }
 
-    // Skeletons (Skeleton, Wither, Wither Skeleton, Skeleton Horse, Stray) --------------------------------------------
+    // Skeletons (Skeleton, Wither, Wither Skeleton, Skeleton Horse, Stray, Bogged) --------------------------------------------
     private static final List<PotionEffect> skeletonMilkEffects = List.of(
             PotionEffectManager.buildSimpleEffect(PotionEffectType.REGENERATION,1,5*60*20),
             PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,1,5*60*20),
-            PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,5*60*20)
+            PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,1,5*60*20)
     );
     public static void skeletonDrinkMilk(Player player){
         new BukkitRunnable(){
@@ -1100,7 +1607,7 @@ public class CreatureEvents {
 
     // Cat / Ocelot ----------------------------------------------------------------------------------------------------
     public static void catJumpFive(Player player, boolean sneaking){
-        PotionEffect jumpFive = PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,5,-1);
+        PotionEffect jumpFive = PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP_BOOST,5,-1);
         if (sneaking){
             PotionEffectManager.addEffectToEntity(player, jumpFive);
         }else{
@@ -1201,10 +1708,15 @@ public class CreatureEvents {
                 if (eaten instanceof Player){
                     eaten.teleport(player.getLocation().add(0,0.2,0));
                 }
-                ((Damageable)eaten).damage(0,player);
+                ((Damageable)eaten).damage(0, player);
                 Vector velocity = Util.getDirection(eaten.getLocation().toVector(),player.getEyeLocation().add(0,-0.5,0).toVector());
                 eaten.setVelocity(velocity);
-                ((Damageable)eaten).setHealth(0);
+                new BukkitRunnable(){
+                    @Override
+                    public void run() {
+                        ((Damageable)eaten).setHealth(0);
+                    }
+                }.runTaskLater(plugin,3);
             }else if (frogInstantRemove.contains(eaten.getType())){
                 eaten.remove();
             }
@@ -1227,23 +1739,23 @@ public class CreatureEvents {
                         case COW -> {
                             for (PotionEffect effect:player.getActivePotionEffects()){
                                 PotionEffectType type = effect.getType();
-                                if (!type.equals(PotionEffectType.JUMP)) player.removePotionEffect(type);
+                                if (!type.equals(PotionEffectType.JUMP_BOOST)) player.removePotionEffect(type);
                             }
                             AVFX.playFrogEatCowEffect(inFront);
                         }
                         case CREEPER -> {creeperExplosion(player);}
-                        case SNOWMAN -> {player.setFreezeTicks(player.getMaxFreezeTicks());}
+                        case SNOW_GOLEM -> {player.setFreezeTicks(player.getMaxFreezeTicks());}
                         case SHULKER_BULLET -> {AVFX.playShulkerAfflictionEffect(player.getLocation(),player.getEyeHeight(),false);}
                         case FIREBALL, DRAGON_FIREBALL -> {
                             EntityType ballType = eaten.getType();
                             Fireball fireball = (Fireball) player.getWorld().spawnEntity(inFront,ballType);
                             fireball.setVelocity(player.getLocation().getDirection());
                             if (player.getFireTicks() == 0) player.setFireTicks(20);
-                            AVFX.playFrogFireballSpit(inFront);
+                            AVFX.playFrogFireballSpitEffect(inFront);
                         }
                     }
                     if (eaten instanceof LivingEntity) AVFX.playFrogEatenSounds(inFront,eaten.getType());
-                    eaten.remove();
+                    if (!(eaten instanceof Player)) eaten.remove();
                 }
             }.runTaskLater(MobHeadsV3.getPlugin(),8);
         }
@@ -1327,14 +1839,14 @@ public class CreatureEvents {
             }
             case MAGMA_CUBE -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE,1,3600));
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,2,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP_BOOST,2,3600));
             }
             case GHAST, BLAZE -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE,1,3600));
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW_FALLING,1,3600));
             }
             case RABBIT, FROG, SLIME -> {
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,2,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP_BOOST,2,3600));
             }
             case CHICKEN, PARROT -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW_FALLING,1,3600));
@@ -1346,19 +1858,19 @@ public class CreatureEvents {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DOLPHINS_GRACE,1,3600));
             }
             case IRON_GOLEM -> {
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,2,3600));
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,2,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,2,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,2,3600));
             }
             case RAVAGER -> {
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,1,3600));
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,3600));
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.INCREASE_DAMAGE,1,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,1,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,1,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.STRENGTH,1,3600));
             }
             case PUFFERFISH, BEE, CAVE_SPIDER -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.POISON,1,300));
             }
             case GIANT -> {
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,4,1200));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,4,1200));
             }
             case WITHER_SKELETON -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.WITHER,1,300));
@@ -1376,9 +1888,9 @@ public class CreatureEvents {
             }
             case CAT,OCELOT -> {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SPEED,1,3600));
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP,2,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.JUMP_BOOST,2,3600));
             }
-            case TURTLE,GUARDIAN -> {effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.DAMAGE_RESISTANCE,1,3600));}
+            case TURTLE,GUARDIAN,ARMADILLO -> {effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,1,3600));}
         }
         return effects;
     }
@@ -1397,8 +1909,8 @@ public class CreatureEvents {
             AttributeInstance maxHealthAttribute = ((LivingEntity)eaten).getAttribute(Attribute.GENERIC_MAX_HEALTH);
             if (maxHealthAttribute != null) maxHealth = maxHealthAttribute.getValue();
         }
-        hunger = (int) Math.ceil(maxHealth * 0.3);
-        saturation = (float) Math.ceil(maxHealth * 0.15);
+        hunger = (int) Math.ceil(maxHealth * 0.35);
+        saturation = (float) Math.ceil(maxHealth * 0.25);
 
         return List.of(hunger,saturation,air);
     }
@@ -1427,25 +1939,98 @@ public class CreatureEvents {
 
     // Sniffer ---------------------------------------------------------------------------------------------------------
     private static final Set<Material> snifferSusMaterials = Set.of(Material.SUSPICIOUS_GRAVEL,Material.SUSPICIOUS_SAND);
-    public static void snifferHighlightSus(Player player){
-        List<Block> nearbySus = new ArrayList<>();
-        //List<Block> nearbyBlocks = Util.getNearbyBlocks(player.getLocation(),4,4,4);
-        List<Block> nearbyBlocks = Util.getFirstFromSkyBlocks(player.getLocation(),10);
-        for (Block block:nearbyBlocks){
-            if (!snifferSusMaterials.contains(block.getType()))continue;
-            int difference = block.getY() - player.getLocation().getBlockY();
-            if (difference > 15 || difference < -20){
-                if (debug) System.out.println("Sus block too high/low!"); //debug
-                continue;
+//    public static void snifferHighlightSus(Player player){
+//        List<Block> nearbySus = new ArrayList<>();
+//        //List<Block> nearbyBlocks = Util.getNearbyBlocks(player.getLocation(),4,4,4);
+//        List<Block> nearbyBlocks = Util.getFirstFromSkyBlocks(player.getLocation(),10);
+//        for (Block block:nearbyBlocks){
+//            if (!snifferSusMaterials.contains(block.getType()))continue;
+//            int difference = block.getY() - player.getLocation().getBlockY();
+//            if (difference > 15 || difference < -20){
+//                if (debug) System.out.println("Sus block too high/low!"); //debug
+//                continue;
+//            }
+//            nearbySus.add(block);
+//        }
+//        if (debug) System.out.println("nearbySus.size(): " + nearbySus.size()); //debug
+//        if (nearbySus.size() == 0)return;
+//        for (Block sus:nearbySus){
+//            Location origin = sus.getLocation().add(0.5,0.5,0.5);
+//            Packets.susParticles(player, origin);
+//        }
+//    }
+    private static final Set<Player> sniffersOnSniffCooldown = new HashSet<>();
+    private static void snifferSniff(Player player){
+        if (sniffersOnSniffCooldown.contains(player))return;
+        sniffersOnSniffCooldown.add(player);
+        Hud.headsUp(player, List.of(ChatColor.YELLOW + "You smell something" + ChatColor.RED + " sus " + ChatColor.YELLOW + "nearby!"));
+        AVFX.playSnifferSniffEffect(player.getEyeLocation().add(player.getLocation().getDirection()));
+        Random random = new Random();
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                sniffersOnSniffCooldown.remove(player);
             }
-            nearbySus.add(block);
+        }.runTaskLater(plugin, random.nextInt(10*20,16*20));
+    }
+    private static final Map<Player,Integer> snifferScanDelayMap = new HashMap<>();
+    public static void snifferHighlightSusNew(Player player){
+        int delay = snifferScanDelayMap.getOrDefault(player, 0);
+        delay++;
+        if (delay != 1 && delay < 4){
+            snifferScanDelayMap.put(player, delay);
+            return;
+        }else if (delay == 4){
+            snifferScanDelayMap.remove(player);
+            return;
         }
-        if (debug) System.out.println("nearbySus.size(): " + nearbySus.size()); //debug
-        if (nearbySus.size() == 0)return;
-        for (Block sus:nearbySus){
-            Location origin = sus.getLocation().add(0.5,0.5,0.5);
-            Packets.susParticles(player, origin);
+        snifferScanDelayMap.put(player, delay);
+        Location playerOrigin = player.getEyeLocation().add(0,-1,0);
+        List<Block> nearbyBlocks = Util.getNearbyBlocks(player.getLocation(), 12,12,12);
+        List<Block> susBlocks = new ArrayList<>();
+        List<Block> spawners = new ArrayList<>();
+        List<Block> chests = new ArrayList<>();
+        List<StorageMinecart> minecartChests = player.getNearbyEntities(12,12,12).stream()
+                .filter(entity -> entity instanceof StorageMinecart)
+                .map(StorageMinecart.class::cast)
+                .filter(storageMinecart -> storageMinecart.getSeed() != 0)
+                .collect(Collectors.toList())
+        ;
+        if (nearbyBlocks.size() == 0)return;
+        for (Block nearby:nearbyBlocks){
+            Material material = nearby.getType();
+            if (snifferSusMaterials.contains(material)) susBlocks.add(nearby);
+            if (material.equals(Material.SPAWNER) || material.equals(Material.TRIAL_SPAWNER)) spawners.add(nearby);
+            if (material.equals(Material.CHEST)){
+                Chest chest = (Chest) nearby.getState();
+                if (chest.getSeed() != 0) chests.add(nearby);
+            }
+//            if (material.equals(Material.VAULT)){
+//                Vault vault = (Vault) nearby.getState();
+//                if (debug) System.out.println(vault.getMetadata("{server_data:{rewarded_players}}"));
+//                nearby.get
+//                chests.add(nearby);
+//            }
         }
+        if (susBlocks.size() != 0 || spawners.size() != 0 || chests.size() != 0 || minecartChests.size() != 0){
+            snifferSniff(player);
+        }else return;
+        for (Block block:susBlocks){
+            Packets.susParticles(player, block.getLocation().add(0.5,1,0.5), 0);
+            Packets.susTrailParticles(player, playerOrigin, block.getLocation().add(0.5,0.5,0.5), 0);
+        }
+        for (Block block:spawners){
+            Packets.susParticles(player, block.getLocation().add(0.5,1,0.5), 1);
+            Packets.susTrailParticles(player, playerOrigin, block.getLocation().add(0.5,0.5,0.5), 1);
+        }
+        for (Block block:chests){
+            Packets.susParticles(player, block.getLocation().add(0.5,1,0.5), 2);
+            Packets.susTrailParticles(player, playerOrigin, block.getLocation().add(0.5,0.5,0.5), 2);
+        }
+//        for (StorageMinecart cart:minecartChests){
+//            Packets.susParticles(player, cart.getLocation().add(0,0.5,0), 2);
+//            Packets.susTrailParticles(player, playerOrigin, cart.getLocation().add(0,0.5,0), 2);
+//        }
     }
 
     // Camel -----------------------------------------------------------------------------------------------------------
@@ -1512,8 +2097,9 @@ public class CreatureEvents {
     // Enderman --------------------------------------------------------------------------------------------------------
     private static void endermanTeleport(LivingEntity target, Location destination){
         AVFX.playEndermanTeleportSound(target.getLocation());
-        target.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
         AVFX.playEndermanTeleportSound(destination);
+        AVFX.playEndermanTeleportEffect(target.getLocation(), destination);
+        target.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
     public static void endermanTeleportNearby(LivingEntity target, boolean instant){
         if (debug) System.out.println("endermanTeleportNearby()"); //debug
@@ -1577,8 +2163,6 @@ public class CreatureEvents {
         }
     }
     public static void creeperExplodeGunpowder(PlayerInteractEvent pie){
-        Block block = pie.getClickedBlock();
-        if (block != null && block.getType().isInteractable())return;
         Player player = pie.getPlayer();
         if (isCreeperOnCooldown(player))return;
         PlayerInventory inv = player.getInventory();
@@ -1870,6 +2454,8 @@ public class CreatureEvents {
         }
     }
 
+
+
     // Pig -------------------------------------------------------------------------------------------------------------
     public static void pigGobble(PlayerInteractEvent pie){
         if (debug) System.out.println("pigGobble()"); //debug
@@ -1939,14 +2525,6 @@ public class CreatureEvents {
         }
         Location origin = originBlock.getRelative(direction.getOppositeFace()).getLocation().add(0.5,0.5,0.5);
         AVFX.playGoatBreakBlockSound(origin,brokenBlockMats,brokenBlockLocs);
-    }
-    private static List<LivingEntity> nearbyLivingEnts(Location origin, double x, double y, double z){
-        World world = origin.getWorld();
-        if (world == null)return new ArrayList<>();
-        return world.getNearbyEntities(origin,x,y,z).stream()
-                .filter(entity -> entity instanceof LivingEntity).map(LivingEntity.class::cast)
-                .collect(Collectors.toList()
-        );
     }
     private static final Map<LivingEntity,UUID> goatRecentlyHitMap = new HashMap<>();
     public static boolean isOnGoatRecentlyHit(LivingEntity livingEntity){
@@ -2059,7 +2637,7 @@ public class CreatureEvents {
                 if (!tooSlow){
                     addToGoatPhysicalAttackImmune(player);
                     AVFX.playGoatRamTrail(player.getLocation());
-                    List<LivingEntity> hitEnts = nearbyLivingEnts(damageOrigin,0.75,1.5,0.75);
+                    List<LivingEntity> hitEnts = Util.nearbyLivingEnts(damageOrigin,0.75,1.5,0.75);
                     if (hitEnts.size() != 0){
                         boolean hit = false;
                         for (LivingEntity livingEntity:hitEnts){
@@ -2144,6 +2722,108 @@ public class CreatureEvents {
     }
 
     // Ender Dragon ----------------------------------------------------------------------------------------------------
+    private static final Set<Player> dragonBottleCooldown = new HashSet<>();
+    private static final Set<Player> dragonBreathCooldown = new HashSet<>();
+    //private static final int dragonBottleCooldownLength = 6;
+    public static void dragonFillBottle(Player dragon){
+        if (debug) System.out.println("dragonFillBottle()");
+        if (dragonBottleCooldown.contains(dragon))return;
+        dragonBottleCooldown.add(dragon);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                dragonBottleCooldown.remove(dragon);
+            }
+        }.runTaskLater(plugin,6);
+        EquipmentSlot hand = EquipmentSlot.HAND;
+        if (!dragon.getInventory().getItemInMainHand().getType().equals(Material.GLASS_BOTTLE)){
+            hand = EquipmentSlot.OFF_HAND;
+            if (!dragon.getInventory().getItemInOffHand().getType().equals(Material.GLASS_BOTTLE))return;
+        }
+        ItemStack target;
+        if (hand.equals(EquipmentSlot.HAND)){
+            target = dragon.getInventory().getItemInMainHand();
+        }else target = dragon.getInventory().getItemInOffHand();
+        target.setAmount(target.getAmount() - 1);
+        for (ItemStack overflow:dragon.getInventory().addItem(new ItemStack(Material.DRAGON_BREATH)).values()){
+            dragon.getWorld().dropItem(dragon.getLocation(),overflow);
+        }
+        AVFX.playEnderDragonFillBottleEffect(dragon.getEyeLocation().add(dragon.getLocation().getDirection()));
+    }
+    private static final int dragonBreathPerVolley = 4;
+    private static final double dragonBreathDeviation = 0.2;
+    public static void dragonUseBreathAttack(Player dragon){
+        if (dragonBreathCooldown.contains(dragon))return;
+        dragonBreathCooldown.add(dragon);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                dragonBreathCooldown.remove(dragon);
+            }
+        }.runTaskLater(plugin,30);
+        EquipmentSlot hand = EquipmentSlot.HAND;
+        if (!dragon.getInventory().getItemInMainHand().getType().equals(Material.DRAGON_BREATH)){
+            hand = EquipmentSlot.OFF_HAND;
+            if (!dragon.getInventory().getItemInOffHand().getType().equals(Material.DRAGON_BREATH))return;
+        }
+        ItemStack target;
+        if (hand.equals(EquipmentSlot.HAND)){
+            target = dragon.getInventory().getItemInMainHand();
+        }else target = dragon.getInventory().getItemInOffHand();
+        target.setAmount(target.getAmount() - 1);
+        for (ItemStack overflow:dragon.getInventory().addItem(new ItemStack(Material.GLASS_BOTTLE)).values()){
+            dragon.getWorld().dropItem(dragon.getLocation(),overflow);
+        }
+        for (int i = 0; i < 4; i++) {
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    dragonShootBreath(dragon);
+                }
+            }.runTaskLater(plugin,i * 4);
+        }
+    }
+    private static void dragonShootBreath(Player dragon){
+        Vector facing = dragon.getLocation().getDirection();
+        Random random = new Random();
+        for (int i = 0; i < dragonBreathPerVolley; i++) {
+            double xDev = random.nextDouble(-dragonBreathDeviation, dragonBreathDeviation);
+            double yDev = random.nextDouble(-dragonBreathDeviation, dragonBreathDeviation);
+            double zDev = random.nextDouble(-dragonBreathDeviation, dragonBreathDeviation);
+            Vector deviation = new Vector(xDev, yDev, zDev);
+            Vector velocity = facing.clone().add(deviation);
+            Snowball breath = dragon.launchProjectile(Snowball.class, velocity);
+            breath.setVisibleByDefault(false);
+            PersistentDataContainer data = breath.getPersistentDataContainer();
+            data.set(Key.abilityProjectile,PersistentDataType.STRING, EntityType.ENDER_DRAGON.toString());
+            AVFX.playEnderDragonShootBreathEffect(dragon.getLocation().add(facing));
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    if (breath.isDead())cancel();
+                    AVFX.playEnderDragonBreathTrailEffect(breath.getLocation());
+                }
+            }.runTaskTimer(plugin,2,2);
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    breath.remove();
+                }
+            }.runTaskLater(plugin,10);
+        }
+    }
+    public static boolean isDragonBreath(Projectile projectile){
+        if (!projectile.getType().equals(EntityType.SNOWBALL))return false;
+        PersistentDataContainer data = projectile.getPersistentDataContainer();
+        String abilityType = data.get(Key.abilityProjectile, PersistentDataType.STRING);
+        return abilityType != null && abilityType.matches(EntityType.ENDER_DRAGON.toString());
+    }
+    public static void dragonBreathLandHit(Entity target){
+        if (!(target instanceof LivingEntity))return;
+        LivingEntity livingTarget = (LivingEntity) target;
+
+    }
+
     private static final Map<Player,Integer> enderDragonBoostMap = new HashMap<>();
     private static Map<Player,Integer> getEnderDragonBoostMap(){
         return enderDragonBoostMap;
@@ -2190,6 +2870,9 @@ public class CreatureEvents {
             @Override
             public void run() {
                 boolean gliding = player.isGliding() && !player.isInWater();
+                double speed = player.getVelocity().distance(new Vector(0,0,0));
+                Vector facing = player.getLocation().getDirection();
+                if (debug && gliding) System.out.println("Facing: " + facing + "\nGlide Velocity: " + player.getVelocity() + "\nSpeed: " + speed);
                 boolean sneaking = player.isSneaking();
                 boolean continuous = enderDragonContinuousBoost.contains(player);
                 boolean aboveMinimum = enderDragonBoostAboveMinimum(player);
@@ -2245,6 +2928,8 @@ public class CreatureEvents {
             }.runTaskLater(MobHeadsV3.getPlugin(),20);
         }
     }
+
+    private static final double dragonMaxVelocity = 1.6;
     private static void enderDragonElytraBoost(Player player, boolean takeoff){
         if (takeoff){
             playEnderDragonBoostSound(player);
@@ -2253,26 +2938,37 @@ public class CreatureEvents {
                 enderDragonBoostClock(player);
             }
         }else{
-            int boost = getEnderDragonBoostValue(player);
-            Vector velocity = player.getVelocity().multiply(1.05);
-            // target speed of 1.4
-            double facingY = player.getLocation().getDirection().getY();
-            double newY = velocity.getY();
-            double y = Math.abs(velocity.getY());
-            if (facingY > 0.9){
-                newY = y * 2;
-            }else if (facingY > 0.5) newY = y * facingY * 1.3;
-            if (newY > 1.4) newY = 1.4;
-            velocity.setY(newY);
-            if (debug) System.out.println("facingY: " + facingY); //debug
-            double x = Math.abs(velocity.getX());
-            y = Math.abs(velocity.getY());
-            double z = Math.abs(velocity.getZ());
-            double speed = x + y + z;
-            if (speed < 1.4) player.setVelocity(velocity);
-            if (debug) System.out.println("enderDragonElytraBoost()\nboost: " + boost + "\nspeed: " + speed); //debug
-            if (debug) System.out.println("yVelocity: " + y); //debug
+//            Vector velocity = player.getVelocity().multiply(1.05);
+//            // target speed of 1.4
+//            double facingY = player.getLocation().getDirection().getY();
+//            double newY = velocity.getY();
+//            double y = Math.abs(velocity.getY());
+//            if (facingY > 0.9){
+//                newY = y * 2;
+//            }else if (facingY > 0.5) newY = y * facingY * 1.3;
+//            if (newY > 1.4) newY = 1.4;
+//            velocity.setY(newY);
+//            if (debug) System.out.println("facingY: " + facingY); //debug
+//            double x = Math.abs(velocity.getX());
+//            y = Math.abs(velocity.getY());
+//            double z = Math.abs(velocity.getZ());
+//            double speed = x + y + z;
+//            if (speed < 1.4) player.setVelocity(velocity);
+//            if (debug) System.out.println("enderDragonElytraBoost()\nboost: " + boost + "\nspeed: " + speed); //debug
+//            if (debug) System.out.println("yVelocity: " + y); //debug
+            double multiplier = 1.0;
+            Vector facing = player.getLocation().getDirection();
+            if (facing.getY() > 0.9) multiplier = 2.5;
+            facing.add(new Vector(0,facing.getY() * multiplier,0));
+            Vector additional = facing.clone().multiply(0.03);
+            Vector playerVelocity = player.getVelocity();
+            Vector boostedVelocity = playerVelocity.clone().add(additional);
+            double speed = boostedVelocity.distance(new Vector());
+            if (speed < dragonMaxVelocity){
+                player.setVelocity(boostedVelocity);
+            }else if (debug) System.out.println("MAX SPEED REACHED, THROTTLING.");
 
+            int boost = getEnderDragonBoostValue(player);
             boost = boost - 5;
             if (boost < 0) boost = 0;
             updateEnderDragonBoostMap(player,boost);
@@ -2442,7 +3138,7 @@ public class CreatureEvents {
 
     // Elder Guardian --------------------------------------------------------------------------------------------------
     private static void runElderGuardianAfflictionFX(LivingEntity target){
-        boolean hasFatigue = target.hasPotionEffect(PotionEffectType.SLOW_DIGGING);
+        boolean hasFatigue = target.hasPotionEffect(PotionEffectType.MINING_FATIGUE);
         if (!hasFatigue) AVFX.playElderGuardianFatigueSound(target.getEyeLocation());
     }
 
@@ -2478,7 +3174,7 @@ public class CreatureEvents {
 
     // Sheep -----------------------------------------------------------------------------------------------------------
     private static final Set<Material> sheepEdibleList = Set.of(
-            Material.GRASS_BLOCK, Material.GRASS, Material.TALL_GRASS, Material.PODZOL, Material.MYCELIUM,
+            Material.GRASS_BLOCK, Material.SHORT_GRASS, Material.TALL_GRASS, Material.PODZOL, Material.MYCELIUM,
             Material.CRIMSON_NYLIUM, Material.WARPED_NYLIUM, Material.NETHER_SPROUTS, Material.CRIMSON_ROOTS,
             Material.WARPED_ROOTS, Material.HANGING_ROOTS
     );
@@ -2499,8 +3195,8 @@ public class CreatureEvents {
             Material.GRASS_BLOCK, Material.PODZOL, Material.MYCELIUM, Material.CRIMSON_NYLIUM, Material.WARPED_NYLIUM
     );
     private static final Map<Material,PotionEffect> sheepEatEffectMap = Map.of( // default none
-            Material.PODZOL, PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOW,1,10*20),
-            Material.MYCELIUM, PotionEffectManager.buildSimpleEffect(PotionEffectType.CONFUSION,1,10*20),
+            Material.PODZOL, PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,1,10*20),
+            Material.MYCELIUM, PotionEffectManager.buildSimpleEffect(PotionEffectType.NAUSEA,1,10*20),
             Material.CRIMSON_ROOTS, PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE,1,120*20),
             Material.WARPED_ROOTS, PotionEffectManager.buildSimpleEffect(PotionEffectType.FIRE_RESISTANCE,1,60*20),
             Material.HANGING_ROOTS, PotionEffectManager.buildSimpleEffect(PotionEffectType.REGENERATION,1,30*20)
@@ -2623,7 +3319,7 @@ public class CreatureEvents {
         boolean sus = false;
         boolean sneaking = milkingPlayer.isSneaking();
         if (self && !sneaking)return;
-        if (cowType.equals(EntityType.MUSHROOM_COW)) stew = true;
+        if (cowType.equals(EntityType.MOOSHROOM)) stew = true;
         if (mobHead.getVariant() != null && mobHead.getVariant().equals("BROWN")) sus = true;
         List<PotionEffect> addedEffects = new ArrayList<>();
         if (sus) addedEffects = getBrownMooshroomEffects(milkedEnt);
@@ -2786,7 +3482,7 @@ public class CreatureEvents {
         map.put(Material.AZURE_BLUET, PotionEffectType.BLINDNESS);
         map.put(Material.BLUE_ORCHID, PotionEffectType.SATURATION);
         map.put(Material.DANDELION, PotionEffectType.SATURATION);
-        map.put(Material.CORNFLOWER, PotionEffectType.JUMP);
+        map.put(Material.CORNFLOWER, PotionEffectType.JUMP_BOOST);
         map.put(Material.LILY_OF_THE_VALLEY, PotionEffectType.POISON);
         map.put(Material.OXEYE_DAISY, PotionEffectType.REGENERATION);
         map.put(Material.POPPY, PotionEffectType.NIGHT_VISION);
@@ -2803,7 +3499,7 @@ public class CreatureEvents {
         map.put(PotionEffectType.FIRE_RESISTANCE, 4*20);
         map.put(PotionEffectType.BLINDNESS, 8*20);
         map.put(PotionEffectType.SATURATION, 7);
-        map.put(PotionEffectType.JUMP, 6*20);
+        map.put(PotionEffectType.JUMP_BOOST, 6*20);
         map.put(PotionEffectType.POISON, 12*20);
         map.put(PotionEffectType.REGENERATION, 8*20);
         map.put(PotionEffectType.NIGHT_VISION, 5*20);

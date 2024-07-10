@@ -5,8 +5,10 @@ import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadItemStack;
 import io.github.shinyumbreon197.mobheadsv3.itemStack.HeadLootItemStack;
+import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +45,7 @@ public class HeadData {
         list.addAll(Llamas());
         list.addAll(TraderLlamas());
         list.add(Bee());
-        //list.add(Armadillo());
+        list.add(Armadillo());
         list.add(Bat());
         list.addAll(Rabbits());
         list.addAll(Foxes());
@@ -76,13 +78,14 @@ public class HeadData {
         list.add(Creeper());
         list.add(Skeleton());
         list.add(Stray());
+        list.add(Bogged());
         list.add(Zombie());
         list.add(Drowned());
         list.add(Husk());
         list.addAll(ZombieVillagers());
         list.add(Spider());
         list.add(CaveSpider());
-        //list.add(Breeze());
+        list.add(Breeze());
         list.add(Silverfish());
         list.add(Slime());
         list.add(Phantom());
@@ -134,7 +137,7 @@ public class HeadData {
                 "Right-Click while holding gunpowder", "to create an explosion that", "damages and sends nearby",
                 "creatures flying!"
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_EXPLOSIONS, 4);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.BLAST_PROTECTION, 4);
         ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid, enchants);
         return new MobHead(
                 uuid,
@@ -152,7 +155,10 @@ public class HeadData {
         EntityType entityType = EntityType.ENDER_DRAGON;
         List<String> lore = List.of(
                 "Enhanced Elytra Flight.", "Sneak-Jump while grounded to", "get a boost into the air.",
-                "Hold Sneak while gliding to", "get a boost of speed."
+                "Hold Sneak while gliding to", "get a boost of speed.",
+                "Right-Click with a Bottle of Dragon's Breath", "to unleash several damaging bursts",
+                "of breath in front of you.", "Sneak-Right-Click with an empty bottle",
+                "to fill it with Dragon's Breath."
         );
         ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid);
         return new MobHead(
@@ -170,7 +176,7 @@ public class HeadData {
         List<String> lore = List.of(
                 "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_PROJECTILE, 3);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROJECTILE_PROTECTION, 3);
         ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid,enchants);
         return new MobHead(
                 uuid,
@@ -191,7 +197,7 @@ public class HeadData {
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
                 "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
         ItemStack head = HeadItemStack.customVanillaHead(entityType, lore, uuid, enchants);
         return new MobHead(
                 uuid,
@@ -223,7 +229,7 @@ public class HeadData {
     public static MobHead Piglin(){
         UUID uuid = UUID.fromString("19413908-5fac-11ed-9b6a-0242ac120002");
         List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
         ItemStack head = HeadItemStack.customVanillaHead(EntityType.PIGLIN,lore,uuid,enchants);
         return new MobHead(uuid, null, EntityType.PIGLIN, head, new ItemStack(Material.GILDED_BLACKSTONE, 4), lore,null,enchants);
     }
@@ -232,640 +238,722 @@ public class HeadData {
     public static MobHead Allay(){
         UUID uuid = UUID.fromString("194124d6-5fac-11ed-9b6a-0242ac120002");
         String name = "Allay Head";
-        URL texture;
+        EntityType entityType = EntityType.ALLAY;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/e1c59dccde4b8535500dcf6794ca450663f607290e2510f6d8eb1e5eb71da5af");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Pulls items of the same type", "and data as you are holding", "towards you over a wide distance."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.ALLAY, head, new ItemStack(Material.MUSIC_DISC_11, 1), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.MUSIC_DISC_11, 1), lore, noteblockSound);
     }
-//    public static MobHead Armadillo(){
-//        UUID uuid = UUID.fromString("254451d6-031f-45b3-b6fa-cc262782d127");
-//        String name = "Armadillo";
-//        URL texture;
-//        try {
-//            texture = new URL("http://textures.minecraft.net/texture/9164ed0e0ef69b0ce7815e4300b4413a4828fcb0092918543545a418a48e0c3c");
-//        }catch (MalformedURLException e){
-//            throw new RuntimeException(e);
-//        }
-//        List<String> lore = List.of(
-//
-//        );
-//        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-//        return new MobHead(uuid, name, EntityType.ARMADILLO, head, new ItemStack(Material.ARMADILLO_SCUTE, 8), lore);
-//    }
+    public static MobHead Armadillo(){
+        UUID uuid = UUID.fromString("254451d6-031f-45b3-b6fa-cc262782d127");
+        String name = "Compact Armadillo";
+        EntityType entityType = EntityType.ARMADILLO;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
+        try {
+            texture = new URL("http://textures.minecraft.net/texture/9164ed0e0ef69b0ce7815e4300b4413a4828fcb0092918543545a418a48e0c3c");
+        }catch (MalformedURLException e){
+            System.out.println("Texture unable to load for " + entityType);
+        }
+        List<String> lore = List.of(
+                "Gain Haste I.", "When hit, Gain Resistance II,", "Slowness I and 100% Knockback",
+                "Resistance for 10 seconds", "once every 20 seconds."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, EntityType.ARMADILLO, head, new ItemStack(Material.ARMADILLO_SCUTE, 8), lore, null, enchants, noteblockSound);
+    }
     public static MobHead Bat(){
         UUID uuid = UUID.fromString("1941166c-5fac-11ed-9b6a-0242ac120002");
         String name = "Bat Head";
-        URL texture;
+        EntityType entityType = EntityType.BAT;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/6de75a2cc1c950e82f62abe20d42754379dfad6f5ff546e58f1c09061862bb92");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Blindness I, Speed I.", "& Night Vision I.", "See Creatures and Items through", "walls for a moderate distance."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.BAT, head, new ItemStack(Material.DEEPSLATE_COAL_ORE, 6), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.DEEPSLATE_COAL_ORE, 6), lore, noteblockSound);
     }
     public static MobHead Bee(){
         UUID uuid = UUID.fromString("19411540-5fac-11ed-9b6a-0242ac120002");
         String name = "Bee Head";
-        URL texture;
+        EntityType entityType = EntityType.BEE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/59ac16f296b461d05ea0785d477033e527358b4f30c266aa02f020157ffca736");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Afflict Poison I for 5 seconds", "on melee attack.",
                 "Summon a Bee to fight for", "you when attacked.", "Summon Cooldown: 2 Seconds.",
                 "Summon Max Lifetime: 30 Seconds.", "Summon Affliction: Poison I, 5 seconds."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.BEE, head, new ItemStack(Material.HONEYCOMB, 4), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.HONEYCOMB, 4), lore, noteblockSound);
     }
     public static MobHead Chicken(){
         UUID uuid = UUID.fromString("1940ff9c-5fac-11ed-9b6a-0242ac120002");
         String name = "Compact Chicken";
-        URL texture;
+        EntityType entityType = EntityType.CHICKEN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/45b4e2229de94c15dbfcf2bae49e80f0e4d65914a49a312c0417929a29bb7");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Slow Falling I.", "Crouch over Eggs to incubate them.", "Hay Bales are great for warmth."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.CHICKEN, head, new ItemStack(Material.FEATHER, 12), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.FEATHER, 12), lore, noteblockSound);
     }
     public static MobHead Cod(){
         UUID uuid = UUID.fromString("19410a82-5fac-11ed-9b6a-0242ac120002");
         String name = "Bloated Cod";
-        URL texture;
+        EntityType entityType = EntityType.COD;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/7892d7dd6aadf35f86da27fb63da4edda211df96d2829f691462a4fb1cab0");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I when wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore, enchants);
-        return new MobHead(uuid, name, EntityType.COD, head, new ItemStack(Material.BONE_MEAL, 16), lore, null, enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore, enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.BONE_MEAL, 16), lore, null, enchants, noteblockSound);
     }
     public static MobHead Cow(){
         UUID uuid = UUID.fromString("1940fbd2-5fac-11ed-9b6a-0242ac120002");
         String name = "Cow Head";
-        URL texture;
+        EntityType entityType = EntityType.COW;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/7dfa0ac37baba2aa290e4faee419a613cd6117fa568e709d90374753c032dcb0");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Other Players can milk you!", "They can use a bucket, or get",
                 "some straight from the source.",
                 "Sneak-Right-Click to", "milk yourself with a bucket."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.COW, head, new ItemStack(Material.LEATHER, 12), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.LEATHER, 12), lore, noteblockSound);
     }
     public static MobHead Dolphin(){
         UUID uuid = UUID.fromString("19410942-5fac-11ed-9b6a-0242ac120002");
         String name = "Dolphin Head";
-        URL texture;
+        EntityType entityType = EntityType.DOLPHIN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/8e9688b950d880b55b7aa2cfcd76e5a0fa94aac6d16f78e833f7443ea29fed3");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of("Gain Dolphin's Grace I");
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 2);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.DOLPHIN, head, new ItemStack(Material.COD, 4), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 2);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.COD, 4), lore,null, enchants, noteblockSound);
     }
     public static MobHead Donkey(){
         UUID uuid = UUID.fromString("19410442-5fac-11ed-9b6a-0242ac120002");
         String name = "Donkey Head";
-        URL texture;
+        EntityType entityType = EntityType.DONKEY;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/dfb6c3c052cf787d236a2915f8072b77c547497715d1d2f8cbc9d241d88a");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Speed I.", //"Players can mount you by Right-Clicking.",
+                "Gain Speed I.", "Step-Up One-Block high.",
                 "Storage Containers can be picked up", "with Shift-Right-Click, imposing",
                 "a level of Slowness for each container."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.DONKEY, head, new ItemStack(Material.LEATHER, 4), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.LEATHER, 4), lore, noteblockSound);
     }
     public static MobHead GlowSquid(){
         UUID uuid = UUID.fromString("194123be-5fac-11ed-9b6a-0242ac120002");
         String name = "Glow Squid Head";
-        URL texture;
+        EntityType entityType = EntityType.GLOW_SQUID;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/2ecd0b5eb6b384db076d8446065202959dddff0161e0d723b3df0cc586d16bbd");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I & Night Vision I when wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.GLOW_SQUID, head, new ItemStack(Material.GLOW_INK_SAC, 8), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.GLOW_INK_SAC, 8), lore,null,enchants,noteblockSound);
     }
     public static MobHead Goat(){
         UUID uuid = UUID.fromString("19411176-5fac-11ed-9b6a-0242ac120002");
         String name = "Goat Head";
-        URL texture;
+        EntityType entityType = EntityType.GOAT;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/f03330398a0d833f53ae8c9a1cb393c74e9d31e18885870e86a2133d44f0c63c");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Sneak-Jump to ram and damage", "the blocks and creatures", "in front of you.", "Enhanced by Elytra."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.GOAT, head, new ItemStack(Material.MUTTON, 6), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.MUTTON, 6), lore, noteblockSound);
     }
     public static MobHead IronGolem(){
         UUID uuid = UUID.fromString("19412292-5fac-11ed-9b6a-0242ac120002");
         String name = "Iron Golem Head";
-        URL texture;
+        EntityType entityType = EntityType.IRON_GOLEM;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/fcecba31f26919d92a3d6420cd2fa9112f8e108ac04e3fc71da7329cd10fe5ca");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Strength I, Resistance II,", "and Slowness III."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.IRON_GOLEM, head, new ItemStack(Material.POPPY, 1), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.POPPY, 1), lore, noteblockSound);
     }
     public static MobHead Mule(){
         UUID uuid = UUID.fromString("19410596-5fac-11ed-9b6a-0242ac120002");
         String name = "Mule Head";
-        URL texture;
+        EntityType entityType = EntityType.MULE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/46dcda265e57e4f51b145aacbf5b59bdc6099ffd3cce0a661b2c0065d80930d8");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Speed II.", //"Players can mount you by Right-Clicking.",
+                "Gain Speed II.", "Step-Up One-Block high.",
                 "Storage Containers can be picked up", "with Shift-Right-Click, imposing",
                 "a level of Slowness for each container."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.MULE, head, new ItemStack(Material.LEATHER, 4), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.LEATHER, 4), lore, noteblockSound);
     }
     public static MobHead Ocelot(){
         UUID uuid = UUID.fromString("194117a2-5fac-11ed-9b6a-0242ac120002");
         String name = "Ocelot Head";
-        URL texture;
+        EntityType entityType = EntityType.OCELOT;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/51f07e3f2e5f256bfade666a8de1b5d30252c95e98f8a8ecc6e3c7b7f67095");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of("Gain Speed I", "Gain Jump V when crouched.", "80% Fall damage reduction.");
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.OCELOT, head, new ItemStack(Material.COCOA_BEANS, 6), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.COCOA_BEANS, 6), lore, noteblockSound);
     }
     public static MobHead Pig(){
         UUID uuid = UUID.fromString("1940fe48-5fac-11ed-9b6a-0242ac120002");
         String name = "Pig Head";
-        URL texture;
+        EntityType entityType = EntityType.PIG;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.PIG, head, new ItemStack(Material.PORKCHOP, 8), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.PORKCHOP, 8), lore, noteblockSound);
     }
     public static MobHead PolarBear(){
         UUID uuid = UUID.fromString("19411b26-5fac-11ed-9b6a-0242ac120002");
         String name = "Polar Bear Head";
-        URL texture;
+        EntityType entityType = EntityType.POLAR_BEAR;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/c4fe926922fbb406f343b34a10bb98992cee4410137d3f88099427b22de3ab90");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.POLAR_BEAR, head, new ItemStack(Material.COD, 1), lore);
+        List<String> lore = List.of(
+                "Gain Strength I.", "When in cold biomes or on Ice or Snow", "gain Speed I. [NYI]."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.RESPIRATION, 2);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.COD, 1), lore, null, enchants, noteblockSound);
     }
     public static MobHead Pufferfish(){
         UUID uuid = UUID.fromString("19410cd0-5fac-11ed-9b6a-0242ac120002");
         String name = "Bloated Pufferfish";
-        URL texture;
+        EntityType entityType = EntityType.PUFFERFISH;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/17152876bc3a96dd2a2299245edb3beef647c8a56ac8853a687c3e7b5d8bb");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I when wet.", "Attackers are afflicted with", "Poison I for 3 seconds."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
         ItemStack loot = HeadLootItemStack.pufferfishLoot();
-        return new MobHead(uuid, name, EntityType.PUFFERFISH, head, loot, lore,null,enchants);
+        return new MobHead(uuid, name, entityType, head, loot, lore,null,enchants, noteblockSound);
     }
     public static MobHead Salmon(){
         UUID uuid = UUID.fromString("19410bae-5fac-11ed-9b6a-0242ac120002");
         String name = "Bloated Salmon";
-        URL texture;
+        EntityType entityType = EntityType.SALMON;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/8aeb21a25e46806ce8537fbd6668281cf176ceafe95af90e94a5fd84924878");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I when wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.SALMON, head, new ItemStack(Material.BONE_MEAL, 16), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.BONE_MEAL, 16), lore,null,enchants, noteblockSound);
     }
     public static MobHead SkeletonHorse(){
         UUID uuid = UUID.fromString("19411efa-5fac-11ed-9b6a-0242ac120002");
         String name = "Skeleton Horse Head";
-        URL texture;
+        EntityType entityType = EntityType.SKELETON_HORSE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/47effce35132c86ff72bcae77dfbb1d22587e94df3cbc2570ed17cf8973a");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Speed II.",
+                "Gain Speed II.", "Step-Up One-Block high.",
                 "Drink Milk to gain", "Regeneration I & Resistance I", "for 5 minutes."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.SKELETON_HORSE, head, new ItemStack(Material.BONE_BLOCK, 16), lore, null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.BONE_BLOCK, 16), lore, null,enchants,noteblockSound);
     }
     public static MobHead Snowman(){
         UUID uuid = UUID.fromString("194118ce-5fac-11ed-9b6a-0242ac120002");
         String name = "Snowman Head";
-        URL texture;
+        EntityType entityType = EntityType.SNOW_GOLEM;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/1fdfd1f7538c040258be7a91446da89ed845cc5ef728eb5e690543378fcf4");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Regeneration II in the snow, Wither I when wet,",
                 "Speed I in cold biomes, and Slow I in hot biomes.",
-//                "Thrown snowballs have a 80% chance of", "not being spent when thrown.",
-                "Snowballs inflict 2 damage and inflict", "3 seconds of Slowness I & Freezing",
+                "Snowballs inflict 2 damage and", "3 seconds of Slowness I & Freezing",
                 "Harvest Snowballs from your body by", "Sneak-Right-Clicking with a Shovel.",
                 "A Snow Golem is summoned when damaged by an enemy.",
                 "Summon Cooldown: 5 Seconds.", "Summon Max Lifetime: 30 Seconds.", "Summon Affliction: Slow I & Freezing, 3 seconds."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.SNOWMAN, head, new ItemStack(Material.SNOW_BLOCK, 3), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.SNOW_BLOCK, 3), lore, noteblockSound);
     }
     public static MobHead Squid(){
         UUID uuid = UUID.fromString("1941140a-5fac-11ed-9b6a-0242ac120002");
         String name = "Squid Head";
-        URL texture;
+        EntityType entityType = EntityType.SQUID;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/01433be242366af126da434b8735df1eb5b3cb2cede39145974e9c483607bac");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I when wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.SQUID, head, new ItemStack(Material.INK_SAC, 8), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.INK_SAC, 8), lore,null,enchants,noteblockSound);
     }
     public static MobHead Strider(){
         UUID uuid = UUID.fromString("19411054-5fac-11ed-9b6a-0242ac120002");
         String name = "Strider Head";
-        URL texture;
+        EntityType entityType = EntityType.STRIDER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/e245e4760abf10f2900626914cf42f80440cd53099ae5529534f59824067dad6");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
                 "Traverse across lava!", "Hold Sneak to descend into lava."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.STRIDER, head, new ItemStack(Material.LAVA_BUCKET, 1), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.LAVA_BUCKET, 1), lore,null,enchants, noteblockSound);
     }
     public static MobHead Tadpole(){
         UUID uuid = UUID.fromString("19412602-5fac-11ed-9b6a-0242ac120002");
         String name = "Bloated Tadpole";
-        URL texture;
+        EntityType entityType = EntityType.TADPOLE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/6cc9b9740bd3adeba52e0ce0a77b3dfdef8d3a40555a4e8bb67d200cd62770d0");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I when wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.TADPOLE, head, new ItemStack(Material.FROGSPAWN, 1), lore, null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.FROGSPAWN, 1), lore, null,enchants, noteblockSound);
     }
     public static MobHead TropicalFish(){
         UUID uuid = UUID.fromString("19410e06-5fac-11ed-9b6a-0242ac120002");
         String name = "Bloated Tropical Fish";
-        URL texture;
+        EntityType entityType = EntityType.TROPICAL_FISH;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/12510b301b088638ec5c8747e2d754418cb747a5ce7022c9c712ecbdc5f6f065");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Speed I when wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.TROPICAL_FISH, head, new ItemStack(Material.BONE_MEAL, 16), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.BONE_MEAL, 16), lore,null,enchants, noteblockSound);
     }
     public static MobHead Turtle(){
         UUID uuid = UUID.fromString("19410f28-5fac-11ed-9b6a-0242ac120002");
         String name = "Turtle Head";
-        URL texture;
+        EntityType entityType = EntityType.TURTLE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/0a4050e7aacc4539202658fdc339dd182d7e322f9fbcc4d5f99b5718a");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Resistance I.", "Gain Slowness I when not wet."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.TURTLE, head, new ItemStack(Material.SEAGRASS, 4), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.SEAGRASS, 4), lore,null,enchants, noteblockSound);
     }
     public static MobHead WanderingTrader(){
         UUID uuid = UUID.fromString("19412170-5fac-11ed-9b6a-0242ac120002");
         String name = "Wandering Trader Head";
-        URL texture;
+        EntityType entityType = EntityType.WANDERING_TRADER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/5f1379a82290d7abe1efaabbc70710ff2ec02dd34ade386bc00c930c461cf932");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.WANDERING_TRADER, head, new ItemStack(Material.DEEPSLATE_EMERALD_ORE, 4), lore);
-    }
-    public static MobHead Wolf(){
-        UUID uuid = UUID.fromString("194100dc-5fac-11ed-9b6a-0242ac120002");
-        String name = "Wolf Head";
-        URL texture;
-        try {
-            texture = new URL("https://textures.minecraft.net/texture/64bb00afbbe27872efddd6a51680c23258d8e7d73e770fdd0ebc3d342ec1418");
-        }catch (MalformedURLException e){
-            throw new RuntimeException(e);
-        }
-        List<String> lore = List.of(
-                "Summon a Wolf to fight for", "you when attacked.", "Summon Cooldown: 5 Seconds.", "Summon Max Lifetime: 60 Seconds."
-        );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.WOLF, head, new ItemStack(Material.STICK, 1), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.DEEPSLATE_EMERALD_ORE, 4), lore, noteblockSound);
     }
     public static MobHead ZombieHorse(){
         UUID uuid = UUID.fromString("1941204e-5fac-11ed-9b6a-0242ac120002");
         String name = "Zombie Horse Head";
-        URL texture;
+        EntityType entityType = EntityType.ZOMBIE_HORSE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/d22950f2d3efddb18de86f8f55ac518dce73f12a6e0f8636d551d8eb480ceec");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Hunger I & Speed I", "Your hunger will never", "drop below 19/20."
+                "Gain Hunger I & Speed I", "Step-Up One-Block high.", "Your hunger will never", "drop below 19/20."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.ZOMBIE_HORSE, head, new ItemStack(Material.ROTTEN_FLESH, 32), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.ROTTEN_FLESH, 32), lore, noteblockSound);
     }
     public static MobHead Sniffer(){
         UUID uuid = UUID.fromString("2dacfa00-20f2-11ee-be56-0242ac120002");
         String name = "Sniffer Head";
-        URL texture;
+        EntityType entityType = EntityType.SNIFFER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/87ad920a66e38cc3426a5bff084667e8772116915e298098567c139f222e2c42");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Sniff out sus blocks nearby."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.SNIFFER, head, new ItemStack(Material.TORCHFLOWER_SEEDS, 4), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.TORCHFLOWER_SEEDS, 4), lore, noteblockSound);
     }
     public static MobHead Camel(){
         UUID uuid = UUID.fromString("2dacfe06-20f2-11ee-be56-0242ac120002");
         String name = "Camel Head";
-        URL texture;
+        EntityType entityType = EntityType.CAMEL;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/ba4c95bfa0b61722255389141b505cf1a38bad9b0ef543de619f0cc9221ed974");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Sneak-Jump to Dash.", "Gain Speed I when on a sandy block."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.CAMEL, head, new ItemStack(Material.SAND, 16), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.SAND, 16), lore, noteblockSound);
     }
 
     // Boss Monsters ---------------------------------------------------------------------------------------------------
     public static MobHead ElderGuardian(){
         UUID uuid = UUID.fromString("19415370-5fac-11ed-9b6a-0242ac120002");
         String name = "Elder Guardian Head";
-        URL texture;
+        EntityType entityType = EntityType.ELDER_GUARDIAN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/4adc4a6f53afa116027b51d6f2e433ee7afa5d59b2ffa04780be464fa5d61a");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3,Enchantment.THORNS,3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.ELDER_GUARDIAN, head, new ItemStack(Material.WET_SPONGE, 1), lore,null,enchants);
+        List<String> lore = List.of(
+                "Inflict Mining Fatigue IV for 10 seconds.",
+                "Lock-On to a target by looking at them and Sneaking.", "Beam inflicts 7 Hearts of damage after 3 seconds.",
+                "Sneak again to release your Lock-On.", "Breaking Line of Sight will release your Lock-On."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3,Enchantment.THORNS,3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.WET_SPONGE, 1), lore,null,enchants, noteblockSound);
     }
     public static MobHead Warden(){
         UUID uuid = UUID.fromString("19415668-5fac-11ed-9b6a-0242ac120002");
         String name = "Warden Head";
-        URL texture;
+        EntityType entityType = EntityType.WARDEN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/6cf3674b2ddc0ef7c39e3b9c6b58677de5cf377d2eb073f2f3fe50919b1ca4c9");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Darkness I & Night Vision I.", "See Creatures and Items through", "walls for a great distance.",
                 "Afflict targets with Darkness I", "for 10 seconds."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.WARDEN, head, new ItemStack(Material.SCULK_SHRIEKER, 1), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.SCULK_SHRIEKER, 1), lore, noteblockSound);
     }
     public static MobHead Wither(){
         UUID uuid = UUID.fromString("194154ec-5fac-11ed-9b6a-0242ac120002");
         String name = "Wither Head";
-        URL texture;
+        EntityType entityType = EntityType.WITHER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/cdf74e323ed41436965f5c57ddf2815d5332fe999e68fbb9d6cf5c8bd4139f");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Wither II.", "Immune to Wither damage.", "Afflict Wither III for", "3 seconds on melee attack.",
                 "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.WITHER, head, new ItemStack(Material.WITHER_ROSE, 8), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.WITHER_ROSE, 8), lore, noteblockSound);
     }
 
     // Single-Skin Hostiles --------------------------------------------------------------------------------------------
-//        public static MobHead Breeze(){
-//        UUID uuid = UUID.fromString("417c2d09-09e6-4960-8ab1-6458678c2736");
-//        String name = "Breeze Core";
-//        URL texture;
-//        try {
-//            texture = new URL("http://textures.minecraft.net/texture/");
-//        }catch (MalformedURLException e){
-//            throw new RuntimeException(e);
-//        }
-//        List<String> lore = List.of(
-//                "Projectiles can be reflected", "back towards their source once", "every 3 seconds."
-//        );
-//        Map<Enchantment, Integer> enchants = new HashMap<>();
-//        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-//        return new MobHead(uuid, name, EntityType.BREEZE, head, new ItemStack(Material.WIND_CHARGE, 32), lore,null,enchants);
-//    }
     public static MobHead Blaze(){
         UUID uuid = UUID.fromString("194146b4-5fac-11ed-9b6a-0242ac120002");
         String name = "Blaze Core";
-        URL texture;
+        EntityType entityType = EntityType.BLAZE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Feather Falling I.",
-                "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
+                "Gain Feather Falling I.", "Half-Damage from all fire damage sources.",
+                "Gain Fire Resistance I for", "5 seconds upon taking fire damage.",
+                "Melee and ranged attacks have Fire Aspect.",
+                "Broken blocks drop smelted.",
+                "Right-Clicking with a Blaze Rod", "will shoot a small fireball, or",
+                "Sneak-Right-Clicking a block will", "set it on fire.",
+                "Right-Click with Blaze Powder while gliding", "to get a speed boost!",
+                "Place next to any type of Furnace to", "double their cooking speed."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.BLAZE, head, new ItemStack(Material.BLAZE_ROD, 8), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.BLAZE_ROD, 8), lore,null,enchants, noteblockSound);
     }
     public static MobHead CaveSpider(){
         UUID uuid = UUID.fromString("194147d6-5fac-11ed-9b6a-0242ac120002");
         String name = "Cave Spider Head";
-        URL texture;
+        EntityType entityType = EntityType.CAVE_SPIDER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/41645dfd77d09923107b3496e94eeb5c30329f97efc96ed76e226e98224");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Poison I.", "Immune to Poison.", "Afflict Poison I for 10 seconds."
+                "Gain Poison I. Immune to Poison.", "Afflict Poison I for 10 seconds."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.CAVE_SPIDER, head, new ItemStack(Material.MILK_BUCKET, 1), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.MILK_BUCKET, 1), lore, noteblockSound);
+    }
+    public static MobHead Breeze(){
+        UUID uuid = UUID.fromString("417c2d09-09e6-4960-8ab1-6458678c2736");
+        String name = "Breeze Core";
+        EntityType entityType = EntityType.BREEZE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(EntityType.BREEZE);
+        URL texture = null;
+        try {
+            texture = new URL("http://textures.minecraft.net/texture/cd6e602f76f80c0657b5aed64e267eeea702b31e6dae86346c8506f2535ced02");
+        }catch (MalformedURLException e){
+            System.out.println("Texture unable to load for " + entityType);
+        }
+        List<String> lore = List.of(
+                "Immune to all Fall and Kinetic damage.",
+                "Projectiles are reflected", "back towards their source.", "Burst away direct attackers.",
+                "Sneak-Jump or engage an Elytra", "to burst into the air.", "Thrown Wind Charges have an 80%",
+                "chance of being refunded."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROJECTILE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, EntityType.BREEZE, head, new ItemStack(Material.WIND_CHARGE, 32), lore,null,enchants, noteblockSound);
     }
     public static MobHead Drowned(){
         UUID uuid = UUID.fromString("194132b4-5fac-11ed-9b6a-0242ac120002");
         String name = "Drowned Head";
-        URL texture;
+        EntityType entityType = EntityType.DROWNED;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/c84df79c49104b198cdad6d99fd0d0bcf1531c92d4ab6269e40b7d3cbbb8e98c");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Hunger I.", "Gain Slowness I when not wet.", "Your hunger will never", "drop below 19/20."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.DROWNED, head, new ItemStack(Material.SEA_PICKLE, 6), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.SEA_PICKLE, 6), lore,null,enchants, noteblockSound);
     }
     public static MobHead Enderman(){
         UUID uuid = UUID.fromString("1941445c-5fac-11ed-9b6a-0242ac120002");
         String name = "Enderman Head";
-        URL texture;
+        EntityType entityType = EntityType.ENDERMAN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/96c0b36d53fff69a49c7d6f3932f2b0fe948e032226d5e8045ec58408a36e951");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Susceptible to all forms of water.", "If attacked or exposed to water,", "teleport to a nearby location.",
                 "Immune to all projectiles.", "Immune to Ender Pearl damage.", "Thrown pearls have a 75%",
                 "chance of being refunded."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.ENDERMAN, head, new ItemStack(Material.ENDER_PEARL, 8), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.ENDER_PEARL, 8), lore, noteblockSound);
     }
     public static MobHead Endermite(){
         UUID uuid = UUID.fromString("19414e8e-5fac-11ed-9b6a-0242ac120002");
         String name = "Endermite Head";
-        URL texture;
+        EntityType entityType = EntityType.ENDERMITE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/5bc7b9d36fb92b6bf292be73d32c6c5b0ecc25b44323a541fae1f1e67e393a3e");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Thrown pearls are refunded upon landing.", "Nearby Endermen will target you on sight.", "You take half damage from Endermen."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.ENDERMITE, head, new ItemStack(Material.POPPED_CHORUS_FRUIT, 16), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.POPPED_CHORUS_FRUIT, 16), lore, noteblockSound);
     }
     public static MobHead Evoker(){
         UUID uuid = UUID.fromString("1941406a-5fac-11ed-9b6a-0242ac120002");
         String name = "Evoker Head";
-        URL texture;
+        EntityType entityType = EntityType.EVOKER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/d954135dc82213978db478778ae1213591b93d228d36dd54f1ea1da48e7cba6");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Sends a line of Evoker Fangs", "towards the enemies that hit you."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.EVOKER, head, new ItemStack(Material.EMERALD_BLOCK, 1), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.EMERALD_BLOCK, 1), lore, noteblockSound);
     }
     public static MobHead Ghast(){
         UUID uuid = UUID.fromString("19414588-5fac-11ed-9b6a-0242ac120002");
         String name = "Ghast Head";
-        URL texture;
+        EntityType entityType = EntityType.GHAST;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/7a8b714d32d7f6cf8b37e221b758b9c599ff76667c7cd45bbc49c5ef19858646");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Feather Falling I",
@@ -873,77 +961,92 @@ public class HeadData {
                 "Hold Sneak while airborne to gain",
                 "Levitation III for up to 10 seconds."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.GHAST, head, new ItemStack(Material.GHAST_TEAR, 4), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.GHAST_TEAR, 4), lore,null,enchants, noteblockSound);
     }
     public static MobHead Guardian(){
         UUID uuid = UUID.fromString("19413cbe-5fac-11ed-9b6a-0242ac120002");
         String name = "Guardian Head";
-        URL texture;
+        EntityType entityType = EntityType.GUARDIAN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/932c24524c82ab3b3e57c2052c533f13dd8c0beb8bdd06369bb2554da86c123");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3,Enchantment.THORNS,2);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        ItemStack loot = new ItemStack(Material.PRISMARINE);
-        return new MobHead(uuid, name, EntityType.GUARDIAN, head, loot, lore,null,enchants);
+        List<String> lore = List.of(
+                "Lock-On to a target by looking at them and Sneaking.", "Beam inflicts 4 Hearts of damage after 2 seconds.",
+                "Sneak again to release your Lock-On.", "Breaking Line of Sight will release your Lock-On."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3,Enchantment.THORNS,2);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        ItemStack loot = new ItemStack(Material.PRISMARINE,16);
+        return new MobHead(uuid, name, entityType, head, loot, lore,null,enchants, noteblockSound);
     } // FIX LOOT
     public static MobHead Hoglin(){
         UUID uuid = UUID.fromString("194133e0-5fac-11ed-9b6a-0242ac120002");
         String name = "Hoglin Head";
-        URL texture;
+        EntityType entityType = EntityType.HOGLIN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/9bb9bc0f01dbd762a08d9e77c08069ed7c95364aa30ca1072208561b730e8d75");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.HOGLIN, head, new ItemStack(Material.PORKCHOP, 8), lore,null,enchants);
+        List<String> lore = List.of(
+                "Gain Strength I."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.PORKCHOP, 8), lore,null,enchants, noteblockSound);
     }
     public static MobHead Husk(){
         UUID uuid = UUID.fromString("19413192-5fac-11ed-9b6a-0242ac120002");
         String name = "Husk Head";
-        URL texture;
+        EntityType entityType = EntityType.HUSK;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/d674c63c8db5f4ca628d69a3b1f8a36e29d8fd775e1a6bdb6cabb4be4db121");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Hunger I.", "Gain Slowness I if not", "walking on a sandy block.", "Your hunger will never", "drop below 19/20."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 1);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.HUSK, head, new ItemStack(Material.CHISELED_SANDSTONE, 16), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 1);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.CHISELED_SANDSTONE, 16), lore,null,enchants, noteblockSound);
     }
     public static MobHead Illusioner(){
         UUID uuid = UUID.fromString("1941524e-5fac-11ed-9b6a-0242ac120002");
         String name = "Illusioner Head";
-        URL texture;
+        EntityType entityType = EntityType.ILLUSIONER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/4639d325f4494258a473a93a3b47f34a0c51b3fceaf59fee87205a5e7ff31f68");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         ItemStack loot = new ItemStack(Material.ARROW);
-        return new MobHead(uuid, name, EntityType.ILLUSIONER, head, loot, lore);
+        return new MobHead(uuid, name, entityType, head, loot, lore, noteblockSound);
     } // FIX LOOT
     public static MobHead MagmaCube(){
         UUID uuid = UUID.fromString("19414902-5fac-11ed-9b6a-0242ac120002");
         String name = "Crystallized Magma Cube";
-        URL texture;
+        EntityType entityType = EntityType.MAGMA_CUBE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/38957d5023c937c4c41aa2412d43410bda23cf79a9f6ab36b76fef2d7c429");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Half-Damage from all fire damage sources.",
@@ -951,225 +1054,281 @@ public class HeadData {
                 "80% Reduction from Fall damage.",
                 "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to jump high into the air."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.MAGMA_CUBE, head, new ItemStack(Material.MAGMA_CREAM, 8), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.MAGMA_CREAM, 8), lore,null,enchants, noteblockSound);
     }
     public static MobHead Phantom(){
         UUID uuid = UUID.fromString("19413070-5fac-11ed-9b6a-0242ac120002");
         String name = "Phantom Head";
-        URL texture;
+        EntityType entityType = EntityType.PHANTOM;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/7e95153ec23284b283f00d19d29756f244313a061b70ac03b97d236ee57bd982");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of("Gain Night Vision I");
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.PHANTOM, head, new ItemStack(Material.PHANTOM_MEMBRANE, 6), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.PHANTOM_MEMBRANE, 6), lore, noteblockSound);
     }
     public static MobHead PiglinBrute(){
         UUID uuid = UUID.fromString("19413a70-5fac-11ed-9b6a-0242ac120002");
         String name = "Piglin Brute Head";
-        URL texture;
+        EntityType entityType = EntityType.PIGLIN_BRUTE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/3e300e9027349c4907497438bac29e3a4c87a848c50b34c21242727b57f4e1cf");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
+        List<String> lore = List.of(
+                "Gain Strength I."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
         ItemStack loot = new ItemStack(Material.GOLDEN_AXE); // PLACEHOLDER
-        return new MobHead(uuid, name, EntityType.PIGLIN_BRUTE, head, loot, lore,null,enchants);
+        return new MobHead(uuid, name, entityType, head, loot, lore,null,enchants, noteblockSound);
     } // FIX LOOT
     public static MobHead Pillager(){
         UUID uuid = UUID.fromString("19414fe2-5fac-11ed-9b6a-0242ac120002");
         String name = "Pillager Head";
-        URL texture;
+        EntityType entityType = EntityType.PILLAGER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/4aee6bb37cbfc92b0d86db5ada4790c64ff4468d68b84942fde04405e8ef5333");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.PILLAGER, head, new ItemStack(Material.EMERALD, 8), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.EMERALD, 8), lore, noteblockSound);
     }
     public static MobHead Ravager(){
         UUID uuid = UUID.fromString("19413dea-5fac-11ed-9b6a-0242ac120002");
         String name = "Ravager Head";
-        URL texture;
+        EntityType entityType = EntityType.RAVAGER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/cd20bf52ec390a0799299184fc678bf84cf732bb1bd78fd1c4b441858f0235a8");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.RAVAGER, head, new ItemStack(Material.SADDLE), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, EntityType.RAVAGER, head, new ItemStack(Material.SADDLE), lore, noteblockSound);
     }
     public static MobHead Shulker(){
         UUID uuid = UUID.fromString("19412f26-5fac-11ed-9b6a-0242ac120002");
         String name = "Shrunken Shulker";
-        URL texture;
+        EntityType entityType = EntityType.SHULKER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/1433a4b73273a64c8ab2830b0fff777a61a488c92f60f83bfb3e421f428a44");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Sneak while airborne to gain", "Levitation III & Speed I for", "up to 20 seconds.", "Attacking a creature afflicts",
                 "them with Levitation I,", "melee for 2 seconds,", "projectile for 4 seconds."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_ENVIRONMENTAL,2);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION,2);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
         ItemStack loot = HeadLootItemStack.shulkerLoot();
-        return new MobHead(uuid, name, EntityType.SHULKER, head, loot, lore,null,enchants);
+        return new MobHead(uuid, name, entityType, head, loot, lore,null,enchants, noteblockSound);
     }
     public static MobHead Silverfish(){
         UUID uuid = UUID.fromString("1941272e-5fac-11ed-9b6a-0242ac120002");
         String name = "Silverfish Head";
-        URL texture;
+        EntityType entityType = EntityType.SILVERFISH;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/da91dab8391af5fda54acd2c0b18fbd819b865e1a8f1d623813fa761e924540");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Summon a Silverfish to fight for", "you when attacked.", "Summon Cooldown: Instant.", "Summon Max Lifetime: 15 Seconds."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.SILVERFISH, head, new ItemStack(Material.INFESTED_STONE, 4), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.INFESTED_STONE, 4), lore, noteblockSound);
     }
     public static MobHead Slime(){
         UUID uuid = UUID.fromString("19414b32-5fac-11ed-9b6a-0242ac120002");
         String name = "Crystallized Slime";
-        URL texture;
+        EntityType entityType = EntityType.SLIME;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/895aeec6b842ada8669f846d65bc49762597824ab944f22f45bf3bbb941abe6c");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "80% Reduction from Fall damage.", "Bouncy! Hold Sneak to stop bouncing.", "Sneak-Jump to bounce high into the air."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.SLIME, head, new ItemStack(Material.SLIME_BLOCK, 4), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.SLIME_BLOCK, 4), lore, noteblockSound);
     }
     public static MobHead Spider(){
         UUID uuid = UUID.fromString("194141aa-5fac-11ed-9b6a-0242ac120002");
         String name = "Spider Head";
-        URL texture;
+        EntityType entityType = EntityType.SPIDER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/cd541541daaff50896cd258bdbdd4cf80c3ba816735726078bfe393927e57f1");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.SPIDER, head, new ItemStack(Material.COBWEB, 8), lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.COBWEB, 8), lore, noteblockSound);
     }
     public static MobHead Stray(){
         UUID uuid = UUID.fromString("19412d50-5fac-11ed-9b6a-0242ac120002");
         String name = "Stray Head";
-        URL texture;
+        EntityType entityType = EntityType.STRAY;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/2c5097916bc0565d30601c0eebfeb287277a34e867b4ea43c63819d53e89ede7");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Afflict other creatures with", "Slowness I for 5 seconds.",
                 "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_PROJECTILE, 3);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROJECTILE_PROTECTION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
         ItemStack loot = HeadLootItemStack.strayLoot();
-        return new MobHead(uuid, name, EntityType.STRAY, head, loot, lore,null,enchants);
+        return new MobHead(uuid, name, entityType, head, loot, lore,null,enchants, noteblockSound);
+    }
+    public static MobHead Bogged(){
+        UUID uuid = UUID.fromString("191e395c-1862-4817-b86d-d312bf53cff2");
+        String name = "Bogged Skull";
+        EntityType entityType = EntityType.BOGGED;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(EntityType.BOGGED);
+        URL texture = null;
+        try {
+            texture = new URL("http://textures.minecraft.net/texture/483474a813a0389e52fc5aebd5e69e09a7254164288153b13bd05963bf239611");
+        }catch (MalformedURLException e){
+            System.out.println("Texture unable to load for " + entityType);
+        }
+        List<String> lore = List.of(
+                "Gain Poison I. Immune to Poison damage.",
+                "Afflict other creatures with", "Poison I for 4 seconds.",
+                "Drink Milk to gain Regeneration I,", "Speed I, & Resistance I", "for 5 minutes."
+        );
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROJECTILE_PROTECTION, 3);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        ItemStack loot = HeadLootItemStack.boggedLoot();
+        return new MobHead(uuid, name, EntityType.BOGGED, head, loot, lore,null,enchants, noteblockSound);
     }
     public static MobHead Vex(){
         UUID uuid = UUID.fromString("19413f16-5fac-11ed-9b6a-0242ac120002");
         String name = "Vex Head";
-        URL texture;
+        EntityType entityType = EntityType.VEX;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/b663134d7306bb604175d2575d686714b04412fe501143611fcf3cc19bd70abe");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Summon a Vex to fight for", "you when attacked.", "Summon Cooldown: 3 Seconds.",
                 "Summon Max Lifetime: 20 Seconds."
         );
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         ItemStack loot = new ItemStack(Material.IRON_SWORD);
-        return new MobHead(uuid, name, EntityType.VEX, head, loot, lore);
+        return new MobHead(uuid, name, entityType, head, loot, lore, noteblockSound);
     } // FIX LOOT
     public static MobHead Vindicator(){
         UUID uuid = UUID.fromString("1941510e-5fac-11ed-9b6a-0242ac120002");
         String name = "Vindicator Head";
-        URL texture;
+        EntityType entityType = EntityType.VINDICATOR;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/6deaec344ab095b48cead7527f7dee61b063ff791f76a8fa76642c8676e2173");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         ItemStack loot = new ItemStack(Material.IRON_AXE);
-        return new MobHead(uuid, name, EntityType.VINDICATOR, head, loot, lore);
+        return new MobHead(uuid, name, entityType, head, loot, lore, noteblockSound);
     } // FIX LOOT
     public static MobHead Witch(){
         UUID uuid = UUID.fromString("19413b92-5fac-11ed-9b6a-0242ac120002");
         String name = "Witch Head";
-        URL texture;
+        EntityType entityType = EntityType.WITCH;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/91f1508590291bee0562d32ad7544f628aead89ea3caa54dc875120ac95b1fa");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-        return new MobHead(uuid, name, EntityType.WITCH, head, new ItemStack(Material.EXPERIENCE_BOTTLE, 13), lore);
+        List<String> lore = List.of(
+                "Gain temporary resistances from", "various types of incoming damage.",
+                "Place next to a Brewing Stand", "to double its brewing speed."
+        );
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.EXPERIENCE_BOTTLE, 13), lore, noteblockSound);
     }
     public static MobHead Zoglin(){
         UUID uuid = UUID.fromString("194134f8-5fac-11ed-9b6a-0242ac120002");
         String name = "Zoglin Head";
-        URL texture;
+        EntityType entityType = EntityType.ZOGLIN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/3c8c7c5d0556cd6629716e39188b21e7c0477479f242587bf19e0bc76b322551");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Slowness I, Hunger I & Strength I.", "Your hunger will never", "drop below 19/20.",
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-        return new MobHead(uuid, name, EntityType.ZOGLIN, head, new ItemStack(Material.ROTTEN_FLESH, 16), lore,null,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+        return new MobHead(uuid, name, entityType, head, new ItemStack(Material.ROTTEN_FLESH, 16), lore,null,enchants, noteblockSound);
     }
     public static MobHead ZombifiedPiglin(){
         UUID uuid = UUID.fromString("19414a1a-5fac-11ed-9b6a-0242ac120002");
         String name = "Zombified Piglin Head";
-        URL texture;
+        EntityType entityType = EntityType.ZOMBIFIED_PIGLIN;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
+        URL texture = null;
         try {
             texture = new URL("http://textures.minecraft.net/texture/7eabaecc5fae5a8a49c8863ff4831aaa284198f1a2398890c765e0a8de18da8c");
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
                 "Gain Slowness I and Hunger I.", "Your hunger will never", "drop below 19/20.",
                 "Half-Damage from all fire damage sources.", "Gain Fire Resistance I for", "5 seconds upon taking fire damage."
         );
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.PROTECTION_FIRE, 4);
-        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
+        ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
         ItemStack loot = new ItemStack(Material.GOLDEN_SWORD);
-        return new MobHead(uuid, name, EntityType.ZOMBIFIED_PIGLIN, head, loot, lore,null,enchants);
+        return new MobHead(uuid, name, entityType, head, loot, lore,null,enchants, noteblockSound);
     } // FIX LOOT
 
     // Multi-Skin Passives ---------------------------------------------------------------------------------------------
     public static List<MobHead> Axolotls(){
+        EntityType entityType = EntityType.AXOLOTL;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("19416428-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("1941673e-5fac-11ed-9b6a-0242ac120002"),
@@ -1192,7 +1351,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/e1c2d0c3b96ad45b466388e028b247aafe36b26b12c411ecb72e9b50ea21e52c"));
             textures.add(new URL("http://textures.minecraft.net/texture/eef630657e4a279b0b7ea0f67905920af365f9c84ca9f34a32b53343ff629910"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Axolotl.Variant.LUCY.toString(),
@@ -1202,7 +1361,7 @@ public class HeadData {
                 Axolotl.Variant.BLUE.toString()
         );
         ItemStack loot = HeadLootItemStack.axolotlLoot();
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 3);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 3);
         List<String> lore = List.of(
                 "Gain Strength I when wet.", "When attacked, gain Restoration I", "for 10 seconds."
         );
@@ -1212,12 +1371,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-            heads.add(new MobHead(uuid,name,EntityType.AXOLOTL,head,loot,lore,variant,enchants));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,enchants,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Cats(){
+        EntityType entityType = EntityType.CAT;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("19416f2c-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("194170d0-5fac-11ed-9b6a-0242ac120002"),
@@ -1258,7 +1419,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/a0db41376ca57df10fcb1539e86654eecfd36d3fe75e8176885e93185df280a5"));
             textures.add(new URL("http://textures.minecraft.net/texture/4fd10c8e75f67398c47587d25fc146f311c053cc5d0aeab8790bce36ee88f5f8"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Cat.Type.TABBY.toString(),
@@ -1281,12 +1442,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.CAT,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Foxes(){
+        EntityType entityType = EntityType.FOX;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("766c27be-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c299e-5fe3-11ed-9b6a-0242ac120002")
@@ -1300,7 +1463,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/d8954a42e69e0881ae6d24d4281459c144a0d5a968aed35d6d3d73a3c65d26a"));
             textures.add(new URL("http://textures.minecraft.net/texture/ddcd0db8cbe8f1e0ab1ec0a9385fb9288da84d3202c1c397da76ee1035e608b0"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Fox.Type.RED.toString(),
@@ -1308,7 +1471,8 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.SWEET_BERRIES, 16);
         List<String> lore = List.of(
-                "Immune to Berry Bush pricking.", "Sneak-Jump to pounce and make a shockwave!"
+                "Immune to Berry Bush pricking.", "Sneak-Jump to pounce and make a shockwave!",
+                ChatColor.RED + "[WIP]"
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1316,12 +1480,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.FOX,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Frogs(){
+        EntityType entityType = EntityType.FROG;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("766c6792-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c697c-5fe3-11ed-9b6a-0242ac120002"),
@@ -1338,7 +1504,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/1e9312b5b2bab9ad51ea4b6a407d6d390bb5043408757b976a7556898ac43de0"));
             textures.add(new URL("http://textures.minecraft.net/texture/27bcccc125a4110434a85c40ada039d050f14ef7db34a3444067310f8ce69606"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Frog.Variant.TEMPERATE.toString(),
@@ -1346,7 +1512,7 @@ public class HeadData {
                 Frog.Variant.COLD.toString()
         );
         ItemStack loot = new ItemStack(Material.SLIME_BALL, 8);
-        Map<Enchantment, Integer> enchants = Map.of(Enchantment.WATER_WORKER, 1, Enchantment.OXYGEN, 2);
+        Map<Enchantment, Integer> enchants = Map.of(Enchantment.AQUA_AFFINITY, 1, Enchantment.RESPIRATION, 2);
         List<String> lore = List.of(
                 "Gain Jump Boost I.",
                 "Sneak-Jump to leap towards where you are looking.", "Sneak-Right-Clicking on a creature will attempt",
@@ -1359,12 +1525,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants);
-            heads.add(new MobHead(uuid,name,EntityType.FROG,head,loot,lore,variant,enchants));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,enchants,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,enchants,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Horses(){
+        EntityType entityType = EntityType.HORSE;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("194180d4-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("194181f6-5fac-11ed-9b6a-0242ac120002"),
@@ -1393,7 +1561,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/8f0d955889b0378d4933c956398567e770103ae9eff0f702d0d53d52e7f6a83b"));
             textures.add(new URL("http://textures.minecraft.net/texture/156b7bc1a4836eb428ea8925eceb5e01dfbd30c7deff6c9482689823203cfd2f"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Horse.Color.WHITE.toString(),
@@ -1406,18 +1574,20 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.HAY_BLOCK, 1);
         List<MobHead> heads = new ArrayList<>();
-        List<String> lore = List.of("Gain Speed II.");
+        List<String> lore = List.of("Gain Speed II.", "Step-Up One-Block high.");
         for (int i = 0; i < uuids.size(); i++) {
             UUID uuid = uuids.get(i);
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.HORSE,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Llamas(){
+        EntityType entityType = EntityType.LLAMA;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("19418d04-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("19419286-5fac-11ed-9b6a-0242ac120002"),
@@ -1437,7 +1607,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/c2b1ecff77ffe3b503c30a548eb23a1a08fa26fd67cdff389855d74921368"));
             textures.add(new URL("http://textures.minecraft.net/texture/cf24e56fd9ffd7133da6d1f3e2f455952b1da462686f753c597ee82299a"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Llama.Color.CREAMY.toString(),
@@ -1457,12 +1627,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.LLAMA,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Mooshrooms(){
+        EntityType entityType = EntityType.MOOSHROOM;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("766c63c8-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c65bc-5fe3-11ed-9b6a-0242ac120002")
@@ -1476,7 +1648,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/2b52841f2fd589e0bc84cbabf9e1c27cb70cac98f8d6b3dd065e55a4dcb70d77"));
             textures.add(new URL("http://textures.minecraft.net/texture/b6d5fc7031acc95beeb52875f15408e979a0a9c391b6db7ecee7e400072de5c4"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 MushroomCow.Variant.RED.toString(),
@@ -1509,13 +1681,15 @@ public class HeadData {
             URL texture = textures.get(i);
             String variant = variants.get(i);
             List<String> lore = lores.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
             ItemStack loot = loots.get(i);
-            heads.add(new MobHead(uuid,name,EntityType.MUSHROOM_COW,head,loot,lore,variant));
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Pandas(){
+        EntityType entityType = EntityType.PANDA;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("19411a04-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766cac7a-5fe3-11ed-9b6a-0242ac120002")
@@ -1529,7 +1703,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/dca096eea506301bea6d4b17ee1605625a6f5082c71f74a639cc940439f47166"));
             textures.add(new URL("http://textures.minecraft.net/texture/b4f7c73fda6a34cf8be4c7907dd0f5f0865dd77fd882fc633563649c57517cae"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Panda.Gene.NORMAL.toString(),
@@ -1545,12 +1719,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.PANDA,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Parrots(){
+        EntityType entityType = EntityType.PARROT;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("1941a06e-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("1941a1cc-5fac-11ed-9b6a-0242ac120002"),
@@ -1573,7 +1749,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/a9df6dd4f9434d44c97dbac4fa98591f1e37506355b9e4406f716bec7dd248e"));
             textures.add(new URL("http://textures.minecraft.net/texture/efe08d511499a247146128e55ab6547ecd967d4dbcf803f7ceea2658737c9fa"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Parrot.Variant.RED.toString(),
@@ -1593,12 +1769,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.PARROT,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Rabbits(){
+        EntityType entityType = EntityType.RABBIT;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("19415794-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("19415b54-5fac-11ed-9b6a-0242ac120002"),
@@ -1624,7 +1802,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/c977a3266bf3b9eaf17e5a02ea5fbb46801159863dd288b93e6c12c9cb"));
             textures.add(new URL("http://textures.minecraft.net/texture/ffecc6b5e6ea5ced74c46e7627be3f0826327fba26386c6cc7863372e9bc"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Rabbit.Type.BROWN.toString(),
@@ -1645,12 +1823,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.RABBIT,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Sheepies(){
+        EntityType entityType = EntityType.SHEEP;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("766c30d8-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c32b8-5fe3-11ed-9b6a-0242ac120002"),
@@ -1706,7 +1886,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/839af477eb627815f723a5662556ec9dfcbab5d494d338bd214232f23e446"));
             textures.add(new URL("http://textures.minecraft.net/texture/32652083f28ed1b61f9b965df1abf010f234681c21435951c67d88364749822"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 DyeColor.WHITE.toString(),
@@ -1751,13 +1931,15 @@ public class HeadData {
             URL texture = textures.get(i);
             String variant = variants.get(i);
             List<String> lore = List.of("Right-Click to eat Grass.", "Restores Hunger, Saturation", "and can sometimes give", "potion effects.");
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
             ItemStack loot = loots.get(i);
-            heads.add(new MobHead(uuid,name,EntityType.SHEEP,head,loot,lore,variant));
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> TraderLlamas(){
+        EntityType entityType = EntityType.TRADER_LLAMA;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("19419632-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("1941975e-5fac-11ed-9b6a-0242ac120002"),
@@ -1777,7 +1959,7 @@ public class HeadData {
             textures.add(new URL("http://textures.minecraft.net/texture/8424780b3c5c5351cf49fb5bf41fcb289491df6c430683c84d7846188db4f84d"));
             textures.add(new URL("http://textures.minecraft.net/texture/be4d8a0bc15f239921efd8be3480ba77a98ee7d9ce00728c0d733f0a2d614d16"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Llama.Color.CREAMY.toString(),
@@ -1797,12 +1979,14 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.TRADER_LLAMA,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Villagers(){
+        EntityType entityType = EntityType.VILLAGER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("766c74e4-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c77c8-5fe3-11ed-9b6a-0242ac120002"),
@@ -1831,7 +2015,7 @@ public class HeadData {
             textures.add(new URL("https://textures.minecraft.net/texture/9ad7a9e8fe2bdfea03bb1f9fabe45fb10cf69a72e3760e5fd9a70f3384c536ad"));
             textures.add(new URL("https://textures.minecraft.net/texture/61e897719b54b844fa059f04817e13db8abd97e6bdb0624093032b4512f7a1c6"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Villager.Type.DESERT.toString(),
@@ -1850,12 +2034,14 @@ public class HeadData {
             URL texture = textures.get(i);
             String variant = variants.get(i);
             List<String> lore = List.of();
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.VILLAGER,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
     public static List<MobHead> Wolves(){
+        EntityType entityType = EntityType.WOLF;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("194100dc-5fac-11ed-9b6a-0242ac120002"),
                 UUID.fromString("c363c344-f9ed-4734-984f-383211d175e8"),
@@ -1890,18 +2076,18 @@ public class HeadData {
             textures.add(new URL("https://textures.minecraft.net/texture/cb5c6b95536d77e9570133266f3c620120e15c89073c683b3855a595d0a1f129"));
             textures.add(new URL("https://textures.minecraft.net/texture/ec99ecac21148139186bfb4da0169ad579a9bea39be021aaa9a848e4c7f8694"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
-                "PALE",
-                "RUSTY",
-                "BLACK",
-                "STRIPED",
-                "SNOWY",
-                "ASHEN",
-                "WOODS",
-                "SPOTTED",
-                "CHESTNUT"
+                Wolf.Variant.PALE.toString(),
+                Wolf.Variant.RUSTY.toString(),
+                Wolf.Variant.BLACK.toString(),
+                Wolf.Variant.STRIPED.toString(),
+                Wolf.Variant.SNOWY.toString(),
+                Wolf.Variant.ASHEN.toString(),
+                Wolf.Variant.WOODS.toString(),
+                Wolf.Variant.SPOTTED.toString(),
+                Wolf.Variant.CHESTNUT.toString()
         );
         ItemStack loot = new ItemStack(Material.STICK, 1);
         List<String> lore = List.of(
@@ -1913,14 +2099,16 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.WOLF,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }
 
     // Multi-Skin Hostiles ---------------------------------------------------------------------------------------------
     public static List<MobHead> ZombieVillagers(){
+        EntityType entityType = EntityType.ZOMBIE_VILLAGER;
+        Sound noteblockSound = Data.getEntityTypeNoteblockSound(entityType);
         List<UUID> uuids = List.of(
                 UUID.fromString("766c8a9c-5fe3-11ed-9b6a-0242ac120002"),
                 UUID.fromString("766c8cd6-5fe3-11ed-9b6a-0242ac120002"),
@@ -1949,7 +2137,7 @@ public class HeadData {
             textures.add(new URL("https://textures.minecraft.net/texture/22cca2d9f0aef42cc3086415e1419560f34334b167bebfefecc43492cb141789"));
             textures.add(new URL("https://textures.minecraft.net/texture/279862124fcf95aece708624d40a4fe4658351113e436524eb5f20f8fe5e66b6"));
         }catch (MalformedURLException e){
-            throw new RuntimeException(e);
+            System.out.println("Texture unable to load for " + entityType);
         }
         List<String> variants = List.of(
                 Villager.Type.DESERT.toString(),
@@ -1970,8 +2158,8 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore);
-            heads.add(new MobHead(uuid,name,EntityType.ZOMBIE_VILLAGER,head,loot,lore,variant));
+            ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
+            heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }
         return heads;
     }

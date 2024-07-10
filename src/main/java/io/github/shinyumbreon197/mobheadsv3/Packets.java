@@ -7,12 +7,18 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.WrappedDataValue;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import com.comphenix.protocol.wrappers.WrappedParticle;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.*;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.NumberConversions;
+import org.bukkit.util.Vector;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class Packets {
 
@@ -29,24 +35,72 @@ public class Packets {
 //    }
 
     // Suspicious Particles --------------------------------------------------------------------------------------------
-    public static void susParticles(Player player, Location origin){
+    private static Color susColor(int type){
+        if (type == 0){ // sus block
+            return Color.fromRGB(255,60,10);
+        }else if (type == 1){ // Monster spawner
+            return Color.fromRGB(60,60,60);
+        }else if (type == 2){ // Unlooted Chest
+            return Color.fromRGB(181, 101, 29);
+        }else return Color.BLACK;
+    }
+    public static void susParticles(Player player, Location origin, int type){
         if (!enabled)return;
-        float red = 255 / 255f;
-        float green = 60 / 255f;
-        float blue = 10 / 255f;
-        PacketContainer packet = pm.createPacket(PacketType.Play.Server.WORLD_PARTICLES);
-        packet.getNewParticles().write(0, WrappedParticle.create(Particle.SPELL_MOB, null));
-        packet.getIntegers().write(0,0);
-        packet.getDoubles()
-                .write(0, origin.getX()) // Loc X
-                .write(1, origin.getY()) // Loc Y
-                .write(2, origin.getZ()); // Loc Z
-        packet.getFloat()
-                .write(0, red) // Offset X // Red
-                .write(1, green) // Offset Y // Green
-                .write(2, blue) // Offset Z // Blue
-                .write(3, 1f); // Speed // Must be 1f
-        pm.sendServerPacket(player,packet);
+        for (int i = 1; i < 5; i++) {
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    Random random = new Random();
+                    PacketContainer packet = pm.createPacket(PacketType.Play.Server.WORLD_PARTICLES);
+                    packet.getNewParticles().write(0, WrappedParticle.create(Particle.ENTITY_EFFECT, susColor(type)));
+                    packet.getIntegers().write(0,0);
+                    packet.getDoubles()
+                            .write(0, origin.getX() + random.nextDouble(-0.8,0.8)) // Loc X
+                            .write(1, origin.getY()+ random.nextDouble(-0.8,0.2)) // Loc Y
+                            .write(2, origin.getZ() + random.nextDouble(-0.8,0.8)) // Loc Z
+                    ;
+                    pm.sendServerPacket(player,packet);
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(), i * 4);
+        }
+    }
+    public static void susTrailParticles(Player player, Location origin, Location destination, int type){
+        if (!enabled)return;
+        Vector originPoint = origin.toVector();
+        Vector destPoint = destination.toVector();
+        if (debug){
+            System.out.println("originPoint: " + originPoint);
+            System.out.println("destPoint: " + destPoint);
+        }
+        double step = 1.2;
+        Vector direction = destPoint.clone().subtract(originPoint).normalize().multiply(step);
+        double distance = originPoint.distance(destPoint);
+        if (debug) System.out.println("Sus distance: " + distance);
+        float size = (float) ((100 - (distance * 5)) * 0.01);
+        if (debug) System.out.println("Sus Size: " + size);
+        if (size > 1f){
+            size = 1f;
+        }else if (size < 0.1f){
+            size = 0.1f;
+        }
+        if (debug) System.out.println("Sus Size Modified: " + size);
+        Vector current = originPoint.clone();
+        for (double i = 0; i < distance; i = i + step) {
+            current = current.clone().add(direction);
+            PacketContainer packet = pm.createPacket(PacketType.Play.Server.WORLD_PARTICLES);
+            packet.getNewParticles().write(0, WrappedParticle.create(Particle.DUST, new Particle.DustOptions(susColor(type), size)));
+            packet.getIntegers().write(0,0);
+            packet.getDoubles()
+                    .write(0, current.getX()) // Loc X
+                    .write(1, current.getY()) // Loc Y
+                    .write(2, current.getZ()); // Loc Z
+//            packet.getFloat()
+//                    .write(0, (float) 100/255) // Offset X // Red
+//                    .write(1, (float) 100/255) // Offset Y // Green
+//                    .write(2, (float) 100/255) // Offset Z // Blue
+//                    .write(3, 1f); // Scale // Clamped between 0.01 and 4
+            pm.sendServerPacket(player,packet);
+        }
     }
 
     // Entity Glow -----------------------------------------------------------------------------------------------------
@@ -70,13 +124,13 @@ public class Packets {
             EntityType.ITEM_FRAME, EntityType.ITEM_DISPLAY, EntityType.GLOW_ITEM_FRAME, EntityType.BLOCK_DISPLAY,
             EntityType.INTERACTION, EntityType.MARKER, EntityType.PAINTING, EntityType.TEXT_DISPLAY
     );
-    public static void nearbyGlow(Player player, int halfRadius){
+    public static void nearbyGlow(Player player, int radius){
         if (!enabled)return;
         List<Entity> wereNearby;
         if (glowingEnts.containsKey(player)){
             wereNearby = glowingEnts.get(player);
         }else wereNearby = new ArrayList<>();
-        List<Entity> nearbyEnts = player.getNearbyEntities(halfRadius,halfRadius,halfRadius);
+        List<Entity> nearbyEnts = player.getNearbyEntities(radius,radius,radius);
         nearbyEnts.remove(player);
         for (Entity nearby:nearbyEnts){
             if (glowingExclusions.contains(nearby.getType()))continue;

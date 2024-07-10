@@ -55,6 +55,9 @@ public class ToggleGliding implements Listener {
                     if (headType.equals(EntityType.GOAT)) CreatureEvents.goatTakeOff((Player) target, false);
                 }
             }
+            case BREEZE -> {
+                if (isGliding) CreatureEvents.breezeElytraWindCharge(target);
+            }
         }
     }
 

@@ -13,10 +13,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class EntityDeath implements Listener {
 
@@ -24,21 +27,29 @@ public class EntityDeath implements Listener {
     public static void onEntityDeath(EntityDeathEvent deathEvent){
         //if (debug) System.out.println("EntityDeathEvent"); //debug
         if (deathEvent.getEntity().getType().equals(EntityType.ARMOR_STAND))return;
+        if (deathEvent.getEntity() instanceof Mob){
+            CreatureEvents.removeFromAttackAggroMap((Mob)deathEvent.getEntity());
+        }
         if (Summon.isEntitySummon(deathEvent.getEntity()))return;
         EntityDamageEvent damageEvent = deathEvent.getEntity().getLastDamageCause();
         HeadItemDrop.creatureDeath(deathEvent,damageEvent);
         EntityType abilityType = Util.getAbilityDamageData(deathEvent.getEntity());
+        if (debug) System.out.println("EntityDeathEvent: abilityType = " + abilityType);
         if (abilityType != null){
             Entity killed = deathEvent.getEntity();
             Entity killer = null;
             if (killed.getLastDamageCause() instanceof EntityDamageByEntityEvent){
-                killer = ((EntityDamageByEntityEvent)killed.getLastDamageCause()).getDamager();
+                if (debug) System.out.println("Before Killer Correction: " + killer);
+                killer = Util.getTrueAttacker((killed.getLastDamageCause()).getEntity());
+                if (debug) System.out.println("After Killer Correction: " + killer);
+                //killer = ((EntityDamageByEntityEvent)killed.getLastDamageCause()).getDamager();
             }
             if (killer != null){
                 switch (abilityType){
                     case FROG -> {
                         if (killer instanceof Player && !(killed instanceof Player)){
                             List<ItemStack> drops = new ArrayList<>(deathEvent.getDrops());
+                            if (debug) System.out.println("Frog Kill drops: " + drops);
                             MobHead mobHead = MobHead.getMobHeadWornByEntity(killer);
                             if (mobHead != null && mobHead.getEntityType().equals(EntityType.FROG) && killed.getType().equals(EntityType.MAGMA_CUBE)){
                                 String variant = mobHead.getVariant();
@@ -54,6 +65,19 @@ public class EntityDeath implements Listener {
                             deathEvent.getDrops().clear();
                         }
                     }
+                }
+                if (deathEvent instanceof PlayerDeathEvent){
+                    PlayerDeathEvent pde = (PlayerDeathEvent) deathEvent;
+                    String deathMessage = pde.getDeathMessage();
+                    if (deathMessage != null){
+                        String killerName = killer.getName();
+                        String killedName = killed.getName();
+                        deathMessage = deathMessage.substring(killedName.length());
+                        deathMessage = deathMessage.replace(killedName,killerName);
+                        deathMessage = killedName + deathMessage;
+                        pde.setDeathMessage(deathMessage);
+                    }
+
                 }
             }
         }

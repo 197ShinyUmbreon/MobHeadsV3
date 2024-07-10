@@ -97,9 +97,9 @@ public class CreatureTickRelay {
             case SQUID -> {
             }
             //case WOLF -> {if (!Decoy.hasDecoy(target)) Decoy.addDecoyToCreature(target, EntityType.WOLF);}
-            case MUSHROOM_COW -> {
+            case MOOSHROOM -> {
             }
-            case SNOWMAN -> {
+            case SNOW_GOLEM -> {
             }
             //case OCELOT -> {if (!Decoy.hasDecoy(target)) Decoy.addDecoyToCreature(target, EntityType.OCELOT);}
             case IRON_GOLEM -> {
@@ -174,7 +174,7 @@ public class CreatureTickRelay {
             case CAMEL -> {
             }
             case SNIFFER -> { // (Packet) Highlight nearby sus blocks
-                if (target instanceof Player) CreatureEvents.snifferHighlightSus((Player) target);
+                if (target instanceof Player) CreatureEvents.snifferHighlightSusNew((Player) target);
             }
         }
     }

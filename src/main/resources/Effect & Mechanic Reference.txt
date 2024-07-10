@@ -189,6 +189,14 @@ Bee:
 			Affliction: Poison, Lv1, 5 Sec.
 		Mechanic: On damage from enemy, summon a Bee that will sting them and give them Poison 1 for 5 seconds.
 	Enchantments:
+Armadillo:
+	Tick:
+		Effect: Haste, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect: When damaged by creature, gain Resistance, Lv2, 10 Seconds, and Slowness, Lv1, 10 Seconds, once every 20 seconds.
+		Mechanic: When damaged by a creature, Knockback Resistance is 100% for 10 seconds, resetting after 20 seconds.
+	Enchantments: Protection, Lv4.
 Bat: 
 	Tick:
 		Effect: Blindness, Lv1, Infinite;
@@ -217,12 +225,12 @@ Snowman:
 	Enchantments:
 Polar Bear: 
 	Tick:
-		Effect: If on snow/ice; Speed, Lv1, Infinite. (NYI)
+		Effect: If in cold biome or on snow/ice; Speed, Lv1, Infinite. (NYI). Strength, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect:
 		Mechanic: 
-	Enchantments:
+	Enchantments: Respiration, Lv2.
 Skeleton Horse: 
 	Tick:
 		Effect: Speed, Lv2, Infinite.
@@ -283,7 +291,7 @@ Tadpole:
 Sniffer:
     Tick:
         Effect:
-        Mechanic: (Packet) Suspicious blocks emit faint particles.
+        Mechanic: (Packet) Suspicious blocks, Monster Spawners and Loot Chests emit faint particles and have a line drawn towards them.
     Event:
         Effect:
         Mechanic:
@@ -294,7 +302,7 @@ Camel:
         Mechanic: 
     Event:
         Effect:
-        Mechanic: Mountable by other Players. Sneak-Jump to dash. (Same distance, height and cooldown as Camel)
+        Mechanic: Mountable by other Players. (NYI) Sneak-Jump to dash. (Same distance, height and cooldown as Camel)
 	Enchantments:
 
 Single-Skin Hostiles
@@ -309,11 +317,20 @@ Silverfish:
 	Enchantments:
 Stray: 
 	Tick:
+		Effect: Poison, Lv1, Infinite.
+		Mechanic: Immune to Poison damage.
+	Event:
+		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
+			Affliction: Slow, Lv1, 5 Sec.
+		Mechanic:
+	Enchantments: Projectile Protection, Lv3.
+Bogged: 
+	Tick:
 		Effect:
 		Mechanic:
 	Event:
 		Effect: Upon drinking Milk; Gain Regen, Lv1, 5 min. Speed, Lv1, 5 min. Resistance, Lv1 5 min.
-			Affliction: Slow, Lv1, 5 Sec.
+			Affliction: Poison, Lv1, 4 Sec.
 		Mechanic:
 	Enchantments: Projectile Protection, Lv3.
 Shulker: 
@@ -452,10 +469,11 @@ Ghast:
 Blaze: 
 	Tick:
 		Effect: Slow Fall, Lv1, Infinite.
-		Mechanic: Shoot fireballs while holding a Blaze Rod. Small chance for Rod to burn up on use. (NYI)
+		Mechanic: 
 	Event:
 		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.
-		Mechanic: Halve Fire/Lava damage.
+		Mechanic: Halve Fire/Lava damage. Right-Clicking with a Blaze Rod shoots a Fireball. Sneak-Right-Cicking a block with a Blaze Rod sets it on fire. 
+			      Right-Click with Blaze Powder while gliding to get a 5 second speed boost.
 	Enchantments: Fire Resistance, Lv4.
 Cave Spider: 
 	Tick:
@@ -465,11 +483,19 @@ Cave Spider:
 	Event:
 		Effect:
 			Affliction: Poison, Lv1, 10 Seconds.
-		Mechanic: Immunity to Poison. NYI
+		Mechanic: Immunity to Poison.
 	Enchantments:
+Breeze: 
+	Tick:
+		Effect: Wind Charged, Lv1, Infinite.
+		Mechanic:
+	Event:
+		Effect: Hold Sneak to charge a jump.
+		Mechanic: Immune to Projectiles. Reflects Projectiles towards their source.
+	Enchantments: Projectile Protection, Lv4.
 Magma Cube: 
 	Tick:
-		Effect: Jump, Lv1, Infinite; // REMOVE Fire Resistance, Lv1, Infinite.
+		Effect: Jump, Lv1, Infinite.
 		Mechanic:
 	Event:
 		Effect: Gain Fire Resistance I for 5 seconds upon taking Fire/Lava damage.

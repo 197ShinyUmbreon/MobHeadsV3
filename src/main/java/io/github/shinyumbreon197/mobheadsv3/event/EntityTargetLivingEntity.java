@@ -39,6 +39,10 @@ public class EntityTargetLivingEntity implements Listener {
         Mob targeter = (Mob) ete.getEntity();
         LivingEntity targeted = ete.getTarget();
         if (targeted == null)return;
+        if (CreatureEvents.hasMobBeenAttacked(targeted, targeter)){
+            if (debug) System.out.println("mobHasBeenAttacked() -> true; Targeted: " + targeted.getName() + " Mob: " + targeter.getName());
+            return;
+        }
         boolean monster = targeter instanceof Monster;
         EntityType targeterType = targeter.getType();
         EntityType targetedHeadType = targetedHead.getEntityType();

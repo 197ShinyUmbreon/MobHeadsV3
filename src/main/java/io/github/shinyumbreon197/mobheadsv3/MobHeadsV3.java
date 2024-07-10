@@ -1,11 +1,12 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
+import io.github.shinyumbreon197.mobheadsv3.command.DebugEventsAndCommands;
 import io.github.shinyumbreon197.mobheadsv3.command.HeadCommands;
 import io.github.shinyumbreon197.mobheadsv3.command.SpawnHeadedEntity;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.*;
 import io.github.shinyumbreon197.mobheadsv3.event.main.MainThread;
-import io.github.shinyumbreon197.mobheadsv3.event.world.Furnace;
+import io.github.shinyumbreon197.mobheadsv3.event.world.FunctionalBlockEvents;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
@@ -34,7 +35,7 @@ public final class MobHeadsV3 extends JavaPlugin {
     public static PlayerRegistry playerRegistry;
     private static final String pluginName = "[MobHeadsV3] ";
     public static String getPluginName(){return pluginName;}
-    public static String getPluginNameColored(){return ChatColor.YELLOW+pluginName+ChatColor.RESET;}
+    public static String getPluginNameColored(){return ChatColor.GOLD+pluginName+ChatColor.RESET;}
     public static boolean protocolLibEnabled = false;
 
     @Override
@@ -52,7 +53,6 @@ public final class MobHeadsV3 extends JavaPlugin {
 
         initPtcLib();
 
-        //Summon.startSummonThread();
         getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
         resumeServices();
     }
@@ -84,38 +84,43 @@ public final class MobHeadsV3 extends JavaPlugin {
         getCommand("mobheads").setExecutor(new HeadCommands());
         getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
         //if (debug) getCommand("center").setExecutor(new TestCommands());
+        if (debug) getCommand("mhdebug").setExecutor(new DebugEventsAndCommands());
     }
 
     private void registerEvents(){
         PluginManager pm = getServer().getPluginManager();
 
-        //pm.registerEvents(new Summon(), this);
+        if (debug){
+            pm.registerEvents(new DebugEventsAndCommands(), this);
+        }
 
+        if (Config.headEffects){
+            pm.registerEvents(new EntityTargetLivingEntity(),this);
+            pm.registerEvents(new PlayerFoodHungerSaturation(),this);
+            pm.registerEvents(new ProjectileEvents(),this);
+            pm.registerEvents(new IncrementStatistic(),this);
+            pm.registerEvents(new PlayerMove(),this);
+            pm.registerEvents(new PlayerToggleSneak(),this);
+            pm.registerEvents(new PickUpItem(),this);
+            pm.registerEvents(new ToggleGliding(),this);
+            pm.registerEvents(new FunctionalBlockEvents(),this);
+            pm.registerEvents(new PlayerFish(), this);
+            pm.registerEvents(new PlayerItemConsume(), this);
+            pm.registerEvents(new PlayerTeleport(), this);
+            pm.registerEvents(new Summon(), this);
+            //pm.registerEvents(new PrepareCraft(),this);
+        }
         pm.registerEvents(new MobHeadGUI(),this);
         pm.registerEvents(new Decollation(),this);
         pm.registerEvents(new MobHead(),this);
         pm.registerEvents(new PlayerJoinServer(),this);
         pm.registerEvents(new EntityDeath(),this);
         pm.registerEvents(new EntityDamage(),this);
-        if (Config.headEffects) pm.registerEvents(new EntityTargetLivingEntity(),this);
-        if (Config.headEffects) pm.registerEvents(new PlayerFoodHungerSaturation(),this);
         pm.registerEvents(new PlayerInteractEvents(),this);
         pm.registerEvents(new BlockPlaceAndBreak(),this);
         pm.registerEvents(new ItemSpawnDespawnEvents(),this);
         pm.registerEvents(new InventoryEvents(),this);
-        if (Config.headEffects) pm.registerEvents(new ProjectileEvents(),this);
-        if (Config.headEffects) pm.registerEvents(new IncrementStatistic(),this);
-        if (Config.headEffects) pm.registerEvents(new PlayerMove(),this);
-        if (Config.headEffects) pm.registerEvents(new PlayerToggleSneak(),this);
-        if (Config.headEffects) pm.registerEvents(new PickUpItem(),this);
-        if (Config.headCraftLoot) pm.registerEvents(new PrepareCraft(),this);
-        if (Config.headEffects) pm.registerEvents(new ToggleGliding(),this);
         pm.registerEvents(new ChunkUnload(),this);
-        if (Config.headEffects) pm.registerEvents(new Furnace(),this);
-        if (Config.headEffects) pm.registerEvents(new PlayerFish(), this);
-        if (Config.headEffects) pm.registerEvents(new PlayerItemConsume(), this);
-        if (Config.headEffects) pm.registerEvents(new PlayerTeleport(), this);
-        if (Config.headEffects) pm.registerEvents(new Summon(), this);
 
         //pm.registerEvents(new Packets(), this);
     }
@@ -155,7 +160,7 @@ public final class MobHeadsV3 extends JavaPlugin {
             ShapedRecipe recipe = new ShapedRecipe(nsk, lootItem);
             recipe.shape("H");
             recipe.setIngredient('H', rc);
-            //if (debug) System.out.println("registerRecipes() " + name); //debug
+            if (debug) System.out.println("registerRecipes() " + name); //debug
             getServer().addRecipe(recipe);
         }
     }
@@ -164,17 +169,8 @@ public final class MobHeadsV3 extends JavaPlugin {
             CreatureEvents.chestedAddHolder(player);
         }
     }
-
-    public static String namePlain(String output){
-        return getPluginName()+output;
-    }
-
-    public static String nameColored(String output){
-        return ChatColor.GOLD+getPluginName()+ChatColor.RESET+output;
-    }
-
     public static void messagePlayer(Player player, String message){
-        player.sendMessage(nameColored(message));
+        player.sendMessage(getPluginNameColored() + message);
     }
 
     public static void cOut(String message){

@@ -7,6 +7,7 @@ import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.Skull;
 import org.bukkit.enchantments.Enchantment;
@@ -101,13 +102,17 @@ public class MobHead implements Listener {
             return null;
         }else if (matches.size() == 1) return matches.get(0);
         String targetVariant = Util.getVariantString(target);
+        if (debug) System.out.println("getMobHeadOfEntity(LivingEntity target):String targetVariant = " + targetVariant); //debug
         if (targetVariant == null) return null;
         for (MobHead mobHead:matches){
             String scanVariant = mobHead.getVariant();
+            if (debug) System.out.println("scanVariant:" + scanVariant); //debug
             if (scanVariant == null) continue;
             if (targetVariant.matches(scanVariant)) return mobHead;
         }
-        return null;
+        MobHeadsV3.cOut("The proper variant head item was not dropped.");
+        MobHeadsV3.cOut("\t\t" + target.toString());
+        return null; // matches.get(0);
     }
 
     public static MobHead getMobHeadFromVanillaType(EntityType entityType){
@@ -119,8 +124,13 @@ public class MobHead implements Listener {
     }
 
     public static ItemStack getHeadItemOfEntity(LivingEntity target){
+        if (target.getType().equals(EntityType.ARMOR_STAND)) return new ItemStack(Material.ARMOR_STAND);
         MobHead mobHead = getMobHeadOfEntity(target);
-        if (mobHead == null)return null;
+        if (mobHead == null){
+            MobHeadsV3.cOut("An error occurred fetching the head item of an entity.");
+            MobHeadsV3.cOut("\t\t" + target.getAsString());
+            return new ItemStack(Material.SKELETON_SKULL);
+        }
         return mobHead.getHeadItemStack();
     }
     public static MobHead getMobHeadWornByEntity(Entity entity){
@@ -169,6 +179,7 @@ public class MobHead implements Listener {
 
     public static MobHead getMobHeadFromSkullItemStack(ItemStack skullItem){
         if (skullItem == null)return null;
+        if (skullItem.getItemMeta() == null || !(skullItem.getItemMeta() instanceof SkullMeta))return null;
         SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
         if (skullMeta == null)return null;
         PersistentDataContainer data = skullMeta.getPersistentDataContainer();
@@ -265,6 +276,7 @@ public class MobHead implements Listener {
     List<String> lore;
     String variant;
     Map<Enchantment, Integer> enchantments;
+    Sound noteblockSound;
 
     public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore) {
         this.uuid = uuid;
@@ -275,6 +287,18 @@ public class MobHead implements Listener {
         this.lore = lore;
         this.variant = null;
         this.enchantments = null;
+        this.noteblockSound = null;
+    }
+    public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore, Sound noteblockSound) {
+        this.uuid = uuid;
+        this.headName = displayName;
+        this.entityType = entityType;
+        this.headItemStack = headItemStack;
+        this.headLootItemStack = headLootItemStack;
+        this.lore = lore;
+        this.variant = null;
+        this.enchantments = null;
+        this.noteblockSound = noteblockSound;
     }
     public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore, String variant) {
         this.uuid = uuid;
@@ -285,6 +309,7 @@ public class MobHead implements Listener {
         this.lore = lore;
         this.variant = variant;
         this.enchantments = null;
+        this.noteblockSound = null;
     }
     public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore, String variant, Map<Enchantment, Integer> enchantments) {
         this.uuid = uuid;
@@ -295,6 +320,18 @@ public class MobHead implements Listener {
         this.lore = lore;
         this.variant = variant;
         this.enchantments = enchantments;
+        this.noteblockSound = null;
+    }
+    public MobHead(UUID uuid, String displayName, EntityType entityType, ItemStack headItemStack, ItemStack headLootItemStack, List<String> lore, String variant, Map<Enchantment, Integer> enchantments, Sound noteblockSound) {
+        this.uuid = uuid;
+        this.headName = displayName;
+        this.entityType = entityType;
+        this.headItemStack = headItemStack;
+        this.headLootItemStack = headLootItemStack;
+        this.lore = lore;
+        this.variant = variant;
+        this.enchantments = enchantments;
+        this.noteblockSound = noteblockSound;
     }
     public MobHead() {
 
@@ -360,6 +397,12 @@ public class MobHead implements Listener {
     public Map<Enchantment, Integer> getEnchantments(){return enchantments;}
 
     public void setEnchantments(Map<Enchantment, Integer> enchantments){this.enchantments = enchantments;}
+
+    public Sound getNoteblockSound(){return noteblockSound;}
+
+    public void setNoteblockSound(Sound noteblockSound){
+        this.noteblockSound = noteblockSound;
+    }
 
 
 }

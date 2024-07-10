@@ -2,6 +2,7 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.function.HeadItemDrop;
+import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -133,7 +134,7 @@ public class Decollation implements Listener {
         if (debug) System.out.println("template: " + template + "\nbase: " + base + "\naddition: " + addition); //debug
         if (base.getType().equals(Material.AIR) ||
                 addition == null || addition.getType().equals(Material.AIR) ||
-                !template.getType().equals(Material.AIR))return;
+                !template.getType().equals(Material.DIRT))return;
         if (!baseMaterials.contains(base.getType()) || !addition.getType().equals(Material.WITHER_SKELETON_SKULL))return;
         ItemStack result = base.clone();
         result.setAmount(1);
@@ -143,12 +144,11 @@ public class Decollation implements Listener {
 
     private static List<SmithingTrimRecipe> recipesSmithingDecollation(){
         List<SmithingTrimRecipe> smithingRecipes = new ArrayList<>();
-        RecipeChoice templateItem = new RecipeChoice.MaterialChoice(Material.AIR);
+        RecipeChoice templateItem = new RecipeChoice.MaterialChoice(Material.DIRT);
         RecipeChoice additionItem = new RecipeChoice.MaterialChoice(Material.WITHER_SKELETON_SKULL);
         for (Material material:baseMaterials){
             NamespacedKey key = new NamespacedKey(MobHeadsV3.getPlugin(),"smith_decollation_"+material.toString().toLowerCase());
             RecipeChoice baseItem = new RecipeChoice.MaterialChoice(material);
-
             //ItemStack result = new ItemStack(material);
             smithingRecipes.add(new SmithingTrimRecipe(key,templateItem,baseItem,additionItem));
         }
@@ -195,12 +195,11 @@ public class Decollation implements Listener {
                         world.dropItem(player.getLocation(),itemStack);
                     }
                 }
-                //AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation());
+                AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation().add(player.getLocation().getDirection()));
             }else HeadItemDrop.dropHead(livTarget.getEyeLocation(),livTarget);
             AVFX.playHeadDropEffect(livTarget.getEyeLocation());
             AVFX.playDecollationPearlEffect(livTarget.getLocation());
         }else{
-            //pearl.getWorld().dropItem(dropLoc,pearl.getItem());
             if (source instanceof Player){
                 Player player = (Player) source;
                 Map<Integer,ItemStack> overflow = player.getInventory().addItem(pearl.getItem());
@@ -210,7 +209,7 @@ public class Decollation implements Listener {
                         world.dropItem(player.getLocation(),itemStack);
                     }
                 }
-                //AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation());
+                AVFX.playDecollationPearlTeleportEffect(player.getEyeLocation().add(player.getLocation().getDirection()));
             }else pearl.getWorld().dropItem(dropLoc,pearl.getItem());
         }
         pearl.remove();

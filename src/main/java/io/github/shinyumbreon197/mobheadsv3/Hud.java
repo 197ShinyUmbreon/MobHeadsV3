@@ -5,59 +5,70 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class Hud {
+    private static final Map<Player,List<String>> headsUpQueue = new HashMap<>();
 
+    public static void headsUp(Player player, List<String> strings){
+        StringBuilder stringBuilder = new StringBuilder(MobHeadsV3.getPluginNameColored());
+        int i = 0;
+        for (String string:strings){
+            if (i != 0)stringBuilder.append(" ");
+            stringBuilder.append(string);
+            i++;
+        }
+        String message = stringBuilder.toString();
+        boolean active = headsUpQueue.containsKey(player);
+        List<String> queuedMessages = headsUpQueue.getOrDefault(player, new ArrayList<>());
+        queuedMessages.add(message);
+        headsUpQueue.put(player, queuedMessages);
+        if (!active){
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    cycleHeadsUpQueue(player);
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(),1);
+        }
+    }
 
-//    static final List<Player> bars = new ArrayList<>();
-//
-//    @EventHandler
-//    public static void testMove(PlayerMoveEvent e){
-//        //newProgressBar(e.getPlayer(), 100, false, "Appendix:");
-//
-//    }
+    private static void cycleHeadsUpQueue(Player player){
+        List<String> messages = headsUpQueue.getOrDefault(player, List.of());
+        if (messages.size() == 0)return;
+        sendHeadsUp(player, messages.get(0));
+        messages.remove(0);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                List<String> currentMessages = headsUpQueue.getOrDefault(player, List.of());
+                if (currentMessages.size() == 0){
+                    headsUpQueue.remove(player);
+                }else{
+                    headsUpQueue.put(player,currentMessages);
+                }
+                cycleHeadsUpQueue(player);
+            }
+        }.runTaskLater(MobHeadsV3.getPlugin(), 85);
+    }
 
-//    public static void updateShulkerBar(Player player){ // Not in use
-//        if (CreatureEvents.isOnLevitationMap(player)){
-//            if (!bars.contains(player)){
-//                bars.add(player);
-//                newProgressBar(player,100,false, "Levitation Time:");
-//            }
-//        }else{
-//            bars.remove(player);
-//        }
-//    }
-//
-//    private static void newProgressBar(Player player, int max, boolean fill, String appendix){ // Not in use
-//        boolean enabled = bars.contains(player);
-//        new BukkitRunnable(){
-//            int i = 0;
-//            @Override
-//            public void run() {
-//                System.out.println("i = " + i);
-//                if (i >= max){
-//                    if (fill){
-//                        System.out.println("100%!");
-//                        //run success command
-//                    }else {
-//                        System.out.println("0%!");
-//                        //run success command
-//                    }
-//                }else{
-//                    //progressBar(player, max, i, fill, appendix);
-//                }
-//                if (!enabled || i >= max){
-//                    System.out.println("canceled");
-//                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder().create());
-//                    cancel();
-//                    return;
-//                }
-//                i++;
-//            }
-//        }.runTaskTimer(MobHeadsV3.getPlugin(), 0, 1);
-//    }
+    private static void sendHeadsUp(Player player, String message){
+        int ticks = 80;
+        for (int i = 0; i <= ticks; i++) {
+            String sentString;
+            if (i < ticks){
+                sentString = message;
+            }else sentString = "";
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(sentString).create());
+                }
+            }.runTaskLater(MobHeadsV3.getPlugin(),i);
+        }
+    }
 
     public static void progressBarEnd(Player player){
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder().create());

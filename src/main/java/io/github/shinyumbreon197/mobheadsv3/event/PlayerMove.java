@@ -22,7 +22,7 @@ public class PlayerMove implements Listener {
         boolean inWater = player.isInWater();;
         switch (mobHead.getEntityType()){
             case SHULKER -> {if (grounded || inWater) CreatureEvents.resetShulkerLevitationTime(player);}
-            case BLAZE -> {if (gliding) AVFX.playBlazeGlideParticles(player.getLocation());}
+            case BLAZE -> {if (gliding) AVFX.playBlazeGlideParticles(player.getLocation(), CreatureEvents.blazeIsBoosting(player));}
             case CHICKEN -> {if (gliding) AVFX.playFeatheredGlideParticles(player.getLocation());}
             case PARROT -> {if (gliding) AVFX.playFeatheredGlideParticles(player.getLocation());}
             case GHAST -> {

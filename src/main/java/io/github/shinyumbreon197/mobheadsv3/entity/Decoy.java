@@ -1,7 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.entity;
 
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
-import net.minecraft.world.entity.ai.goal.PathfinderGoalAvoidTarget;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;

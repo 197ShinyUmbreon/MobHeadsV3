@@ -7,6 +7,7 @@ import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
+import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -26,6 +27,8 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.UUID;
 
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
+
 public class ProjectileEvents implements Listener {
 
     @EventHandler
@@ -34,11 +37,33 @@ public class ProjectileEvents implements Listener {
         ProjectileSource source = projectile.getShooter();
 
         if (source instanceof LivingEntity){
+            if (debug){
+                System.out.println(((LivingEntity)projectile.getShooter()));
+                System.out.println(projectile.getType());
+                System.out.println(projectile.getVelocity().length());
+            }
             LivingEntity livingSource = (LivingEntity) source;
             MobHead mobHead = MobHead.getMobHeadWornByEntity(livingSource);
             boolean isSummon = Summon.isEntitySummon(livingSource);
-            if (projectile.getType().equals(EntityType.SNOWBALL) && (isSummon || mobHead != null && mobHead.getEntityType().equals(EntityType.SNOWMAN))){
+            if (projectile.getType().equals(EntityType.SNOWBALL) && (isSummon || mobHead != null && mobHead.getEntityType().equals(EntityType.SNOW_GOLEM))){
                 CreatureEvents.snowmanThrowSnowball(livingSource, (Snowball) projectile, isSummon);
+            }
+            if (mobHead != null){
+                EntityType headType = mobHead.getEntityType();
+                switch (headType){
+                    case BLAZE -> {
+                        projectile.setVisualFire(true);
+                    }
+                    case BREEZE -> {
+                        if (!(projectile instanceof WindCharge) || !(source instanceof Player))return;
+                        Random random = new Random();
+                        int roll = random.nextInt(0,10);
+                        if (roll >= 8)return; //80%
+                        for (ItemStack charge:((Player)source).getInventory().addItem(new ItemStack(Material.WIND_CHARGE)).values()){
+                            ((Player) source).getWorld().dropItem(((Player) source).getLocation(),charge);
+                        }
+                    }
+                }
             }
         }
 
@@ -61,6 +86,18 @@ public class ProjectileEvents implements Listener {
             phe.setCancelled(true);
             CreatureEvents.snowmanSnowballEffect(hitEnt, (Snowball) projectile);
         }
+        if (CreatureEvents.isBlazeFireball(projectile)){
+            if (wasBlock){
+                projectile.remove();
+                phe.setCancelled(true);
+            }
+        }
+        if (wasEntity && CreatureEvents.isBreezeReflection(projectile)){
+            Util.addAbilityDamageData(hitEnt, EntityType.BREEZE);
+        }
+        if (CreatureEvents.isDragonBreath(projectile)){
+            CreatureEvents.dragonBreathLandHit(hitEnt);
+        }
         if (wasEntity && hitEnt instanceof LivingEntity && MobHead.isWearingHead(hitEnt)){
             MobHead mobHead = MobHead.getMobHeadWornByEntity(hitEnt);
             if (mobHead == null)return;
@@ -69,6 +106,10 @@ public class ProjectileEvents implements Listener {
                 case ENDERMAN -> {
                     phe.setCancelled(true);
                     CreatureEvents.endermanTeleportNearby((LivingEntity) hitEnt, true);
+                }
+                case BREEZE -> {
+                    phe.setCancelled(true);
+                    CreatureEvents.breezeReflectProjectile((LivingEntity) hitEnt, projectile);
                 }
             }
         }

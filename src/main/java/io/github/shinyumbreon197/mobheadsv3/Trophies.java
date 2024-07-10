@@ -59,8 +59,8 @@ public class Trophies {
         data.set(Key.master, PersistentDataType.STRING, guardianChestUUID.toString());
         chestMeta.setColor(Color.fromRGB(0x68efbe));
         chestMeta.setDisplayName(ChatColor.AQUA+"Guardian's Repellent");
-        chestMeta.addEnchant(Enchantment.DURABILITY, 2, false);
-        chestMeta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 2, false);
+        chestMeta.addEnchant(Enchantment.UNBREAKING, 2, false);
+        chestMeta.addEnchant(Enchantment.PROTECTION, 2, false);
         chestMeta.addEnchant(Enchantment.THORNS, 3, false);
         chest.setItemMeta(chestMeta);
         addTrophyItem(chest, guardianChestUUID);
@@ -80,9 +80,9 @@ public class Trophies {
         PersistentDataContainer data = axeMeta.getPersistentDataContainer();
         data.set(Key.master, PersistentDataType.STRING, bruteAxeUUID.toString());
         axeMeta.setDisplayName(ChatColor.AQUA+"Brute's Axe");
-        axeMeta.addEnchant(Enchantment.DURABILITY,2, false);
-        axeMeta.addEnchant(Enchantment.DAMAGE_ALL, 3, false);
-        axeMeta.addEnchant(Enchantment.LOOT_BONUS_MOBS, 2, true);
+        axeMeta.addEnchant(Enchantment.UNBREAKING,2, false);
+        axeMeta.addEnchant(Enchantment.SHARPNESS, 3, false);
+        axeMeta.addEnchant(Enchantment.LOOTING, 2, true);
         axe.setItemMeta(axeMeta);
         addTrophyItem(axe, bruteAxeUUID);
         return axe;
@@ -101,8 +101,8 @@ public class Trophies {
         PersistentDataContainer data = swordMeta.getPersistentDataContainer();
         data.set(Key.master, PersistentDataType.STRING, vexSwordUUID.toString());
         swordMeta.setDisplayName(ChatColor.AQUA+"Vex's Sword");
-        swordMeta.addEnchant(Enchantment.DURABILITY, 1, false);
-        swordMeta.addEnchant(Enchantment.DAMAGE_ALL, 2, false);
+        swordMeta.addEnchant(Enchantment.UNBREAKING, 1, false);
+        swordMeta.addEnchant(Enchantment.SHARPNESS, 2, false);
         swordMeta.addEnchant(Enchantment.KNOCKBACK, 3, true);
         sword.setItemMeta(swordMeta);
         addTrophyItem(sword, vexSwordUUID);
@@ -122,8 +122,8 @@ public class Trophies {
         PersistentDataContainer data = swordMeta.getPersistentDataContainer();
         data.set(Key.master, PersistentDataType.STRING, zombiePiglinSwordUUID.toString());
         swordMeta.setDisplayName(ChatColor.AQUA+"Zombie Piglin's Sword");
-        swordMeta.addEnchant(Enchantment.DURABILITY, 2, false);
-        swordMeta.addEnchant(Enchantment.DAMAGE_UNDEAD, 4, false);
+        swordMeta.addEnchant(Enchantment.UNBREAKING, 2, false);
+        swordMeta.addEnchant(Enchantment.SMITE, 4, false);
         swordMeta.addEnchant(Enchantment.FIRE_ASPECT, 2, true);
         sword.setItemMeta(swordMeta);
         addTrophyItem(sword, zombiePiglinSwordUUID);
@@ -143,9 +143,9 @@ public class Trophies {
         PersistentDataContainer data = axeMeta.getPersistentDataContainer();
         data.set(Key.master, PersistentDataType.STRING, vindicatorAxeUUID.toString());
         axeMeta.setDisplayName(ChatColor.AQUA+"Vindicator's Axe");
-        axeMeta.addEnchant(Enchantment.DURABILITY, 1, false);
-        axeMeta.addEnchant(Enchantment.DAMAGE_ALL, 3, false);
-        axeMeta.addEnchant(Enchantment.LOOT_BONUS_MOBS, 2, true);
+        axeMeta.addEnchant(Enchantment.UNBREAKING, 1, false);
+        axeMeta.addEnchant(Enchantment.SHARPNESS, 3, false);
+        axeMeta.addEnchant(Enchantment.LOOTING, 2, true);
         axe.setItemMeta(axeMeta);
         addTrophyItem(axe, vindicatorAxeUUID);
         return axe;
