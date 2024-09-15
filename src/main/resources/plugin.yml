@@ -13,6 +13,17 @@ commands:
   summonheaded:
     description: Summons an Entity with a MobHead in their Helmet slot.
     usage: /summonheaded <entityname>
+    permission: mh.admin
   mhdebug:
     aliases: mhd
     description: Admin debug only.
+    permission: mh.admin
+permissions:
+  mh.admin:
+    description: Server Operator or permissive Admin.
+    default: op
+  mh.*:
+    description: Wildcard permission
+    default: op
+    children:
+      mh.admin: true

@@ -54,6 +54,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         initPtcLib();
 
         getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
+        HeadStorage.loadAllUsersHeadStorageFromFile();
         resumeServices();
     }
 
@@ -84,7 +85,9 @@ public final class MobHeadsV3 extends JavaPlugin {
         getCommand("mobheads").setExecutor(new HeadCommands());
         getCommand("summonheaded").setExecutor(new SpawnHeadedEntity());
         //if (debug) getCommand("center").setExecutor(new TestCommands());
-        if (debug) getCommand("mhdebug").setExecutor(new DebugEventsAndCommands());
+        if (debug){
+            getCommand("mhdebug").setExecutor(new DebugEventsAndCommands());
+        }
     }
 
     private void registerEvents(){
@@ -110,6 +113,7 @@ public final class MobHeadsV3 extends JavaPlugin {
             pm.registerEvents(new Summon(), this);
             //pm.registerEvents(new PrepareCraft(),this);
         }
+        pm.registerEvents(new HeadStorage(), this);
         pm.registerEvents(new MobHeadGUI(),this);
         pm.registerEvents(new Decollation(),this);
         pm.registerEvents(new MobHead(),this);

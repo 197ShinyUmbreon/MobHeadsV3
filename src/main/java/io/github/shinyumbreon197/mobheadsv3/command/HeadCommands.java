@@ -1,5 +1,6 @@
 package io.github.shinyumbreon197.mobheadsv3.command;
 
+import io.github.shinyumbreon197.mobheadsv3.Hud;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
@@ -78,9 +79,11 @@ public class HeadCommands implements CommandExecutor, TabCompleter {
                         }
                     }
                     if (repairedItem || repairedBlock){
-                        MobHeadsV3.messagePlayer(player, ChatColor.YELLOW + "Head(s) were repaired/updated.");
+                        //MobHeadsV3.messagePlayer(player, ChatColor.YELLOW + "Head(s) were repaired/updated.");
+                        Hud.headsUp(player,List.of(ChatColor.YELLOW + "Head(s) were repaired/updated."));
                     }else{
-                        MobHeadsV3.messagePlayer(player, ChatColor.RED + "Held item and/or block below was invalid or could not be repaired.");
+                        //MobHeadsV3.messagePlayer(player, ChatColor.RED + "Held item and/or block below was invalid or could not be repaired.");
+                        Hud.headsUp(player,List.of(ChatColor.RED + "Held item and/or block below was invalid or could not be repaired."));
                     }
                     if (repairedItem){
                         player.getInventory().setItemInMainHand(repairedHeadItem);

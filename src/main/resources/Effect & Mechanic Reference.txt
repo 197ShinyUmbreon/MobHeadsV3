@@ -55,6 +55,7 @@ Ender Dragon:
 	Event:
 		Effect:
 		Mechanic: On Sneak-Jump with an Elytra equipped, gain vertical and forward momentum. Half-Damage from flying into wall.
+		          Holding Sneak while gliding will give you a speed boost, depleting on use and recharging when not using.
 	Enchantments:
 
 Single-Skin Passives
@@ -258,10 +259,10 @@ Wandering Trader:
 	Enchantments:
 Iron Golem: 
 	Tick:
-		Effect: Resistance, Lv2, Infinite. Slow, Lv3, Infinite. Attack, Lv1, Infinite.
+		Effect: Resistance, Lv2, Infinite. Slow, Lv2, Infinite.
 		Mechanic:
 	Event:
-		Effect:
+		Effect: Killing a Monster nearby a Villager grants Hero of the Village for 2 minutes.
 		Mechanic:
 	Enchantments:
 Glow Squid: 
@@ -415,7 +416,7 @@ Guardian:
 		Mechanic:
 	Event:
 		Effect:
-		Mechanic:
+		Mechanic: Sneaking locks onto a target, firing a beam after 2 seconds that deals 8 damage.
 	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3. Thorns, Lv2.
 Ravager: 
 	Tick:
@@ -490,8 +491,9 @@ Breeze:
 		Effect: Wind Charged, Lv1, Infinite.
 		Mechanic:
 	Event:
-		Effect: Hold Sneak to charge a jump.
-		Mechanic: Immune to Projectiles. Reflects Projectiles towards their source.
+		Effect:
+		Mechanic: Immune to Projectiles. Reflects Projectiles towards their source. Hold Sneak to charge a jump. Burst at your feet when gliding.
+		Afflictions: Wind Charged, Lv1, 5 sec.
 	Enchantments: Projectile Protection, Lv4.
 Magma Cube: 
 	Tick:
@@ -560,7 +562,7 @@ Elder Guardian:
 	Event:
 		Effect:
 			Affliction: If Player; Mining Fatigue, Lv4, 5 Sec. + Sound
-		Mechanic:
+		Mechanic: Sneaking locks onto a target, firing a beam after 3 seconds that deals 14 damage.
 	Enchantments: Aqua Affinity, Lv1. Water Breathing, Lv3. Thorns, Lv3.
 Wither: 
 	Tick:

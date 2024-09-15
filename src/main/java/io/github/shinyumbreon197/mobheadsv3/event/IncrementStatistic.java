@@ -209,7 +209,7 @@ public class IncrementStatistic implements Listener {
             case GHAST -> {if (sneaking) CreatureEvents.ghastFloat(player);}
             case SLIME, MAGMA_CUBE -> {if (sneaking) CreatureEvents.slimeJump(player);}
             case CAMEL -> {if (sneaking) CreatureEvents.camelDash(player);}
-            case FOX -> {if (sneaking) CreatureEvents.foxPounce(player);}
+            //case FOX -> {if (sneaking) CreatureEvents.foxPounce(player);}
             case BREEZE -> {if (sneaking) CreatureEvents.breezeSneakJump(player);}
         }
     }

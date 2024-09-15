@@ -36,9 +36,12 @@ public class DebugEventsAndCommands implements CommandExecutor, Listener {
                 return true;
             }
             if (command.getName().matches("mhdebug")){
-                if (args[0].matches("stick")){
+                int length = args.length;
+                if (length == 0)return false;
+                String a0 = args[0];
+                if (a0.matches("stick")){
                     player.getInventory().addItem(debugStick());
-                }else if (args[0].matches("chest")){
+                }else if (a0.matches("chest")){
                     Block block = player.getLocation().add(0,-1,0).getBlock();
                     if (!block.getType().equals(Material.CHEST)){
                         player.sendMessage("Not a chest");

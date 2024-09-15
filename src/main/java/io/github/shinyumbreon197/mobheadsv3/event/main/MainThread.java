@@ -116,15 +116,10 @@ public class MainThread {
             MobHead mobHead = wearing.get(wear);
             assert mobHead != null;
             headWearersMap.put(wear, mobHead.getUuid());
-            UUID uuid = mobHead.getUuid();
-            if (Config.headEffects){
-                AttributeManager.setAttributes(wear, mobHead.getEntityType(), true);
-                PotionEffectManager.updateEffects(wear, uuid);
-                CreatureTickRelay.tickRelay(wear, uuid);
-            }
+            if (Config.headEffects)headWearEffects(wear, mobHead);
         }
     }
-    private static void headRemovalEffects(LivingEntity target, MobHead mobHead){
+    public static void headRemovalEffects(LivingEntity target, MobHead mobHead){
         if (debug) System.out.println("headRemovalEffects() target: " + target.getName() + " MobHead: " + mobHead.getHeadName()); //debug
         if (mobHead == null)return;
         EntityType headType = mobHead.getEntityType();
@@ -139,6 +134,16 @@ public class MainThread {
             case STRIDER -> CreatureEvents.striderReplaceReset(target);
             case ARMADILLO -> CreatureEvents.armadilloResetKnockbackResist(target);
         }
+    }
+    private static void headWearEffects(LivingEntity target, MobHead mobHead){
+        AttributeManager.setAttributes(target, mobHead.getEntityType(), true);
+        PotionEffectManager.updateEffects(target, mobHead);
+//        switch (mobHead.getEntityType()){
+//            case RAVAGER -> {
+//
+//            }
+//        }
+        CreatureTickRelay.tickRelay(target, mobHead);
     }
     private static void updatePlayerList(){
         for (Player player:Bukkit.getOnlinePlayers()){

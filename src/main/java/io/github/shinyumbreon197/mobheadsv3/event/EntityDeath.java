@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
+import io.github.shinyumbreon197.mobheadsv3.event.main.MainThread;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.HeadItemDrop;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
@@ -15,23 +16,41 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
+import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.getPlugin;
 
 public class EntityDeath implements Listener {
 
     @EventHandler
     public static void onEntityDeath(EntityDeathEvent deathEvent){
         //if (debug) System.out.println("EntityDeathEvent"); //debug
+        MobHead deadHead = MobHead.getMobHeadWornByEntity(deathEvent.getEntity());
+        if (deadHead != null){
+            AVFX.playHeadDeathSound(deathEvent.getEntity(), deadHead);
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    MainThread.headRemovalEffects(deathEvent.getEntity(), deadHead);
+                }
+            }.runTaskLater(getPlugin(), 1);
+        }
         if (deathEvent.getEntity().getType().equals(EntityType.ARMOR_STAND))return;
         if (deathEvent.getEntity() instanceof Mob){
             CreatureEvents.removeFromAttackAggroMap((Mob)deathEvent.getEntity());
         }
         if (Summon.isEntitySummon(deathEvent.getEntity()))return;
         EntityDamageEvent damageEvent = deathEvent.getEntity().getLastDamageCause();
+        if (damageEvent instanceof EntityDamageByEntityEvent){
+            EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) damageEvent;
+            Entity damager = edbee.getDamager();
+            MobHead mobHead = MobHead.getMobHeadWornByEntity(damager);
+            if (mobHead != null) CreatureEvents.killedByHeadedCreature(damager, mobHead, deathEvent.getEntity());
+        }
         HeadItemDrop.creatureDeath(deathEvent,damageEvent);
         EntityType abilityType = Util.getAbilityDamageData(deathEvent.getEntity());
         if (debug) System.out.println("EntityDeathEvent: abilityType = " + abilityType);
@@ -81,9 +100,6 @@ public class EntityDeath implements Listener {
                 }
             }
         }
-        MobHead deadHead = MobHead.getMobHeadWornByEntity(deathEvent.getEntity());
-        if (deadHead == null)return;
-        AVFX.playHeadDeathSound(deathEvent.getEntity(), deadHead);
     }
 
 

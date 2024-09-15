@@ -13,9 +13,8 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 
 public class CreatureTickRelay {
-    public static void tickRelay(LivingEntity target, UUID headID){
+    public static void tickRelay(LivingEntity target, MobHead mobHead){
         if (!Config.headEffects)return;
-        MobHead mobHead = MobHead.getMobHeadFromUUID(headID);
         if (mobHead == null)return;
         EntityType headType = mobHead.getEntityType();
         switch (headType) {

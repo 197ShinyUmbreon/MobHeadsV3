@@ -52,7 +52,7 @@ public class EntityDamage implements Listener {
                         switch (abilityType){
                             case LLAMA -> {ede.setDamage(3);}
                             case ENDER_DRAGON -> ede.setDamage(6);
-                            case BREEZE -> ede.setDamage(3);
+                            case BREEZE -> ede.setDamage(2);
                         }
                         Util.addAbilityDamageData(damaged, abilityType);
                     }
@@ -120,6 +120,7 @@ public class EntityDamage implements Listener {
         boolean immune = false;
         if (ede.getEntity() instanceof LivingEntity){
             LivingEntity livingEntity = (LivingEntity) ede.getEntity();
+            if (livingEntity.isDead())return;
             immune = livingEntity.getNoDamageTicks() > 10;
         }
         if (debug) System.out.println("immune: " + immune);

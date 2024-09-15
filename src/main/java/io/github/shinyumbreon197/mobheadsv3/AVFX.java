@@ -31,7 +31,7 @@ public class AVFX {
         World world = location.getWorld();
         if (world == null)return;
         world.spawnParticle(Particle.EXPLOSION,location,1);
-        world.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 0.2F, 1.2F);
+        world.playSound(location, Sound.block.decorated_pot.insert, 0.6F, 1.6F);
         world.playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
     }
 
@@ -545,7 +545,7 @@ public class AVFX {
             case SQUID -> hurtSound = Sound.ENTITY_SQUID_HURT;
             case BEE -> hurtSound = Sound.ENTITY_BEE_HURT;
             case BAT -> {hurtSound = Sound.ENTITY_BAT_HURT; volume = 0.2F;}
-            case OCELOT -> hurtSound = Sound.ENTITY_OCELOT_HURT;
+            case OCELOT -> {hurtSound = Sound.ENTITY_OCELOT_HURT; volume = 1.3f;}
             case SNOW_GOLEM -> hurtSound = Sound.ENTITY_SNOW_GOLEM_HURT;
             case PANDA -> hurtSound = Sound.ENTITY_PANDA_HURT;
             case POLAR_BEAR -> hurtSound = Sound.ENTITY_POLAR_BEAR_HURT;
@@ -596,7 +596,7 @@ public class AVFX {
             case WITHER_SKELETON -> hurtSound = Sound.ENTITY_WITHER_SKELETON_HURT;
             case WITHER -> hurtSound = Sound.ENTITY_WITHER_HURT;
             case RABBIT -> {hurtSound = Sound.ENTITY_RABBIT_HURT; volume = 1.2F;}
-            case CAT -> hurtSound = Sound.ENTITY_CAT_HURT;
+            case CAT -> {hurtSound = Sound.ENTITY_CAT_HURT; volume = 1.3f;}
             case HORSE -> hurtSound = Sound.ENTITY_HORSE_HURT;
             case LLAMA, TRADER_LLAMA -> hurtSound = Sound.ENTITY_LLAMA_HURT;
             case PARROT -> hurtSound = Sound.ENTITY_PARROT_HURT;
@@ -654,7 +654,7 @@ public class AVFX {
             case SQUID -> deathSound = Sound.ENTITY_SQUID_DEATH;
             case BEE -> deathSound = Sound.ENTITY_BEE_DEATH;
             case BAT -> {deathSound = Sound.ENTITY_BAT_DEATH; volume = 0.2F;}
-            case OCELOT -> deathSound = Sound.ENTITY_OCELOT_DEATH;
+            case OCELOT -> {deathSound = Sound.ENTITY_OCELOT_DEATH; volume = 1.3f;}
             case SNOW_GOLEM -> deathSound = Sound.ENTITY_SNOW_GOLEM_DEATH;
             case PANDA -> deathSound = Sound.ENTITY_PANDA_DEATH;
             case POLAR_BEAR -> deathSound = Sound.ENTITY_POLAR_BEAR_DEATH;
@@ -705,7 +705,7 @@ public class AVFX {
             case WITHER_SKELETON -> deathSound = Sound.ENTITY_WITHER_SKELETON_DEATH;
             case WITHER -> deathSound = Sound.ENTITY_WITHER_DEATH;
             case RABBIT -> {deathSound = Sound.ENTITY_RABBIT_DEATH; volume = 1.2F;}
-            case CAT -> deathSound = Sound.ENTITY_CAT_DEATH;
+            case CAT -> {deathSound = Sound.ENTITY_CAT_DEATH; volume = 1.3f;}
             case HORSE -> deathSound = Sound.ENTITY_HORSE_DEATH;
             case LLAMA, TRADER_LLAMA -> deathSound = Sound.ENTITY_LLAMA_DEATH;
             case PARROT -> deathSound = Sound.ENTITY_PARROT_DEATH;
@@ -728,6 +728,17 @@ public class AVFX {
         if (deathSound != null){
             world.playSound(origin,deathSound,volume, 1.0F);
         }
+    }
+
+    public static void playOpenHeadStorageEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ITEM_BUNDLE_INSERT, 0.8f, 0.8f);
+    }
+    public static void playHeadStorageEquipEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin, Sound.ITEM_ARMOR_EQUIP_GENERIC, 0.8f, 1.0f);
     }
 
     public static void playArmadilloArmorEffect(Location origin, int stage){

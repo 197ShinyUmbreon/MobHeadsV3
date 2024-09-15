@@ -27,7 +27,6 @@ public class PlayerRegistry {
     public void reloadPlayerRegistry() {
         if (playerRegistryFile == null) {
             playerRegistryFile = new File(plugin.getDataFolder(), "player_registry.yml");
-
         }
         playerRegistry = YamlConfiguration.loadConfiguration(playerRegistryFile);
 

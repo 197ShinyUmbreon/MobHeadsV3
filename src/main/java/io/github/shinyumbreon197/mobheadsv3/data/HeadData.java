@@ -228,7 +228,9 @@ public class HeadData {
     }
     public static MobHead Piglin(){
         UUID uuid = UUID.fromString("19413908-5fac-11ed-9b6a-0242ac120002");
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                ChatColor.RED + "[NYI]"
+        );
         Map<Enchantment, Integer> enchants = Map.of(Enchantment.FIRE_PROTECTION, 4);
         ItemStack head = HeadItemStack.customVanillaHead(EntityType.PIGLIN,lore,uuid,enchants);
         return new MobHead(uuid, null, EntityType.PIGLIN, head, new ItemStack(Material.GILDED_BLACKSTONE, 4), lore,null,enchants);
@@ -443,7 +445,8 @@ public class HeadData {
             System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Gain Strength I, Resistance II,", "and Slowness III."
+                "Gain Resistance II and Slowness II.", "Defeating a Monster nearby a Villager",
+                "grants Hero of the Village for 2 minutes."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         return new MobHead(uuid, name, entityType, head, new ItemStack(Material.POPPY, 1), lore, noteblockSound);
@@ -493,7 +496,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                ChatColor.RED + "[NYI]"
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         return new MobHead(uuid, name, entityType, head, new ItemStack(Material.PORKCHOP, 8), lore, noteblockSound);
     }
@@ -728,7 +733,7 @@ public class HeadData {
             System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Sniff out sus blocks nearby."
+                "Sniff out Suspicious blocks, Spawners", "and unopened loot Chests."
         );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         return new MobHead(uuid, name, entityType, head, new ItemStack(Material.TORCHFLOWER_SEEDS, 4), lore, noteblockSound);
@@ -864,8 +869,8 @@ public class HeadData {
             System.out.println("Texture unable to load for " + entityType);
         }
         List<String> lore = List.of(
-                "Immune to all Fall and Kinetic damage.",
-                "Projectiles are reflected", "back towards their source.", "Burst away direct attackers.",
+                "Immune to all Fall and Kinetic damage.", "Afflict Wind Charged for 5 seconds on hit.",
+                "Projectiles are reflected", "back towards their source.", //"Burst away direct attackers.",
                 "Sneak-Jump or engage an Elytra", "to burst into the air.", "Thrown Wind Charges have an 80%",
                 "chance of being refunded."
         );
@@ -1032,7 +1037,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                ChatColor.RED + "[NYI]"
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         ItemStack loot = new ItemStack(Material.ARROW);
         return new MobHead(uuid, name, entityType, head, loot, lore, noteblockSound);
@@ -1103,7 +1110,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                ChatColor.RED + "[NYI]"
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         return new MobHead(uuid, name, entityType, head, new ItemStack(Material.EMERALD, 8), lore, noteblockSound);
     }
@@ -1118,7 +1127,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                "Gain Strength I, Resistance I,", "and Slowness II."
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         return new MobHead(uuid, name, EntityType.RAVAGER, head, new ItemStack(Material.SADDLE), lore, noteblockSound);
     }
@@ -1187,7 +1198,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                ChatColor.RED + "[NYI]"
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         return new MobHead(uuid, name, entityType, head, new ItemStack(Material.COBWEB, 8), lore, noteblockSound);
     }
@@ -1262,7 +1275,9 @@ public class HeadData {
         }catch (MalformedURLException e){
             System.out.println("Texture unable to load for " + entityType);
         }
-        List<String> lore = List.of();
+        List<String> lore = List.of(
+                ChatColor.RED + "[NYI]"
+        );
         ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
         ItemStack loot = new ItemStack(Material.IRON_AXE);
         return new MobHead(uuid, name, entityType, head, loot, lore, noteblockSound);
@@ -1471,8 +1486,7 @@ public class HeadData {
         );
         ItemStack loot = new ItemStack(Material.SWEET_BERRIES, 16);
         List<String> lore = List.of(
-                "Immune to Berry Bush pricking.", "Sneak-Jump to pounce and make a shockwave!",
-                ChatColor.RED + "[WIP]"
+                "Immune to Berry Bush pricking."//, "Sneak-Jump to pounce and make a shockwave!", ChatColor.RED + "[WIP]"
         );
         List<MobHead> heads = new ArrayList<>();
         for (int i = 0; i < uuids.size(); i++) {
@@ -1930,7 +1944,7 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            List<String> lore = List.of("Right-Click to eat Grass.", "Restores Hunger, Saturation", "and can sometimes give", "potion effects.");
+            List<String> lore = List.of("Right-Click to eat Grass.", "Restores Hunger and Saturation", "Some grasses can give Potion Effects.");
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
             ItemStack loot = loots.get(i);
             heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
@@ -2033,7 +2047,9 @@ public class HeadData {
             String name = names.get(i);
             URL texture = textures.get(i);
             String variant = variants.get(i);
-            List<String> lore = List.of();
+            List<String> lore = List.of(
+                    ChatColor.RED + "[NYI]"
+            );
             ItemStack head = HeadItemStack.customHead(name,uuid,texture,lore,entityType);
             heads.add(new MobHead(uuid,name,entityType,head,loot,lore,variant,null,noteblockSound));
         }

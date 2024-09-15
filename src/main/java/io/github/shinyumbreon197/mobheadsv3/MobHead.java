@@ -139,7 +139,7 @@ public class MobHead implements Listener {
         return getMobHeadFromUUID(id);
     }
 
-    private static UUID getUUIDFromMobHeadItem(ItemStack headItem){
+    public static UUID getUUIDFromMobHeadItem(ItemStack headItem){
         if (headItem == null)return null;
         ItemMeta itemMeta = headItem.getItemMeta();
         if (itemMeta == null)return null;

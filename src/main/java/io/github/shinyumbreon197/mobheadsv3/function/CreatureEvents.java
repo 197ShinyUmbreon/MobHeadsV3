@@ -7,6 +7,7 @@ import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
+import org.apache.maven.model.License;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -217,7 +218,7 @@ public class CreatureEvents {
                 //EntityDamageEvent.DamageCause.CONTACT,
                 EntityDamageEvent.DamageCause.ENTITY_EXPLOSION,
                 EntityDamageEvent.DamageCause.MAGIC, EntityDamageEvent.DamageCause.SONIC_BOOM,
-                EntityDamageEvent.DamageCause.THORNS
+                EntityDamageEvent.DamageCause.THORNS, EntityDamageEvent.DamageCause.CUSTOM
         );
         if (Util.hasTakenAbilityDamage(target)) cause = EntityDamageEvent.DamageCause.CUSTOM;
         switch (damagedHeadType){
@@ -275,7 +276,18 @@ public class CreatureEvents {
         switch (defenderType){
             case LLAMA, TRADER_LLAMA -> {llamaRetaliationSpit(damaged, damager);}
             case EVOKER -> evokerRetaliation(damaged, damager);
-            case BREEZE -> {if (!projectile) breezeRetaliateWindCharge(damaged, damager);}
+            //case BREEZE -> {if (!projectile) breezeRetaliateWindCharge(damaged, damager);}
+        }
+    }
+
+    public static void killedByHeadedCreature(Entity attackingEnt, MobHead mobHead, Entity killedEnt){
+        if (!(attackingEnt instanceof LivingEntity) || !(killedEnt instanceof LivingEntity))return;
+        LivingEntity attacker = (LivingEntity) attackingEnt;
+        LivingEntity killed = (LivingEntity) killedEnt;
+        switch (mobHead.getEntityType()){
+            case IRON_GOLEM -> {
+                if (killed instanceof Monster) ironGolemProtectVillager(attacker);
+            }
         }
     }
 
@@ -317,6 +329,21 @@ public class CreatureEvents {
                 Summon.createNewSummon(damagedLivEnt, (LivingEntity) attacker, headType);
             }
         }.runTaskLater(plugin, 1);
+    }
+
+    // Iron Golem ------------------------------------------------------------------------------------------------------
+    private static void ironGolemProtectVillager(LivingEntity golem){
+        boolean nearbyVillager = false;
+        for (Entity entity:golem.getNearbyEntities(10,10,10)){
+            if (entity.getType().equals(EntityType.VILLAGER)){
+                nearbyVillager = true;
+                break;
+            }
+        }
+        if (!nearbyVillager)return;
+        PotionEffectManager.addEffectToEntity(golem,
+                PotionEffectManager.buildSimpleEffect(PotionEffectType.HERO_OF_THE_VILLAGE,1,120 * 20)
+        );
     }
 
     // Guardian / Elder Guardian ---------------------------------------------------------------------------------------
@@ -1862,7 +1889,7 @@ public class CreatureEvents {
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,2,3600));
             }
             case RAVAGER -> {
-                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,1,3600));
+                effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.SLOWNESS,2,3600));
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.RESISTANCE,1,3600));
                 effects.add(PotionEffectManager.buildSimpleEffect(PotionEffectType.STRENGTH,1,3600));
             }

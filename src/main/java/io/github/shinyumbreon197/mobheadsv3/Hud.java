@@ -34,6 +34,9 @@ public class Hud {
             }.runTaskLater(MobHeadsV3.getPlugin(),1);
         }
     }
+    public static void headsUp(Player player, String string){
+        headsUp(player, List.of(string));
+    }
 
     private static void cycleHeadsUpQueue(Player player){
         List<String> messages = headsUpQueue.getOrDefault(player, List.of());
