@@ -31,7 +31,7 @@ public class AVFX {
         World world = location.getWorld();
         if (world == null)return;
         world.spawnParticle(Particle.EXPLOSION,location,1);
-        world.playSound(location, Sound.block.decorated_pot.insert, 0.6F, 1.6F);
+        world.playSound(location, Sound.BLOCK_DECORATED_POT_INSERT, 0.6F, 1.6F);
         world.playSound(location, Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.4F, 1.3F);
     }
 
