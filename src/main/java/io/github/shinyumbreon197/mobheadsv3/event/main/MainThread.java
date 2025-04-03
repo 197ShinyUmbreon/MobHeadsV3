@@ -6,10 +6,7 @@ import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
 import io.github.shinyumbreon197.mobheadsv3.Packets;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.event.relay.CreatureTickRelay;
-import io.github.shinyumbreon197.mobheadsv3.function.AttributeManager;
-import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
-import io.github.shinyumbreon197.mobheadsv3.function.PotionEffectManager;
-import io.github.shinyumbreon197.mobheadsv3.function.Util;
+import io.github.shinyumbreon197.mobheadsv3.function.*;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -124,6 +121,7 @@ public class MainThread {
         if (mobHead == null)return;
         EntityType headType = mobHead.getEntityType();
         AttributeManager.setAttributes(target,headType,false);
+        Summon.resetSummoner(target);
         switch (headType){
             case BAT, WARDEN, FROG -> {
                 if (target instanceof Player) Packets.removeGlow((Player) target);
@@ -133,16 +131,12 @@ public class MainThread {
             }
             case STRIDER -> CreatureEvents.striderReplaceReset(target);
             case ARMADILLO -> CreatureEvents.armadilloResetKnockbackResist(target);
+            case CREAKING ->{if (target instanceof Player) CreatureEvents.creakingRemoveHighlightedCreakingHearts((Player) target);}
         }
     }
     private static void headWearEffects(LivingEntity target, MobHead mobHead){
         AttributeManager.setAttributes(target, mobHead.getEntityType(), true);
         PotionEffectManager.updateEffects(target, mobHead);
-//        switch (mobHead.getEntityType()){
-//            case RAVAGER -> {
-//
-//            }
-//        }
         CreatureTickRelay.tickRelay(target, mobHead);
     }
     private static void updatePlayerList(){

@@ -1,8 +1,11 @@
 package io.github.shinyumbreon197.mobheadsv3.function;
 
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
-import org.bukkit.entity.Player;
+import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import org.bukkit.Material;
+import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -12,6 +15,38 @@ import java.util.Map;
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 
 public class HeadEquip {
+
+    public static boolean equipTamedCreatureWithHead(Player player, Entity target, ItemStack headItemStack){ // Add floating item like Summons
+        if (!(target instanceof Tameable))return false;
+        Tameable tameable = (Tameable) target;
+        AnimalTamer tamer = tameable.getOwner();
+        if (tamer == null || !tamer.equals(player))return false;
+        if (headItemStack != null && headItemStack.getType().equals(Material.AIR)) headItemStack = null;
+        boolean isHead = MobHead.skullItemIsMobHead(headItemStack);
+        boolean isEmptyHand = !isHead && headItemStack == null;
+        EntityEquipment equipment = tameable.getEquipment();
+        if (equipment == null)return false;
+        ItemStack helmet = equipment.getHelmet();
+        if (helmet != null && helmet.getType().equals(Material.AIR)) helmet = null;
+        if (helmet == null && isEmptyHand)return false;
+        if (helmet != null){
+            if (helmet.isSimilar(headItemStack))return false;
+            tameable.getWorld().dropItem(tameable.getEyeLocation(),helmet);
+            AVFX.playTamedDropEquippedHead(tameable.getEyeLocation());
+        }
+        if (headItemStack != null && isHead){
+            ItemStack equipStack = headItemStack.clone();
+            equipStack.setAmount(1);
+            headItemStack.setAmount(headItemStack.getAmount() - 1);
+            player.getInventory().setItemInMainHand(headItemStack);
+            equipment.setHelmet(equipStack);
+            equipment.setHelmetDropChance(1f);
+            return true;
+        }else{
+            equipment.setHelmet(null, true);
+            return true;
+        }
+    }
 
     public static void clickEquipHead(PlayerInteractEvent pie){
         if (debug) System.out.println("clickEquipHead()"); //debug

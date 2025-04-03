@@ -1,9 +1,7 @@
 package io.github.shinyumbreon197.mobheadsv3;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedParticle;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
+import net.minecraft.world.entity.animal.wolf.WolfSoundVariant;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -14,10 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static io.github.shinyumbreon197.mobheadsv3.MobHeadsV3.debug;
 import static io.github.shinyumbreon197.mobheadsv3.function.Util.randomOffsetCenter;
@@ -125,11 +120,41 @@ public class AVFX {
             case ARMADILLO -> {interactSound = Sound.ENTITY_ARMADILLO_AMBIENT;}
             case BREEZE -> {interactSound = Sound.ENTITY_BREEZE_IDLE_GROUND;}
             case BOGGED -> {interactSound = Sound.ENTITY_BOGGED_AMBIENT;}
+            case CREAKING -> {interactSound = Sound.ENTITY_CREAKING_AMBIENT;}
         }
         if (debug) System.out.println("playHeadInteractEffect() interactSound " + interactSound); //debug
         if (interactSound != null) world.playSound(location, interactSound, volume, 1.0F);
     }
 
+    public static void playSummonBeginEffect(Location origin){
+        World world = origin.getWorld();
+        if (world == null)return;
+        world.playSound(origin,Sound.ENTITY_EVOKER_PREPARE_SUMMON,0.6f,1.2f);
+    }
+    public static void playSummonSummoningEffect(Location origin, int tick, double height, int duration){
+        World world = origin.getWorld();
+        if (world == null)return;
+        List<Vector> points = List.of(
+                new Vector(1,0,0), new Vector(1,0,1), new Vector(0,0,1),
+                new Vector(-1, 0, 0), new Vector(-1, 0, -1), new Vector(0,0,-1),
+                new Vector(1, 0, -1), new Vector(-1, 0, 1)
+        );
+        double percent = (double) tick / duration;
+        double distance = height * percent;
+        boolean flip = true;
+        for (Vector point:points){
+            point.rotateAroundY(tick * 0.1);
+            double x = origin.getX() + point.getX();
+            double y = origin.getY() + point.getY() - distance;
+            double z = origin.getZ() + point.getZ();
+            if (flip){
+                world.spawnParticle(Particle.SOUL_FIRE_FLAME, x, y, z,1,0,0,0,0,null);
+            }else{
+                world.spawnParticle(Particle.TRIAL_OMEN, x, y, z,1,0,0,0,0,null);
+            }
+            flip = !flip;
+        }
+    }
     public static void playSummonEffect(Location origin, EntityType summonType){
         World world = origin.getWorld();
         if (world == null)return;
@@ -169,7 +194,10 @@ public class AVFX {
     public static void playWolfSummonEffect(Location location){
         World world = location.getWorld();
         if (world == null)return;
-        world.playSound(location,Sound.ENTITY_WOLF_HOWL,0.05f, random.nextFloat(0.9f,1.2f));
+        Sound howlSound;
+        howlSound = Sound.ENTITY_WOLF_GROWL;
+
+        world.playSound(location, howlSound,0.05f, random.nextFloat(0.9f,1.2f));
     }
     public static void playBeeSummonEffect(Location location){
         World world = location.getWorld();
@@ -183,6 +211,16 @@ public class AVFX {
         world.spawnParticle(Particle.ITEM,origin.add(0,0.1,0),
                 10,0.2,0.1,0.2,0.05,new ItemStack(Material.STONE)
         );
+    }
+    public static void playTamedDropEquippedHead(Location origin){
+        World world = origin.getWorld();
+        assert world != null;
+        world.playSound(origin,Sound.ITEM_BUNDLE_INSERT_FAIL,0.8f, 1.1f);
+    }
+    public static void playEquineJumpEffect(Location origin){
+        World world = origin.getWorld();
+        assert world != null;
+        world.playSound(origin,Sound.ENTITY_HORSE_JUMP,0.8f, 1.1f);
     }
     public static void playGuardianChargeAttackEffect(LivingEntity guardian, @Nullable LivingEntity target, int charge, boolean shoot, boolean elder){
         World world = guardian.getWorld();
@@ -619,6 +657,7 @@ public class AVFX {
             }
             case BREEZE -> {hurtSound = Sound.ENTITY_BREEZE_HURT;}
             case BOGGED -> {hurtSound = Sound.ENTITY_BOGGED_HURT;}
+            case CREAKING -> {hurtSound = Sound.ENTITY_CREAKING_SWAY;}
         }
         if (hurtSound != null){
             livingEntity.getWorld().playSound(livingEntity.getLocation(), hurtSound, volume, 1.0F);
@@ -724,6 +763,7 @@ public class AVFX {
             case ARMADILLO -> {deathSound = Sound.ENTITY_ARMADILLO_DEATH;}
             case BREEZE -> {deathSound = Sound.ENTITY_BREEZE_DEATH;}
             case BOGGED -> {deathSound = Sound.ENTITY_BOGGED_DEATH;}
+            case CREAKING -> {deathSound = Sound.ENTITY_CREAKING_DEATH;}
         }
         if (deathSound != null){
             world.playSound(origin,deathSound,volume, 1.0F);
@@ -977,15 +1017,18 @@ public class AVFX {
     }
     private static List<Sound> parrotSounds;
     public static List<Sound> getParrotSounds(){
-        if (parrotSounds == null) parrotSounds = buildParrotSounds();
-        return parrotSounds;
-    }
-    private static List<Sound> buildParrotSounds(){
+        if (parrotSounds != null) return parrotSounds;
         List<Sound> sounds = new ArrayList<>();
-        for (Sound sound:Sound.values()){
-            if (sound.toString().contains("PARROT_IMITATE")) sounds.add(sound);
-        }
-        return sounds;
+        Registry.SOUNDS.forEach(
+                sound -> {
+                    String soundString = sound.getKeyOrThrow().toString();
+                    if (soundString.contains("parrot.imitate") || soundString.contains("PARROT_IMITATE")){
+                        sounds.add(sound);
+                    }
+                }
+        );
+        parrotSounds = sounds;
+        return parrotSounds;
     }
 
     private static Sound foxInteractSound(){
@@ -999,11 +1042,11 @@ public class AVFX {
 
     private static Sound wolfInteractSound(){
         int i = random.nextInt(99);
-        if (i < 69){
+        if (i < 40){
             return Sound.ENTITY_WOLF_AMBIENT;
-        }else if (i < 89){
+        }else if (i < 80){
             return Sound.ENTITY_WOLF_GROWL;
-        }else return Sound.ENTITY_WOLF_HOWL;
+        }else return Sound.ENTITY_WOLF_WHINE;
     }
 
     private static Sound pandaInteractSound(){
@@ -1024,19 +1067,18 @@ public class AVFX {
         }else return Sound.ENTITY_CAT_AMBIENT;
     }
 
+    private static final List<Sound> playerInteractSounds = List.of(
+            Sound.ENTITY_PLAYER_BURP, Sound.ENTITY_PLAYER_BIG_FALL, Sound.ENTITY_PLAYER_HURT,
+            Sound.ENTITY_PLAYER_HURT_DROWN, Sound.ENTITY_PLAYER_HURT_FREEZE, Sound.ENTITY_PLAYER_HURT_ON_FIRE,
+            Sound.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH, Sound.ENTITY_PLAYER_LEVELUP, Sound.ENTITY_PLAYER_SMALL_FALL,
+            Sound.ITEM_ARMOR_EQUIP_GENERIC, Sound.ITEM_BUCKET_FILL, Sound.ITEM_BUCKET_FILL_LAVA,
+            Sound.BLOCK_ANVIL_USE, Sound.BLOCK_BREWING_STAND_BREW, Sound.BLOCK_CHEST_OPEN, Sound.BLOCK_CHEST_CLOSE,
+            Sound.BLOCK_ENCHANTMENT_TABLE_USE, Sound.BLOCK_ENDER_CHEST_OPEN, Sound.BLOCK_ENDER_CHEST_CLOSE,
+            Sound.BLOCK_GRINDSTONE_USE, Sound.BLOCK_SMITHING_TABLE_USE, Sound.ENTITY_ITEM_BREAK,
+            Sound.BLOCK_LADDER_STEP, Sound.ENTITY_EXPERIENCE_ORB_PICKUP
+    );
     private static Sound playerInteractSound(){
-        List<Sound> sounds = Arrays.asList(
-                Sound.ENTITY_PLAYER_BURP, Sound.ENTITY_PLAYER_BIG_FALL, Sound.ENTITY_PLAYER_HURT,
-                Sound.ENTITY_PLAYER_HURT_DROWN, Sound.ENTITY_PLAYER_HURT_FREEZE, Sound.ENTITY_PLAYER_HURT_ON_FIRE,
-                Sound.ENTITY_PLAYER_HURT_SWEET_BERRY_BUSH, Sound.ENTITY_PLAYER_LEVELUP, Sound.ENTITY_PLAYER_SMALL_FALL,
-                Sound.ITEM_ARMOR_EQUIP_GENERIC, Sound.ITEM_BUCKET_FILL, Sound.ITEM_BUCKET_FILL_LAVA,
-                Sound.BLOCK_ANVIL_USE, Sound.BLOCK_BREWING_STAND_BREW, Sound.BLOCK_CHEST_OPEN, Sound.BLOCK_CHEST_CLOSE,
-                Sound.BLOCK_ENCHANTMENT_TABLE_USE, Sound.BLOCK_ENDER_CHEST_OPEN, Sound.BLOCK_ENDER_CHEST_CLOSE,
-                Sound.BLOCK_GRINDSTONE_USE, Sound.BLOCK_SMITHING_TABLE_USE, Sound.ENTITY_ITEM_BREAK,
-                Sound.BLOCK_LADDER_STEP, Sound.ENTITY_EXPERIENCE_ORB_PICKUP
-        );
-        Random random = new Random();
-        return sounds.get(random.nextInt(sounds.size()));
+        return playerInteractSounds.get(random.nextInt(playerInteractSounds.size()));
     }
 
     //PARTICLE BUILDERS -----------------------------------------------------------------------------------

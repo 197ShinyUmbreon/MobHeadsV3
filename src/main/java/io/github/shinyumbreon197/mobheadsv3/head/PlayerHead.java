@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -44,15 +45,15 @@ public class PlayerHead {
 
     public static void updatePlayerFile(Player player, MobHead oldHead){
         PlayerProfile pp = player.getPlayerProfile();
-        String url = pp.getTextures().getSkin().toString();
+        URL url = pp.getTextures().getSkin();
         if (debug) System.out.println(url + " <--- New URL"); //debug
         SkullMeta skullMeta = (SkullMeta) oldHead.getHeadItemStack().getItemMeta();
         assert skullMeta != null;
         PlayerProfile savedPP = skullMeta.getOwnerProfile();
         if (savedPP != null){
-            String savedURL = savedPP.getTextures().getSkin().toString();
+            URL savedURL = savedPP.getTextures().getSkin();
             if (debug) System.out.println(savedURL + " <--- Old URL"); //debug
-            if (!url.matches(savedURL)){
+            if (url == null || !url.equals(savedURL)){
                 MobHeadsV3.cOut(player.getDisplayName() + " has a new skin. Updating head...");
                 registry.removeFromRegistry(oldHead);
                 MobHead.removeMobHead(player.getUniqueId());

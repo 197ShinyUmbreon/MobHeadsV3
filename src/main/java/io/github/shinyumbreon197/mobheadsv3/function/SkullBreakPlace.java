@@ -51,14 +51,14 @@ public class SkullBreakPlace {
     }
 
     public static void getMobHeadSkullFromBrokenSkull(ItemSpawnEvent ise){
-        ItemStack skullItem = ise.getEntity().getItemStack();
-        MobHead mobHead = MobHead.getMobHeadFromBrokenSkullItem(skullItem);
-        if (mobHead == null)return;
+        ItemStack droppedSkullItem = ise.getEntity().getItemStack();
+        ItemStack newSkullItem = MobHead.getMobHeadItemFromBrokenSkullItem(droppedSkullItem);
+        if (newSkullItem == null)return;
         Vector velocity = ise.getEntity().getVelocity();
         Location location = ise.getLocation();
         World world = ise.getEntity().getWorld();
         ise.getEntity().remove();
-        Item newItem = world.dropItem(location, mobHead.getHeadItemStack());
+        Item newItem = world.dropItem(location, newSkullItem);
         newItem.setVelocity(velocity);
     }
 

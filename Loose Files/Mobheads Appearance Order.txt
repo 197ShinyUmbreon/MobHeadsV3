@@ -65,6 +65,7 @@ Breeze
 Silverfish
 Slime
 Phantom
+Creaking
 
 #Pillagers
 Pillager

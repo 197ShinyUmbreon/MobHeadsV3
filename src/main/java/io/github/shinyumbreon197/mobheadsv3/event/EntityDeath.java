@@ -59,7 +59,7 @@ public class EntityDeath implements Listener {
             Entity killer = null;
             if (killed.getLastDamageCause() instanceof EntityDamageByEntityEvent){
                 if (debug) System.out.println("Before Killer Correction: " + killer);
-                killer = Util.getTrueAttacker((killed.getLastDamageCause()).getEntity());
+                killer = Util.getTrueAttacker(((EntityDamageByEntityEvent)killed.getLastDamageCause()).getDamager());
                 if (debug) System.out.println("After Killer Correction: " + killer);
                 //killer = ((EntityDamageByEntityEvent)killed.getLastDamageCause()).getDamager();
             }
@@ -72,11 +72,11 @@ public class EntityDeath implements Listener {
                             MobHead mobHead = MobHead.getMobHeadWornByEntity(killer);
                             if (mobHead != null && mobHead.getEntityType().equals(EntityType.FROG) && killed.getType().equals(EntityType.MAGMA_CUBE)){
                                 String variant = mobHead.getVariant();
-                                if (variant.matches(Frog.Variant.TEMPERATE.toString())){
+                                if (variant.matches("temperate")){
                                     drops.add(new ItemStack(Material.OCHRE_FROGLIGHT));
-                                }else if (variant.matches(Frog.Variant.COLD.toString())){
+                                }else if (variant.matches("cold")){
                                     drops.add(new ItemStack(Material.VERDANT_FROGLIGHT));
-                                }else if (variant.matches(Frog.Variant.WARM.toString())){
+                                }else if (variant.matches("warm")){
                                     drops.add(new ItemStack(Material.PEARLESCENT_FROGLIGHT));
                                 }
                             }

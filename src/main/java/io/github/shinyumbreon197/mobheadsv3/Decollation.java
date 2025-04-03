@@ -132,9 +132,7 @@ public class Decollation implements Listener {
         if (base == null) base = new ItemStack(Material.AIR);
         ItemStack addition = inv.getItem(2);
         if (debug) System.out.println("template: " + template + "\nbase: " + base + "\naddition: " + addition); //debug
-        if (base.getType().equals(Material.AIR) ||
-                addition == null || addition.getType().equals(Material.AIR) ||
-                !template.getType().equals(Material.DIRT))return;
+        if (base.getType().equals(Material.AIR) || addition == null || addition.getType().equals(Material.AIR))return;
         if (!baseMaterials.contains(base.getType()) || !addition.getType().equals(Material.WITHER_SKELETON_SKULL))return;
         ItemStack result = base.clone();
         result.setAmount(1);
@@ -142,15 +140,14 @@ public class Decollation implements Listener {
         e.setResult(result);
     }
 
-    private static List<SmithingTrimRecipe> recipesSmithingDecollation(){
-        List<SmithingTrimRecipe> smithingRecipes = new ArrayList<>();
-        RecipeChoice templateItem = new RecipeChoice.MaterialChoice(Material.DIRT);
+    private static List<SmithingTransformRecipe> recipesSmithingDecollation(){
+        List<SmithingTransformRecipe> smithingRecipes = new ArrayList<>();
         RecipeChoice additionItem = new RecipeChoice.MaterialChoice(Material.WITHER_SKELETON_SKULL);
+        //RecipeChoice templateItem = new RecipeChoice.MaterialChoice(Material.AIR);
         for (Material material:baseMaterials){
             NamespacedKey key = new NamespacedKey(MobHeadsV3.getPlugin(),"smith_decollation_"+material.toString().toLowerCase());
             RecipeChoice baseItem = new RecipeChoice.MaterialChoice(material);
-            //ItemStack result = new ItemStack(material);
-            smithingRecipes.add(new SmithingTrimRecipe(key,templateItem,baseItem,additionItem));
+            smithingRecipes.add(new SmithingTransformRecipe(key,new ItemStack(material),null,baseItem,additionItem));
         }
         return smithingRecipes;
     }

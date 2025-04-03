@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.MobHeadsV3;
+import io.github.shinyumbreon197.mobheadsv3.data.Groups;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -193,6 +194,9 @@ public class IncrementStatistic implements Listener {
 
     private static void onJump(Player player, EntityType headType){
         boolean sneaking = player.isSneaking();
+        if (Groups.isEquine(headType)){
+            CreatureEvents.equineJump(player);
+        }
         switch (headType){
             case FROG -> {if (sneaking) CreatureEvents.frogLeap(player);}
             case RABBIT -> {if (sneaking) CreatureEvents.rabbitLeap(player);}

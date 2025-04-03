@@ -56,7 +56,7 @@ public class ToggleGliding implements Listener {
                 }
             }
             case BREEZE -> {
-                if (isGliding) CreatureEvents.breezeElytraWindCharge(target);
+                if (isGliding && target instanceof Player) CreatureEvents.breezeElytraWindCharge((Player) target);
             }
         }
     }

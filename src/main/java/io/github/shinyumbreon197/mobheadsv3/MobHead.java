@@ -2,7 +2,6 @@ package io.github.shinyumbreon197.mobheadsv3;
 
 import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
-import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
 import io.github.shinyumbreon197.mobheadsv3.function.Util;
 import io.github.shinyumbreon197.mobheadsv3.head.PlayerHead;
 import org.bukkit.Material;
@@ -26,7 +25,10 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,10 +48,71 @@ public class MobHead implements Listener {
             e.setResult(null);
         }
     }
+
     public static void initialize(){
         mobHeads.addAll(getAllHeads());
         PlayerHead.registerPlayerHistory();
         PlayerHead.registerOnlinePlayers();
+        if (debug){
+            outputAllHeadsToFile();
+        }
+    }
+
+    private static void outputAllHeadsToFile(){
+        List<String> strings = new ArrayList<>();
+        strings.add("------Debug Output of All Heads after Initialization------");
+        strings.add(Util.getFriendlyDateAndTimeString(Util.getCurrentDateAndTime()));
+        strings.add("Heads Total: " + mobHeads.size());
+        EntityType lastType = null;
+        for (MobHead mobHead:mobHeads){
+            EntityType headType = mobHead.getEntityType();
+            if (!headType.equals(lastType)){
+                strings.add("\nMobHeads of Type: " + headType);
+            }
+            lastType = headType;
+            String headName = mobHead.getHeadName();
+            strings.add("\tHead Name: " + headName);
+            String headUUID = mobHead.getUuid().toString();
+            strings.add("\tHead UUID: " + headUUID);
+            String headVariant = mobHead.getVariant();
+            strings.add("\tHead Variant: " + headVariant);
+            ItemStack headLootItemStack = mobHead.getHeadLootItemStack();
+            String headLootItemString = null;
+            if (headLootItemStack != null){
+                int count = headLootItemStack.getAmount();
+                String materialName = Util.friendlyMaterialName(headLootItemStack.getType());
+                headLootItemString = materialName + " x" + count;
+            }
+            strings.add("\tHead Loot ItemStack: " + headLootItemString);
+            Map<Enchantment,Integer> headEnchantments = mobHead.getEnchantments();
+            if (headEnchantments != null){
+                int enchantCount = headEnchantments.size();
+                strings.add("\tHead Enchantments: " + enchantCount);
+                for (Enchantment enchantment:headEnchantments.keySet()){
+                    int lv = headEnchantments.get(enchantment);
+                    strings.add("\t\t" + enchantment.getTranslationKey().toString() + " Lv" + lv);
+                }
+            }
+            strings.add("\tHead Lore:");
+            for (String loreString:mobHead.getLore()){
+                strings.add("\t\t" + loreString);
+            }
+            Sound headSound = mobHead.getNoteblockSound();
+            String headSoundString = null;
+            if (headSound != null){
+                headSoundString = headSound.toString();
+            }
+            strings.add("\tHead Noteblock Sound: " + headSoundString);
+            strings.add("");
+        }
+//        File file = new File(MobHeadsV3.getPlugin().getDataFolder() + "Debug Mobhead Export.txt");
+        String fileName = MobHeadsV3.getPlugin().getDataFolder() + "/DebugMobheadExport.txt";
+        try{
+            FileWriter fileWriter = new FileWriter(fileName);
+            for (String string:strings)fileWriter.write(string + System.lineSeparator());
+            fileWriter.close();
+        }catch (IOException ignored){}
+        MobHeadsV3.cOut("Exported All Heads to file: " + fileName);
     }
 
     public static boolean isWearingHead(Entity entity){
@@ -103,12 +166,17 @@ public class MobHead implements Listener {
         }else if (matches.size() == 1) return matches.get(0);
         String targetVariant = Util.getVariantString(target);
         if (debug) System.out.println("getMobHeadOfEntity(LivingEntity target):String targetVariant = " + targetVariant); //debug
-        if (targetVariant == null) return null;
+        if (targetVariant == null){
+            System.out.println("The correct variant could not be found for killed entity " + targetType + ". Dropped first matching head in array.");
+            return matches.get(0);
+        }
         for (MobHead mobHead:matches){
             String scanVariant = mobHead.getVariant();
-            if (debug) System.out.println("scanVariant:" + scanVariant); //debug
+            if (debug) System.out.println("scanVariant: " + scanVariant); //debug
             if (scanVariant == null) continue;
-            if (targetVariant.matches(scanVariant)) return mobHead;
+            if (targetVariant.matches(scanVariant)){
+                return mobHead;
+            }
         }
         MobHeadsV3.cOut("The proper variant head item was not dropped.");
         MobHeadsV3.cOut("\t\t" + target.toString());
@@ -138,7 +206,14 @@ public class MobHead implements Listener {
         if (id == null)return null;
         return getMobHeadFromUUID(id);
     }
-
+    public static boolean isEntityWearingCertainHeadType(Entity entity, EntityType targetType){
+        MobHead mobHead = getMobHeadWornByEntity(entity);
+        return mobHead != null && mobHead.getEntityType().equals(targetType);
+    }
+    public static boolean isEntityWearingCertainHead(Entity entity, UUID headID){
+        MobHead mobHead = getMobHeadWornByEntity(entity);
+        return mobHead != null && mobHead.getUuid().equals(headID);
+    }
     public static UUID getUUIDFromMobHeadItem(ItemStack headItem){
         if (headItem == null)return null;
         ItemMeta itemMeta = headItem.getItemMeta();
@@ -221,21 +296,34 @@ public class MobHead implements Listener {
         repairedHead.setAmount(count);
         return repairedHead;
     }
-    public static MobHead getMobHeadFromBrokenSkullItem(ItemStack skullItem){
-        if (skullItem == null)return null;
-        SkullMeta skullMeta = (SkullMeta) skullItem.getItemMeta();
-        if (skullMeta == null)return null;
-        PersistentDataContainer data = skullMeta.getPersistentDataContainer();
+    public static ItemStack getMobHeadItemFromBrokenSkullItem(ItemStack brokenSkullItem){
+        if (brokenSkullItem == null)return null;
+        SkullMeta brokenSkullMeta = (SkullMeta) brokenSkullItem.getItemMeta();
+        if (brokenSkullMeta == null)return null;
+        PersistentDataContainer data = brokenSkullMeta.getPersistentDataContainer();
         NamespacedKey key = Key.getHeadIDStorageType(data);
         if (key != null)return null;
-        PlayerProfile pp = skullMeta.getOwnerProfile();
+        PlayerProfile pp = brokenSkullMeta.getOwnerProfile();
         if (pp == null){
-            Material material = skullItem.getType();
+            Material material = brokenSkullItem.getType();
             if (!Data.vanillaHeadMats.contains(material))return null;
-            return getMobHeadFromVanillaSkullItem(skullItem);
+            MobHead mobHead = getMobHeadFromVanillaSkullItem(brokenSkullItem);
+            if (mobHead == null)return null;
+            return mobHead.getHeadItemStack();
         }
         UUID uuid = pp.getUniqueId();
-        return getMobHeadFromUUID(uuid);
+        MobHead mobHead = getMobHeadFromUUID(uuid);
+        if (mobHead == null)return null;
+        PlayerTextures headTexture = pp.getTextures();
+        ItemStack newHeadItem = mobHead.getHeadItemStack();
+        SkullMeta newSkullMeta = (SkullMeta) newHeadItem.getItemMeta();
+        assert newSkullMeta != null;
+        PlayerProfile newPP = newSkullMeta.getOwnerProfile();
+        assert newPP != null;
+        newPP.setTextures(headTexture);
+        newSkullMeta.setOwnerProfile(newPP);
+        newHeadItem.setItemMeta(newSkullMeta);
+        return newHeadItem;
     }
 
     public static MobHead getMobHeadFromVanillaSkullItem(ItemStack skullItem){

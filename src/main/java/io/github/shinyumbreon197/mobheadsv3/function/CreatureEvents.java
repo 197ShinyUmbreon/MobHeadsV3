@@ -7,7 +7,6 @@ import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.tool.Serializer;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
-import org.apache.maven.model.License;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -33,6 +32,7 @@ import org.bukkit.projectiles.BlockProjectileSource;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
@@ -125,7 +125,11 @@ public class CreatureEvents {
             case SLIME, MAGMA_CUBE -> {
                 switch (damageCause){
                     case FALL -> {
-                        double damage = slimeFallDamage((LivingEntity) ede.getEntity(), ede.getDamage());
+                        double damage = Math.floor(ede.getDamage() * 0.1); // 90% Reduction
+                        if (wasCreatureGliding(damaged)){
+                            if (debug) System.out.println("Creature was gliding"); //debug
+                            slimeRicochet(damaged,damage, true);
+                        }
                         if (damage == 0){
                             canceled = true;
                         }else ede.setDamage(damage);
@@ -141,7 +145,7 @@ public class CreatureEvents {
             }
             case FROG -> {
                 if (damageCause.equals(EntityDamageEvent.DamageCause.FALL)){
-                    double damage = (ede.getDamage() - 4) * 0.5;
+                    double damage = (ede.getDamage() * 0.7) - 3;
                     if (damage <= 0){
                         canceled = true;
                     }else ede.setDamage(damage);
@@ -198,10 +202,9 @@ public class CreatureEvents {
             }
             case BREEZE -> {
                 if (damageCause.equals(EntityDamageEvent.DamageCause.FALL) || damageCause.equals(EntityDamageEvent.DamageCause.FLY_INTO_WALL)){
-                    if (!(damaged instanceof Player) || !((Player)damaged).isSneaking()){
-                        canceled = true;
-                        breezeFallDamage(damaged, damageCause);
-                    }
+                    double damage = Math.floor(ede.getDamage() * 0.1); // 90% Reduction
+                    if (damage == 0) canceled = true;
+                    breezeFallDamage(damaged, damageCause);
                 }
             }
         }
@@ -291,15 +294,15 @@ public class CreatureEvents {
         }
     }
 
-    public static void nearbyTargetImposter(Mob targeter, LivingEntity targeted, EntityType targetedHeadType){
-        List<Entity> nearby = targeter.getNearbyEntities(10,5,10)
+    public static void nearbyTargetImposter(Mob targeting, LivingEntity targeted, EntityType targetedHeadType){
+        List<Entity> nearby = targeting.getNearbyEntities(10,5,10)
                 .stream().filter(entity -> entity instanceof Mob)
                 .filter(targeted::hasLineOfSight)
                 .collect(Collectors.toList()
         );
-        List<Mob> nearbyNeutral = new ArrayList<>(List.of(targeter));
+        List<Mob> nearbyNeutral = new ArrayList<>(List.of(targeting));
         for (Entity ent:nearby){
-            if (ent.equals(targeter))continue;
+            if (ent.equals(targeting))continue;
             if (!Groups.neutralTarget(ent.getType(), targetedHeadType))continue;
             nearbyNeutral.add((Mob) ent);
         }
@@ -326,9 +329,42 @@ public class CreatureEvents {
         new BukkitRunnable(){
             @Override
             public void run() {
-                Summon.createNewSummon(damagedLivEnt, (LivingEntity) attacker, headType);
+                Summon.castSummon(damagedLivEnt, (LivingEntity) attacker, headType);
             }
         }.runTaskLater(plugin, 1);
+    }
+
+    // Creaking --------------------------------------------------------------------------------------------------------
+    private static final Map<Player,Map<Block,BlockDisplay>> creakingGlowingHeartsNestedMap = new HashMap<>();
+    public static void creakingHighlightNearbyCreakingHearts(Player player){
+        List<Block> nearbyBlocks = Util.getNearbyBlocks(player.getLocation(), 12,12,12);
+        Set<Block> nearbyCreakingHearts = new HashSet<>();
+        for (Block block:nearbyBlocks){
+            if (block.getType().equals(Material.CREAKING_HEART))nearbyCreakingHearts.add(block);
+        }
+        creakingRemoveHighlightedCreakingHearts(player);
+        if (nearbyCreakingHearts.size() == 0)return;
+        Map<Block,BlockDisplay> map = new HashMap<>();
+        World world = player.getWorld();
+        for (Block creakingHeart:nearbyCreakingHearts){
+            //Packets.creakingHeartGlowBlock(player,creakingHeart);
+            BlockDisplay blockDisplay = (BlockDisplay) world.spawnEntity(creakingHeart.getLocation().add(0.1,0.1,0.1),EntityType.BLOCK_DISPLAY);
+            blockDisplay.setGlowing(true);
+            blockDisplay.setBlock(creakingHeart.getBlockData());
+            Transformation transformation = blockDisplay.getTransformation();
+            transformation.getScale().set(0.8,0.8,0.8);
+            blockDisplay.setTransformation(transformation);
+            blockDisplay.setPersistent(false);
+            blockDisplay.setVisibleByDefault(false);
+            player.showEntity(plugin,blockDisplay);
+            map.put(creakingHeart,blockDisplay);
+        }
+        creakingGlowingHeartsNestedMap.put(player,map);
+    }
+    public static void creakingRemoveHighlightedCreakingHearts(Player player){
+        Map<Block,BlockDisplay> map = creakingGlowingHeartsNestedMap.getOrDefault(player, new HashMap<>());
+        for (BlockDisplay blockDisplay:map.values()) blockDisplay.remove();
+        creakingGlowingHeartsNestedMap.remove(player);
     }
 
     // Iron Golem ------------------------------------------------------------------------------------------------------
@@ -481,12 +517,12 @@ public class CreatureEvents {
         armadillosProtecting.remove(armadillo);
     }
     private static void armadilloAddKnockbackResist(LivingEntity armadillo){
-        AttributeInstance knockback = armadillo.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        AttributeInstance knockback = armadillo.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
         if (knockback == null)return;
         knockback.setBaseValue(1.0);
     }
     public static void armadilloResetKnockbackResist(LivingEntity armadillo){
-        AttributeInstance knockback = armadillo.getAttribute(Attribute.GENERIC_KNOCKBACK_RESISTANCE);
+        AttributeInstance knockback = armadillo.getAttribute(Attribute.KNOCKBACK_RESISTANCE);
         if (knockback == null)return;
         knockback.setBaseValue(knockback.getDefaultValue());
     }
@@ -500,13 +536,47 @@ public class CreatureEvents {
         //Util.explosionKnockbackEffect(breeze, breeze.getLocation(), 8, 0, 1.0, 1f, List.of(breeze));
 
     }
-    public static void breezeElytraWindCharge(LivingEntity breeze){
-        Vector facing = breeze.getLocation().getDirection();
+    private static final Map<UUID,Integer> breezeJumpCooldownMap = new HashMap<>();
+    private static boolean breezeIsOnJumpCooldown(Player player){
+        return breezeJumpCooldownMap.containsKey(player.getUniqueId());
+    }
+    private static final int breezeJumpCooldownValue = 3 * 20;
+    private static void breezePutOnCooldown(Player player){
+        breezeJumpCooldownMap.put(player.getUniqueId(),breezeJumpCooldownValue);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                int cooldown = breezeJumpCooldownMap.getOrDefault(player.getUniqueId(), -1);
+                boolean hasCorrectHead = MobHead.isEntityWearingCertainHeadType(player,EntityType.BREEZE);
+                if (hasCorrectHead){
+                    Hud.progressBar(player,breezeJumpCooldownValue,cooldown, false, "Jump Cooldown:", false);
+                }else Hud.progressBarEnd(player);
+                cooldown--;
+                if (cooldown <= 0){
+                    Hud.progressBarEnd(player);
+                    breezeJumpCooldownMap.remove(player.getUniqueId());
+                    cancel();
+                }else breezeJumpCooldownMap.put(player.getUniqueId(), cooldown);
+            }
+        }.runTaskTimer(plugin,0,1);
+    }
+
+    public static void breezeElytraWindCharge(Player player){
+        if (breezeIsOnJumpCooldown(player))return;
+        breezePutOnCooldown(player);
+        player.setGliding(true);
+        Vector facing = player.getLocation().getDirection();
         Vector offset = new Vector(-facing.getX() * 0.5, 0, -facing.getZ() * 0.5);
-        WindCharge windCharge = (WindCharge) breeze.getWorld().spawnEntity(breeze.getLocation().add(offset),EntityType.WIND_CHARGE);
+        WindCharge windCharge = (WindCharge) player.getWorld().spawnEntity(player.getLocation().add(offset),EntityType.WIND_CHARGE);
         windCharge.explode();
     }
     public static void breezeSneakJump(Player player){
+        if (Util.hasWorkingElytra(player)){
+            breezeElytraWindCharge(player);
+            return;
+        }
+        if (breezeIsOnJumpCooldown(player))return;
+        breezePutOnCooldown(player);
         Vector facing = player.getLocation().getDirection();
         Vector offset = new Vector(-facing.getX() * 0.8, 0, -facing.getZ() * 0.8);
         WindCharge windCharge = (WindCharge) player.getWorld().spawnEntity(player.getLocation().add(offset),EntityType.WIND_CHARGE);
@@ -585,6 +655,55 @@ public class CreatureEvents {
     }
 
     // Horses (Horse, Donkey, Mule, Skeleton Horse, Zombie Horse) ------------------------------------------------------
+    public static void equineSneakRemoveStepHeight(Player player, EntityType headType, boolean sneaking){
+        AttributeManager.setAttributes(player, headType, !sneaking);
+    }
+    private static final Map<Player,Integer> equineChargeJumpValueMap = new HashMap<>();
+    private static final int equineChargeJumpMaxValue = 20;
+    public static void equineChargeJump(Player player, boolean sneaking, boolean inWater){
+        if (sneaking && !inWater){
+            if (equineChargeJumpValueMap.containsKey(player))return;
+            equineChargeJumpValueMap.put(player,0);
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    if (!player.isSneaking() || player.isInWater() || !equineChargeJumpValueMap.containsKey(player)){
+                        equineChargeJumpValueMap.remove(player);
+                        Hud.progressBarEnd(player);
+                        cancel();
+                        return;
+                    }
+                    int currentJumpValue = equineChargeJumpValueMap.getOrDefault(player, 0);
+                    if (currentJumpValue == equineChargeJumpMaxValue * 2) currentJumpValue = 0;
+                    boolean ascending = currentJumpValue < equineChargeJumpMaxValue;
+                    int displayValue = currentJumpValue;
+                    if (!ascending) displayValue = Math.abs(currentJumpValue - (equineChargeJumpMaxValue * 2));
+                    Hud.progressBar(player,equineChargeJumpMaxValue,displayValue,true,"Jump Charge:",false);
+                    currentJumpValue++;
+                    equineChargeJumpValueMap.put(player,currentJumpValue);
+                }
+            }.runTaskTimer(plugin,0,1);
+        }else{
+            equineChargeJumpValueMap.remove(player);
+            Hud.progressBarEnd(player);
+        }
+    }
+    public static void equineJump(Player player){
+        if (!equineChargeJumpValueMap.containsKey(player))return;
+        Hud.progressBarEnd(player);
+        int jumpValue = equineChargeJumpValueMap.getOrDefault(player, 0);
+        equineChargeJumpValueMap.remove(player);
+        if (jumpValue > equineChargeJumpMaxValue){
+            jumpValue = Math.abs(jumpValue - (equineChargeJumpMaxValue * 2));
+        }
+        Vector playerDirection = player.getLocation().getDirection().multiply(0.1);
+        Vector playerVelocity = player.getVelocity();
+        Vector addition = new Vector(playerDirection.getX(), jumpValue * 0.025,playerDirection.getZ());
+        player.setVelocity(playerVelocity.add(addition));
+        AVFX.playEquineJumpEffect(player.getLocation());
+        player.getWorld().playSound(player.getLocation(),Sound.ENTITY_HORSE_JUMP,1.0f, 1.1f);
+    }
+
 
     // Blaze -----------------------------------------------------------------------------------------------------------
     private static final Map<Player,Integer> blazesBoosting = new HashMap<>();
@@ -1728,14 +1847,16 @@ public class CreatureEvents {
             int hungerRestored = (Integer) restoration.get(0);
             float saturationRestored = (Float) restoration.get(1);
             int airRestored = (Integer) restoration.get(2);
-            List<PotionEffect> gainedEffects = frogGetEffects(eaten);
-            if (eaten.getType().equals(EntityType.COW)) gainedEffects.clear();
+            List<PotionEffect> gainedEffects;
+            if (Groups.isCow(eaten.getType())){
+                gainedEffects = new ArrayList<>();
+            }else gainedEffects = frogGetEffects(eaten);
             Util.addAbilityDamageData(eaten, EntityType.FROG);
             if (eaten instanceof Damageable){
                 if (eaten instanceof Player){
                     eaten.teleport(player.getLocation().add(0,0.2,0));
                 }
-                ((Damageable)eaten).damage(0, player);
+                ((Damageable)eaten).damage(0.5, player);
                 Vector velocity = Util.getDirection(eaten.getLocation().toVector(),player.getEyeLocation().add(0,-0.5,0).toVector());
                 eaten.setVelocity(velocity);
                 new BukkitRunnable(){
@@ -1838,7 +1959,7 @@ public class CreatureEvents {
         if (eaten instanceof Slime)return ((Slime)eaten).getSize() == 1;
         LivingEntity livingEaten = (LivingEntity) eaten;
         double health = livingEaten.getHealth();
-        AttributeInstance maxHealthAttribute = livingEaten.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance maxHealthAttribute = livingEaten.getAttribute(Attribute.MAX_HEALTH);
         if (maxHealthAttribute == null) return false;
         //if (debug) System.out.println("health: " + health + " maxHealth: " + maxHealthAttribute.getValue()); //debug
         double maxHealth = maxHealthAttribute.getValue();
@@ -1930,10 +2051,11 @@ public class CreatureEvents {
         switch (eatenType){
             case DROWNED -> air = air + 120;
             case GUARDIAN -> air = air + 160;
+            case TURTLE -> air = air + 200;
         }
         double maxHealth = 0;
         if (eaten instanceof LivingEntity){
-            AttributeInstance maxHealthAttribute = ((LivingEntity)eaten).getAttribute(Attribute.GENERIC_MAX_HEALTH);
+            AttributeInstance maxHealthAttribute = ((LivingEntity)eaten).getAttribute(Attribute.MAX_HEALTH);
             if (maxHealthAttribute != null) maxHealth = maxHealthAttribute.getValue();
         }
         hunger = (int) Math.ceil(maxHealth * 0.35);
@@ -2320,13 +2442,6 @@ public class CreatureEvents {
         EntityType entityType = EntityType.SLIME;
         if (mobHead != null) entityType = mobHead.getEntityType();
         AVFX.playSlimeBounceEffect(slime.getLocation(),entityType);
-    }
-    private static double slimeFallDamage(LivingEntity slime, double damage){
-        if (wasCreatureGliding(slime)){
-            if (debug) System.out.println("Slime was gliding"); //debug
-            slimeRicochet(slime,damage, true);
-        }
-        return Math.floor(damage * 0.2); // 80% Reduction
     }
 
     // Ghast -----------------------------------------------------------------------------------------------------------
@@ -3323,8 +3438,8 @@ public class CreatureEvents {
         }.runTaskLater(MobHeadsV3.getPlugin(),20);
     }
     private static final Set<Material> cowHarvestMats = Set.of(Material.BUCKET, Material.BOWL);
-    public static void milkCows(Player milkingPlayer, LivingEntity milkedEnt, MobHead mobHead){
-        if (isOnMilkingCooldown(milkingPlayer))return;
+    public static boolean milkCows(Player milkingPlayer, LivingEntity milkedEnt, MobHead mobHead){
+        if (isOnMilkingCooldown(milkingPlayer))return false;
         ItemStack mainHand = milkingPlayer.getInventory().getItemInMainHand();
         ItemStack offHand = milkingPlayer.getInventory().getItemInOffHand();
         EquipmentSlot hand = EquipmentSlot.HAND;
@@ -3339,13 +3454,13 @@ public class CreatureEvents {
         }
         boolean self = milkingPlayer.equals(milkedEnt);
         boolean openHand = harvestItem == null;
-        if (self && openHand)return;
+        if (self && openHand)return false;
         Location location = milkedEnt.getLocation();
         EntityType cowType = mobHead.getEntityType();
         boolean stew = false;
         boolean sus = false;
         boolean sneaking = milkingPlayer.isSneaking();
-        if (self && !sneaking)return;
+        if (self && !sneaking)return false;
         if (cowType.equals(EntityType.MOOSHROOM)) stew = true;
         if (mobHead.getVariant() != null && mobHead.getVariant().equals("BROWN")) sus = true;
         List<PotionEffect> addedEffects = new ArrayList<>();
@@ -3354,7 +3469,7 @@ public class CreatureEvents {
             if (stew && !sneaking){
                 int hunger = milkingPlayer.getFoodLevel();
                 float saturation = milkingPlayer.getSaturation();
-                if (hunger >= 20 && !sus)return;
+                if (hunger >= 20 && !sus)return false;
                 hunger = hunger + 2;
                 if (hunger > 20) hunger = 20;
                 saturation = saturation + 1f;
@@ -3384,6 +3499,7 @@ public class CreatureEvents {
                 AVFX.playMooshroomSoupingSounds(location,true);
             }
         }
+        return true;
     }
     private static void giveMilkBucket(Player milker, EquipmentSlot hand){
         PlayerInventory inv = milker.getInventory();

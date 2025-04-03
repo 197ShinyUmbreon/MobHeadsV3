@@ -9,6 +9,7 @@ import io.github.shinyumbreon197.mobheadsv3.event.main.MainThread;
 import io.github.shinyumbreon197.mobheadsv3.event.world.FunctionalBlockEvents;
 import io.github.shinyumbreon197.mobheadsv3.file.PlayerRegistry;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
+import io.github.shinyumbreon197.mobheadsv3.function.EnvironmentEffects;
 import io.github.shinyumbreon197.mobheadsv3.gui.MobHeadGUI;
 import io.github.shinyumbreon197.mobheadsv3.tool.StringBuilder;
 import org.bukkit.Bukkit;
@@ -35,14 +36,14 @@ public final class MobHeadsV3 extends JavaPlugin {
     public static PlayerRegistry playerRegistry;
     private static final String pluginName = "[MobHeadsV3] ";
     public static String getPluginName(){return pluginName;}
-    public static String getPluginNameColored(){return ChatColor.GOLD+pluginName+ChatColor.RESET;}
+    public static String getPluginNameColored(){return ChatColor.GOLD + pluginName+ChatColor.RESET;}
     public static boolean protocolLibEnabled = false;
 
     @Override
     public void onEnable() {
         plugin = this;
         version = defineVersion();
-        if (debug) cOut("Server Version: "+getVersion());
+        if (debug) cOut("Server Version: " + getVersion());
         initConfig();
         playerRegistry = new PlayerRegistry();
         playerRegistry.saveDefaultPlayerRegistry();
@@ -54,6 +55,10 @@ public final class MobHeadsV3 extends JavaPlugin {
         initPtcLib();
 
         getServer().getScheduler().scheduleSyncRepeatingTask(this, MainThread::on5Ticks,0, 5);
+        if (debug){
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, EnvironmentEffects::scanEntities, 0, 10);
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, EnvironmentEffects::runEffects,0, 1);
+        }
         HeadStorage.loadAllUsersHeadStorageFromFile();
         resumeServices();
     }
@@ -125,6 +130,7 @@ public final class MobHeadsV3 extends JavaPlugin {
         pm.registerEvents(new ItemSpawnDespawnEvents(),this);
         pm.registerEvents(new InventoryEvents(),this);
         pm.registerEvents(new ChunkUnload(),this);
+        pm.registerEvents(new EntityDropItem(), this);
 
         //pm.registerEvents(new Packets(), this);
     }
@@ -164,15 +170,17 @@ public final class MobHeadsV3 extends JavaPlugin {
             ShapedRecipe recipe = new ShapedRecipe(nsk, lootItem);
             recipe.shape("H");
             recipe.setIngredient('H', rc);
-            if (debug) System.out.println("registerRecipes() " + name); //debug
+            //if (debug) System.out.println("registerRecipes() " + name); //debug
             getServer().addRecipe(recipe);
         }
     }
+
     private static void resumeServices(){
         for (Player player:Bukkit.getOnlinePlayers()){
             CreatureEvents.chestedAddHolder(player);
         }
     }
+
     public static void messagePlayer(Player player, String message){
         player.sendMessage(getPluginNameColored() + message);
     }

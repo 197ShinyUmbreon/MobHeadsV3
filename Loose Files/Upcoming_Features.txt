@@ -2,6 +2,8 @@ Key:
     "-" Not Completed.
     "-X-" Completed.
 
+- Villager Head(s) have a set of trade-ins for Emerald(s). These trades will have less value than a trade with an actual villager, but still valuable.
+    Maybe a Katan style trade-in system.
 -X- Donkey/Mule/Llama/Trader Llama can pick up containers. Contents are serialized and written to a container ItemStack.
     Every container gives a level of Slowness (Half if Llama). If the head is removed while carrying Wither I will be imposed. If
     killed or dropped, all items will spill onto the ground (like bundles).

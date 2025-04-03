@@ -4,6 +4,7 @@ import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
 import io.github.shinyumbreon197.mobheadsv3.data.Data;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
+import io.github.shinyumbreon197.mobheadsv3.function.HeadEquip;
 import io.github.shinyumbreon197.mobheadsv3.function.SkullInteract;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -74,6 +75,16 @@ public class PlayerInteractEvents implements Listener {
 
     @EventHandler
     public static void onPlayerInteractEntity(PlayerInteractEntityEvent piee){
+        Player player = piee.getPlayer();
+        Entity target = piee.getRightClicked();
+        boolean isSneaking = player.isSneaking();
+        EquipmentSlot hand = piee.getHand();
+        if (isSneaking && hand.equals(EquipmentSlot.HAND)){
+            if (HeadEquip.equipTamedCreatureWithHead(player,target,player.getInventory().getItemInMainHand())){
+                piee.setCancelled(true);
+                return;
+            }
+        }
         if (!Config.headEffects)return;
         if (debug) System.out.println("Interacted with: " + piee.getRightClicked().getName()); //debug
         MobHead interactedMobHead = MobHead.getMobHeadWornByEntity(piee.getRightClicked());
@@ -97,6 +108,7 @@ public class PlayerInteractEvents implements Listener {
         Player player = pie.getPlayer();
         boolean isSneaking = player.isSneaking();
 
+        boolean cancel = false;
         switch (headType){
             case PIG -> {
                 if (!interactable && rightClickActions.contains(action) && Data.getFoodMats().contains(itemStack.getType())){
@@ -110,7 +122,7 @@ public class PlayerInteractEvents implements Listener {
             }
             case COW, MOOSHROOM -> {
                 if (rightClickActions.contains(action) && player.isSneaking()){
-                    CreatureEvents.milkCows(player, player, mobHead);
+                    cancel = CreatureEvents.milkCows(player, player, mobHead);
                 }
             }
             case SNOW_GOLEM -> {
@@ -138,7 +150,9 @@ public class PlayerInteractEvents implements Listener {
                 }
             }
         }
-
+        if (cancel){
+            pie.setCancelled(true);
+        }
     }
 
     private static void headedPlayerInteractBlock(MobHead mobHead, PlayerInteractEvent pie, boolean itemInteract, boolean mainHand){
@@ -173,9 +187,12 @@ public class PlayerInteractEvents implements Listener {
         LivingEntity livHeadedEnt = (LivingEntity) headedEnt;
         EntityType headType = mobHead.getEntityType();
 
+        boolean cancel = false;
         switch (headType){
-            case COW, MOOSHROOM -> CreatureEvents.milkCows(player,livHeadedEnt, mobHead);
-            //case MUSHROOM_COW -> CreatureEvents.soupMooshroom(player,livHeadedEnt);
+            case COW, MOOSHROOM -> cancel = CreatureEvents.milkCows(player,livHeadedEnt, mobHead);
+        }
+        if (cancel){
+            piee.setCancelled(true);
         }
     }
 

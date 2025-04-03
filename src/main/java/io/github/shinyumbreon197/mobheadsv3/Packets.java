@@ -4,12 +4,12 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedDataValue;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedParticle;
+import com.comphenix.protocol.wrappers.*;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.NumberConversions;
@@ -34,6 +34,40 @@ public class Packets {
 //
 //    }
 
+    // Creaking Particles & Entity Spawning ----------------------------------------------------------------------------
+    public static void creakingHeartGlowBlock(Player player, Block block){
+        if (!enabled)return;
+        Location origin = block.getLocation().add(0.5,0.5,0.5);
+        PacketContainer packet0 = pm.createPacket(PacketType.Play.Server.SPAWN_ENTITY);
+        int entityId = new Random().nextInt();
+        packet0.getIntegers().write(0, entityId);
+        packet0.getUUIDs().write(0, UUID.randomUUID());
+        packet0.getEntityTypeModifier().write(0, EntityType.BLOCK_DISPLAY);
+        packet0.getDoubles()
+                .write(0,origin.getX())
+                .write(1,origin.getY())
+                .write(2,origin.getZ())
+        ;
+
+
+
+        pm.sendServerPacket(player,packet0);
+
+        PacketContainer packet1 = pm.createPacket(PacketType.Play.Server.ENTITY_METADATA);
+        packet1.getIntegers().write(0,entityId);
+        WrappedBlockData blockData = WrappedBlockData.createData(Material.AIR);
+        //packet1.getBlockData().write(0, blockData);
+        var serializer = WrappedDataWatcher.Registry.getBlockDataSerializer(false);
+        WrappedDataValue blockDataObject = new WrappedDataValue(23, serializer, BukkitConverters.getWrappedBlockDataConverter().getGeneric(blockData));
+        packet1.getDataValueCollectionModifier().write(0, List.of(blockDataObject));
+        Vector3F scale = new com.comphenix.protocol.wrappers.Vector3F(0.8f, 0.8f, 0.8f);
+        WrappedDataValue blockDataObject2 = new WrappedDataValue(12, WrappedDataWatcher.Registry.get(Vector3F.getMinecraftClass()), Vector3F.getConverter().getGeneric(scale));
+        packet1.getDataValueCollectionModifier().write(0, List.of(blockDataObject));
+
+        //packet1.getVectors().write(1, new Vector(0.8, 0.8,0.8));
+        packet1.getIntegers().write(6,1);
+        pm.sendServerPacket(player,packet1);
+    }
     // Suspicious Particles --------------------------------------------------------------------------------------------
     private static Color susColor(int type){
         if (type == 0){ // sus block

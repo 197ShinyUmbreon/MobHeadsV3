@@ -76,7 +76,7 @@ public class Hud {
     public static void progressBarEnd(Player player){
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder().create());
     }
-    public static void progressBar(Player player, double maxValue, double currentValue, boolean descending, String appendix, boolean critical){
+    public static boolean progressBar(Player player, double maxValue, double currentValue, boolean ascending, String appendix, boolean critical){
         //if (currentValue >= maxValue)return;
         //if (debug) System.out.println("player: " + player.getDisplayName() + " maxValue: " + maxValue + " currentValue: " + currentValue);
         if (maxValue == 0) maxValue = 0.01;
@@ -85,7 +85,7 @@ public class Hud {
         int bars = 50;
         int filledBars;
         int emptyBars;
-        if (descending){
+        if (ascending){
             filledBars = (int) Math.ceil(percent * bars);
             emptyBars = bars - filledBars;
         }else{
@@ -115,6 +115,7 @@ public class Hud {
         baseComponent = new ComponentBuilder(bar).create();
 
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, baseComponent);
+        return currentValue == maxValue;
     }
 
 }

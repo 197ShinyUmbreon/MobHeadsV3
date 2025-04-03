@@ -3,6 +3,7 @@ package io.github.shinyumbreon197.mobheadsv3.event;
 import io.github.shinyumbreon197.mobheadsv3.AVFX;
 import io.github.shinyumbreon197.mobheadsv3.Config;
 import io.github.shinyumbreon197.mobheadsv3.MobHead;
+import io.github.shinyumbreon197.mobheadsv3.data.Groups;
 import io.github.shinyumbreon197.mobheadsv3.data.Key;
 import io.github.shinyumbreon197.mobheadsv3.entity.Summon;
 import io.github.shinyumbreon197.mobheadsv3.function.CreatureEvents;
@@ -35,19 +36,19 @@ public class EntityDamage implements Listener {
                 CreatureEvents.chestedContainerItemExplode(item);
             }
         }
-        Entity damager;
+        Entity damaging;
         MobHead damagedHead = MobHead.getMobHeadWornByEntity(damaged);
-        MobHead damagerHead;
+        MobHead damagingHead;
         if (ede instanceof EntityDamageByEntityEvent){
             EntityDamageByEntityEvent edbee = (EntityDamageByEntityEvent) ede;
             boolean projectile = false;
-            damager = edbee.getDamager();
-            if (damager instanceof Projectile){
-                //if (debug) System.out.println(((Projectile)damager).getPersistentDataContainer()); //debug
-                Entity source = Util.getTrueAttacker(damager);
-                if (isAbilityProjectile((Projectile) damager)){
+            damaging = edbee.getDamager();
+            if (damaging instanceof Projectile){
+                //if (debug) System.out.println(((Projectile)damaging).getPersistentDataContainer()); //debug
+                Entity source = Util.getTrueAttacker(damaging);
+                if (isAbilityProjectile((Projectile) damaging)){
                     if (debug) System.out.println("isAbilityProjectile"); //debug
-                    EntityType abilityType = getAbilityDamageType(damager);
+                    EntityType abilityType = getAbilityDamageType(damaging);
                     if (abilityType != null){
                         switch (abilityType){
                             case LLAMA -> {ede.setDamage(3);}
@@ -57,13 +58,13 @@ public class EntityDamage implements Listener {
                         Util.addAbilityDamageData(damaged, abilityType);
                     }
                 }
-                damager = source;
-                if (debug) System.out.println("Damager: " + damager.getName() + " " + damager.getUniqueId());
+                damaging = source;
+                if (debug) System.out.println("Damager: " + damaging.getName() + " " + damaging.getUniqueId());
                 projectile = true;
             }
             if (debug) System.out.println("projectile: " + projectile); //debug
-            if (Summon.isEntitySummon(damager) && damaged instanceof Damageable){
-                LivingEntity summoner = Summon.getOwnerFromSummon(damager);
+            if (Summon.isEntitySummon(damaging) && damaged instanceof Damageable){
+                LivingEntity summoner = Summon.getOwnerFromSummon(damaging);
                 if (summoner != null){
                     Damageable damageable = (Damageable) damaged;
                     MobHead summonerHead = MobHead.getMobHeadWornByEntity(summoner);
@@ -71,23 +72,23 @@ public class EntityDamage implements Listener {
                 }
             }
             if (Summon.isEntitySummon(damaged)){
-                if (Summon.getOwnerFromSummon(damaged).equals(damager)){
+                if (Summon.getOwnerFromSummon(damaged).equals(damaging)){
                     ede.setCancelled(true);
                     return;
                 }
             }
-            if (debug && damager instanceof Player){
-                Player player = (Player) damager;
+            if (debug && damaging instanceof Player){
+                Player player = (Player) damaging;
                 player.sendMessage(
                       player.getDisplayName() + " damaged " + damaged.getName() + " for " + edbee.getDamage() +
                       " of type " + edbee.getCause().name()
                 );
             }
-            //if (debug) System.out.println("onEntityDamage() projectile: " + projectile + " damager: " + damager); //debug
+            //if (debug) System.out.println("onEntityDamage() projectile: " + projectile + " damaging: " + damaging); //debug
             if (Config.headEffects && damagedHead != null) headedEntityTakeDamageFromEntity(damagedHead, (EntityDamageByEntityEvent) ede);
-            damagerHead = MobHead.getMobHeadWornByEntity(damager);
-            if (Config.headEffects && damagerHead != null){
-                headedEntityDamageEntity(damagerHead,projectile,edbee);
+            damagingHead = MobHead.getMobHeadWornByEntity(damaging);
+            if (Config.headEffects && damagingHead != null){
+                headedEntityDamageEntity(damagingHead,projectile,edbee);
             }
         }
         if (damagedHead != null && !ede.isCancelled()) headedEntityTakeDamage(damagedHead, ede);
@@ -175,27 +176,34 @@ public class EntityDamage implements Listener {
 
     }
 
-    private static void headedEntityDamageEntity(MobHead damagerHead, boolean projectile, EntityDamageByEntityEvent edbee){
+    private static void headedEntityDamageEntity(MobHead damagingHead, boolean projectile, EntityDamageByEntityEvent edbee){
         if (!Config.headEffects)return;
-        if (debug) System.out.println("damagerHead: " + damagerHead);
-        EntityType damagerHeadType = damagerHead.getEntityType();
+        if (debug) System.out.println("damagingHead: " + damagingHead);
+        EntityType damagingHeadType = damagingHead.getEntityType();
         Entity source = Util.getTrueAttacker(edbee.getDamager());
         if (!(source instanceof LivingEntity))return;
-        LivingEntity damager = (LivingEntity) source;
+        LivingEntity damaging = (LivingEntity) source;
         Entity damaged = edbee.getEntity();
+        EntityType damagedType = damaged.getType();
         EntityDamageEvent.DamageCause cause = edbee.getCause();
         if (Util.hasTakenAbilityDamage(damaged)) cause = EntityDamageEvent.DamageCause.CUSTOM;
         if (!attackCauses.contains(cause))return;
         if (projectile) damaged = Util.getTrueAttacker(damaged);
 
 //        if (debug) System.out.println("headedEntityDamageEntity() damaged: " + damaged.getName() +
-//                " damager: " + edbee.getDamager().getName() + " cause: " + cause + " damage: " + edbee.getDamage()
+//                " damaging: " + edbee.getDamager().getName() + " cause: " + cause + " damage: " + edbee.getDamage()
 //        );
 
         if (damaged instanceof LivingEntity){
             LivingEntity livDamaged = (LivingEntity) damaged;
-            CreatureEvents.applyAfflictionsToTarget(damagerHeadType,livDamaged,projectile);
-            if (damaged instanceof Mob) CreatureEvents.addToAttackAggroMap(damager,(Mob) livDamaged);
+            CreatureEvents.applyAfflictionsToTarget(damagingHeadType,livDamaged,projectile);
+            if (damaged instanceof Mob){
+                Mob mob = (Mob) damaged;
+                CreatureEvents.addToAttackAggroMap(damaging,mob);
+            }
+            if ((damaged instanceof Monster || damaging.getType().equals(EntityType.WOLF)) && Groups.neutralTarget(damagingHeadType, damagedType)){
+                CreatureEvents.nearbyTargetImposter((Mob) damaged,damaging,damagingHeadType);
+            }
         }
     }
 

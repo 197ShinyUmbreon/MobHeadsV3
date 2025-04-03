@@ -4,6 +4,7 @@ import com.sun.jna.platform.unix.solaris.LibKstat;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fox;
 import org.bukkit.entity.Wolf;
 import org.bukkit.inventory.ItemStack;
 
@@ -79,23 +80,29 @@ public class Data {
         return list;
     }
     private static Map<String,Wolf.Variant> wolfVariantMap;
-    private static Map<String,Wolf.Variant> buildWolfVariantMap(){
-        Map<String,Wolf.Variant> map = new HashMap<>();
-        map.put("minecraft:pale", Wolf.Variant.PALE);
-        map.put("minecraft:spotted", Wolf.Variant.SPOTTED);
-        map.put("minecraft:snowy", Wolf.Variant.SNOWY);
-        map.put("minecraft:black", Wolf.Variant.BLACK);
-        map.put("minecraft:ashen", Wolf.Variant.ASHEN);
-        map.put("minecraft:rusty", Wolf.Variant.RUSTY);
-        map.put("minecraft:woods", Wolf.Variant.WOODS);
-        map.put("minecraft:chestnut", Wolf.Variant.CHESTNUT);
-        map.put("minecraft:striped", Wolf.Variant.STRIPED);
-        return map;
-    }
     public static Map<String,Wolf.Variant> getWolfVariantMap(){
         if (wolfVariantMap != null)return wolfVariantMap;
-        wolfVariantMap = buildWolfVariantMap();
+        Map<String,Wolf.Variant> map = new HashMap<>();
+        map.put("pale", Wolf.Variant.PALE);
+        map.put("spotted", Wolf.Variant.SPOTTED);
+        map.put("snowy", Wolf.Variant.SNOWY);
+        map.put("black", Wolf.Variant.BLACK);
+        map.put("ashen", Wolf.Variant.ASHEN);
+        map.put("rusty", Wolf.Variant.RUSTY);
+        map.put("woods", Wolf.Variant.WOODS);
+        map.put("chestnut", Wolf.Variant.CHESTNUT);
+        map.put("striped", Wolf.Variant.STRIPED);
+        wolfVariantMap = map;
         return wolfVariantMap;
+    }
+    private static Map<String, Fox.Type> foxVariantMap;
+    public static Map<String, Fox.Type> getFoxVariantMap(){
+        if (foxVariantMap != null)return foxVariantMap;
+        Map<String, Fox.Type> map = new HashMap<>();
+        map.put("RED", Fox.Type.RED);
+        map.put("SNOW", Fox.Type.SNOW);
+        foxVariantMap = map;
+        return foxVariantMap;
     }
     private static Map<EntityType,Sound> entityTypeNoteblockSoundMap;
     private static void buildEntityTypeNoteblockSoundMap(){
@@ -162,6 +169,7 @@ public class Data {
         map.put(EntityType.SILVERFISH, Sound.ENTITY_SILVERFISH_AMBIENT);
         map.put(EntityType.SLIME, Sound.ENTITY_SLIME_SQUISH_SMALL);
         map.put(EntityType.PHANTOM, Sound.ENTITY_PHANTOM_AMBIENT);
+        map.put(EntityType.CREAKING, Sound.ENTITY_CREAKING_AMBIENT);
 
         map.put(EntityType.PILLAGER, Sound.ENTITY_PILLAGER_AMBIENT);
         map.put(EntityType.VINDICATOR, Sound.ENTITY_VINDICATOR_AMBIENT);

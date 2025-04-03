@@ -25,35 +25,35 @@ public class EntityTargetLivingEntity implements Listener {
     @EventHandler
     public static void entityTargetLivingEntity(EntityTargetLivingEntityEvent ete){
         Entity targeted = ete.getTarget();
-        Entity targeter = ete.getEntity();
+        Entity targeting = ete.getEntity();
         MobHead targetedHead = MobHead.getMobHeadWornByEntity(targeted);
-        MobHead targeterHead = MobHead.getMobHeadWornByEntity(targeter);
+        MobHead targetingHead = MobHead.getMobHeadWornByEntity(targeting);
 
         if (targetedHead != null) entityTargetHeadedEntity(targetedHead,ete);
-        if (targeterHead != null) headedEntityTargetEntity(targeterHead,ete);
+        if (targetingHead != null) headedEntityTargetEntity(targetingHead,ete);
 
     }
     private static void entityTargetHeadedEntity(MobHead targetedHead, EntityTargetLivingEntityEvent ete){
         if (debug) System.out.println("entityTargetHeadedEntity() "); //debug
         if (!(ete.getEntity() instanceof Mob))return;
-        Mob targeter = (Mob) ete.getEntity();
+        Mob targeting = (Mob) ete.getEntity();
         LivingEntity targeted = ete.getTarget();
         if (targeted == null)return;
-        if (CreatureEvents.hasMobBeenAttacked(targeted, targeter)){
-            if (debug) System.out.println("mobHasBeenAttacked() -> true; Targeted: " + targeted.getName() + " Mob: " + targeter.getName());
+        if (CreatureEvents.hasMobBeenAttacked(targeted, targeting)){
+            if (debug) System.out.println("mobHasBeenAttacked() -> true; Targeted: " + targeted.getName() + " Mob: " + targeting.getName());
             return;
         }
-        boolean monster = targeter instanceof Monster;
-        EntityType targeterType = targeter.getType();
+        boolean monster = targeting instanceof Monster;
+        EntityType targetingType = targeting.getType();
         EntityType targetedHeadType = targetedHead.getEntityType();
         EntityTargetLivingEntityEvent.TargetReason reason = ete.getReason();
         if (debug) System.out.println("reason: " + reason); //debug
-        PersistentDataContainer targeterData = targeter.getPersistentDataContainer();
+        PersistentDataContainer targetingData = targeting.getPersistentDataContainer();
 
-        if (Groups.neutralTarget(targeterType, targetedHeadType)){
+        if (Groups.neutralTarget(targetingType, targetedHeadType)){
             boolean lastHeadedTargetIsTarget = false;
-            if (targeterData.has(lastHeadedTargetKey, PersistentDataType.STRING)){
-                String lastHeadedTargetUUIDString = targeterData.get(lastHeadedTargetKey,PersistentDataType.STRING);
+            if (targetingData.has(lastHeadedTargetKey, PersistentDataType.STRING)){
+                String lastHeadedTargetUUIDString = targetingData.get(lastHeadedTargetKey,PersistentDataType.STRING);
                 assert lastHeadedTargetUUIDString != null;
                 UUID lastHeadedTargetUUID = UUID.fromString(lastHeadedTargetUUIDString);
                 Entity lastHeadedTarget = Bukkit.getEntity(lastHeadedTargetUUID);
@@ -63,17 +63,19 @@ public class EntityTargetLivingEntity implements Listener {
             boolean neutralResponse = !reason.equals(EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) && !lastHeadedTargetIsTarget;
             if (debug) System.out.println("neutralGroup: " + "\nneutralResponse: " + neutralResponse); //debug
             if (neutralResponse){
+                if (debug) System.out.println("Neutral Response");
                 ete.setCancelled(true);
-                return;
+            }else{
+                if (debug) System.out.println("Hostile Response, recruiting nearby.");
+                //CreatureEvents.nearbyTargetImposter(targeting, targeted, targetedHeadType);
             }
-            CreatureEvents.nearbyTargetImposter(targeter, targeted, targetedHeadType);
         }
 
         if (monster){
             switch (targetedHeadType){
                 case PARROT -> {
                     if (!reason.equals(EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY)){
-                        CreatureEvents.parrotTargeted(targeted, targeter);
+                        CreatureEvents.parrotTargeted(targeted, targeting);
                     }
                 }
             }
@@ -83,7 +85,7 @@ public class EntityTargetLivingEntity implements Listener {
 
     }
 
-    private static void headedEntityTargetEntity(MobHead targeterHead, EntityTargetLivingEntityEvent ete){
+    private static void headedEntityTargetEntity(MobHead targetingHead, EntityTargetLivingEntityEvent ete){
 
     }
 

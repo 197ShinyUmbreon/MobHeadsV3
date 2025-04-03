@@ -56,7 +56,7 @@ public class PotionEffectManager {
             case STRAY -> {return List.of(buildSimpleEffect(PotionEffectType.SLOWNESS,1,5*20));}
             case BOGGED -> {return List.of(buildSimpleEffect(PotionEffectType.POISON, 1, 4*20));}
             case ELDER_GUARDIAN -> {return List.of(buildSimpleEffect(PotionEffectType.MINING_FATIGUE, 4, 10*20));}
-            case BREEZE -> {return List.of(buildSimpleEffect(PotionEffectType.WIND_CHARGED, 1, 5*20));}
+            //case BREEZE -> {return List.of(buildSimpleEffect(PotionEffectType.WIND_CHARGED, 1, 5*20));}
         }
         return new ArrayList<>();
     }
@@ -270,10 +270,11 @@ public class PotionEffectManager {
             case ZOMBIFIED_PIGLIN -> {
                 add.add(headEffect(PotionEffectType.HUNGER, 1, -1, false));
                 add.add(headEffect(PotionEffectType.SLOWNESS, 1, -1, false));
+                add.add(headEffect(PotionEffectType.STRENGTH, 1, -1, false));
             }
             case WITHER_SKELETON -> {add.add(headEffect(PotionEffectType.WITHER, 1, -1, false));}
             case WITHER -> {add.add(headEffect(PotionEffectType.WITHER, 2, -1, false));}
-            case CHICKEN, PARROT -> {add.add(headEffect(PotionEffectType.SLOW_FALLING, 1, -1, false));}
+            case CHICKEN, PARROT, GHAST -> {add.add(headEffect(PotionEffectType.SLOW_FALLING, 1, -1, false));}
             //case STRIDER -> {add.add(headEffect(PotionEffectType.FIRE_RESISTANCE, 1, -1, false));}
             case BAT -> {
                 add.add(headEffect(PotionEffectType.BLINDNESS, 1, -1, false));
@@ -296,11 +297,10 @@ public class PotionEffectManager {
             case PHANTOM -> {add.add(headEffect(PotionEffectType.NIGHT_VISION,1,-1,false));}
             case ZOGLIN -> {
                 add.add(headEffect(PotionEffectType.HUNGER, 1, -1, false));
-                add.add(headEffect(PotionEffectType.SLOWNESS, 1, -1, false));
+                //add.add(headEffect(PotionEffectType.SLOWNESS, 1, -1, false));
                 add.add(headEffect(PotionEffectType.STRENGTH, 1, -1, false));
             }
             case HOGLIN, POLAR_BEAR, PIGLIN_BRUTE -> {add.add(headEffect(PotionEffectType.STRENGTH, 1, -1, false));}
-            case GHAST -> {add.add(headEffect(PotionEffectType.SLOW_FALLING, 1, -1, false));}
             case BLAZE -> {
                 if (target instanceof Player){
                     Player player = (Player) target;
@@ -309,8 +309,7 @@ public class PotionEffectManager {
                     }else add.add(headEffect(PotionEffectType.SLOW_FALLING, 1, -1, false));
                 }else add.add(headEffect(PotionEffectType.SLOW_FALLING, 1, -1, false));
             }
-            case SLIME, FROG -> {add.add(headEffect(PotionEffectType.JUMP_BOOST, 1, -1, false));}
-            case MAGMA_CUBE -> {add.add(headEffect(PotionEffectType.JUMP_BOOST, 1, -1, false));}
+            case SLIME, FROG, MAGMA_CUBE -> {add.add(headEffect(PotionEffectType.JUMP_BOOST, 1, -1, false));}
             case CAT, OCELOT -> {add.add(headEffect(PotionEffectType.SPEED, 1, -1, false));}
             case HORSE, SKELETON_HORSE -> {add.add(headEffect(PotionEffectType.SPEED,2,-1,false));}
             case RABBIT -> {add.add(headEffect(PotionEffectType.JUMP_BOOST,2,-1,false));}
@@ -321,6 +320,10 @@ public class PotionEffectManager {
                 add.add(headEffect(PotionEffectType.STRENGTH, 1, -1, false));
                 add.add(headEffect(PotionEffectType.RESISTANCE, 1, -1, false));
                 add.add(headEffect(PotionEffectType.SLOWNESS, 2, -1, false));
+            }
+            case CREAKING -> {
+                add.add(headEffect(PotionEffectType.NIGHT_VISION, 1, -1, false));
+                add.add(headEffect(PotionEffectType.SPEED, 1, -1, false));
             }
         }
 

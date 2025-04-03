@@ -16,15 +16,6 @@ Ender Dragon: X
 
 Single-Skin Passives
 
-Cow: X
-1940fbd2-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/7dfa0ac37baba2aa290e4faee419a613cd6117fa568e709d90374753c032dcb0
-Pig: X
-1940fe48-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4
-Chicken: X
-1940ff9c-5fac-11ed-9b6a-0242ac120002
-http://textures.minecraft.net/texture/45b4e2229de94c15dbfcf2bae49e80f0e4d65914a49a312c0417929a29bb7
 Donkey: X
 19410442-5fac-11ed-9b6a-0242ac120002
 http://textures.minecraft.net/texture/dfb6c3c052cf787d236a2915f8072b77c547497715d1d2f8cbc9d241d88a
@@ -195,6 +186,9 @@ http://textures.minecraft.net/texture/483474a813a0389e52fc5aebd5e69e09a725416428
 Breeze: X
 417c2d09-09e6-4960-8ab1-6458678c2736
 cd6e602f76f80c0657b5aed64e267eeea702b31e6dae86346c8506f2535ced02
+Creaking: 
+8368c742-75a9-4af2-bb6e-5d4d95e84216
+aef009d86fcc420361a68cbb8bfa85a7422bfe9e2f306247be1e1b5d20fc52b1
 
 Boss Mobs
 
@@ -463,30 +457,62 @@ Pale Wolf: X
 194100dc-5fac-11ed-9b6a-0242ac120002
 https://textures.minecraft.net/texture/64bb00afbbe27872efddd6a51680c23258d8e7d73e770fdd0ebc3d342ec1418
 http://textures.minecraft.net/texture/24d7727f52354d24a64bd6602a0ce71a7b484d05963da83b470360faa9ceab5f (old)
-Rusty Wolf:
+Rusty Wolf: X
 c363c344-f9ed-4734-984f-383211d175e8
 https://textures.minecraft.net/texture/af904900ea732b77e696422266d4ce883b72695a707ba9ccb17925f6c37600e
-Black Wolf:
+Black Wolf: X
 625c0f6f-d9d4-41ce-a136-fe86d7ad9128
 https://textures.minecraft.net/texture/be454d963a9a1ec0a51368c3c7e908ebbbe152293e07b87fed13e61e7e852c0d
-Striped Wolf:
+Striped Wolf: X
 7ad284d3-b3a5-44ec-8dbc-80c58f4fac13
 https://textures.minecraft.net/texture/3e0cda2200fda9fd07b319e1156a48cccf34ae657e5d7843995dd1fc7eed4265
-Snowy Wolf:
+Snowy Wolf: X
 fde9c51a-84a1-403e-8dcf-439d5fc3e465
 https://textures.minecraft.net/texture/5e9702a29dd3464927ec6b452b0b24f95ab1fb161bed3814c4ab691e18adde37
-Ashen Wolf:
+Ashen Wolf: X
 569993fa-fefe-499b-beec-d1df044d17fb
 https://textures.minecraft.net/texture/665f8d2cf8f830c3011615736da5a8624290dd490e199f3d09050e68e32b353c
-Woods Wolf:
+Woods Wolf: X
 1888531f-8aeb-4337-8acd-fb242b3dcef5
 https://textures.minecraft.net/texture/de929c290b21eea8662a1757ab93d627ab65503ff02e3cde15441e1cbb41f6cd
-Spotted Wolf:
+Spotted Wolf: X
 6f4eeaab-f2ea-4d07-9012-8745d2ee2f8c
 https://textures.minecraft.net/texture/cb5c6b95536d77e9570133266f3c620120e15c89073c683b3855a595d0a1f129
-Chestnut Wolf:
+Chestnut Wolf: X
 995b8492-f789-4e76-a4f5-da832bd23311
 https://textures.minecraft.net/texture/ec99ecac21148139186bfb4da0169ad579a9bea39be021aaa9a848e4c7f8694
+
+Pigs
+Temperate Pig: X
+1940fe48-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/621668ef7cb79dd9c22ce3d1f3f4cb6e2559893b6df4a469514e667c16aa4
+Warm Pig: X
+6e6018ba-3ae9-4cdc-aca1-ed71ea8a40ec
+Cold Pig: X
+71f8637d-73ca-4659-9cca-7e0dc46bcfaf
+
+Cows
+Temperate Cow: X
+1940fbd2-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/7dfa0ac37baba2aa290e4faee419a613cd6117fa568e709d90374753c032dcb0
+Warm Cow:
+a17cc9bc-a482-48ae-8c4b-79690815f1ed
+http://textures.minecraft.net/texture/37eeb49335e03fe7911295075d6ae1e8a9b091fc6c4896fd2ccec8359c10b006
+Cold Cow:
+675a7733-b924-46f7-ac80-ef31df6e8c33
+http://textures.minecraft.net/texture/e33221484d39f0d4ecdffa729567ce77fa8ce05b091db76dd5b079a20f7bf339
+
+Chicken
+Temperate Chicken: X
+1940ff9c-5fac-11ed-9b6a-0242ac120002
+http://textures.minecraft.net/texture/933b529b2db8d9d181c144ae14a5a7826e5dd2331e0d1020f45bb2bbacf71fc
+[OLD] http://textures.minecraft.net/texture/45b4e2229de94c15dbfcf2bae49e80f0e4d65914a49a312c0417929a29bb7
+Warm Chicken:
+2b9f4346-b019-4702-89d2-b79141a35806
+http://textures.minecraft.net/texture/c414822a85c5e7073e207da133ce226859b0f74f238d584c3d3a42f223bb16bf
+Cold Chicken:
+00e60d8d-2670-4f88-bc9c-25850601fea3
+http://textures.minecraft.net/texture/69b26cc2036bd95467ca7bd9f82ebc3f8c2198d84e899834ef0643371c485881
 
 Multi-Skin Hostiles
 

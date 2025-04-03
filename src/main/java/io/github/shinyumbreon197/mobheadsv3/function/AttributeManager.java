@@ -8,13 +8,13 @@ import org.bukkit.entity.LivingEntity;
 
 public class AttributeManager {
 
-    public static void setAttributes(LivingEntity target, EntityType headType, boolean equip){
+    public static void setAttributes(LivingEntity target, EntityType headType, boolean enable){
         if (Groups.isEquine(headType)){
-            AttributeInstance ai = target.getAttribute(Attribute.GENERIC_STEP_HEIGHT);
-            if (ai == null)return;
-            if (equip){
-                ai.setBaseValue(1.2);
-            }else ai.setBaseValue(ai.getDefaultValue());
+            AttributeInstance aiStepHeight = target.getAttribute(Attribute.STEP_HEIGHT);
+            if (aiStepHeight == null)return;
+            if (enable){
+                aiStepHeight.setBaseValue(1.2);
+            }else aiStepHeight.setBaseValue(aiStepHeight.getDefaultValue());
         }
     }
 

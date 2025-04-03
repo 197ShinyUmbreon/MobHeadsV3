@@ -63,10 +63,10 @@ public class HeadCommands implements CommandExecutor, TabCompleter {
                             NamespacedKey key = Key.getHeadIDStorageType(data);
                             if (debug) System.out.println("namespacekey = " + key);
                             if (key != null){
-                                String uuid = data.get(key, PersistentDataType.STRING);
-                                if (debug) System.out.println("uuid = " + uuid);
-                                if (uuid != null){
-                                    MobHead mobHead = MobHead.getMobHeadFromUUID(UUID.fromString(uuid));
+                                String uuidString = data.get(key, PersistentDataType.STRING);
+                                if (debug) System.out.println("uuid = " + uuidString);
+                                if (uuidString != null){
+                                    MobHead mobHead = MobHead.getMobHeadFromUUID(UUID.fromString(uuidString));
                                     if (debug) System.out.println("mobHead = " + mobHead);
                                     if (mobHead != null){
                                         repairedHeadItem = mobHead.getHeadItemStack();

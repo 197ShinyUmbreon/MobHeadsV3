@@ -12,6 +12,9 @@ public class Key {
     // Keys ------------------------------------------------------------------------------------------------------------
     public static NamespacedKey master = new NamespacedKey(plugin,"mobheadsv3");
 
+    // Item Handling ---------------------------------------------------------------------------------------------------
+    public static NamespacedKey removeOnSpawnKey = new NamespacedKey(plugin, "removeOnSpawn");
+
     // Targeting -------------------------------------------------------------------------------------------------------
     public static NamespacedKey lastHeadedTarget = new NamespacedKey(plugin,"lastHeadedTarget");
 

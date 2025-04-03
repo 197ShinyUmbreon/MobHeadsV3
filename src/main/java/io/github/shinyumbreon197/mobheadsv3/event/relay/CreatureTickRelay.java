@@ -175,6 +175,9 @@ public class CreatureTickRelay {
             case SNIFFER -> { // (Packet) Highlight nearby sus blocks
                 if (target instanceof Player) CreatureEvents.snifferHighlightSusNew((Player) target);
             }
+            case CREAKING -> { // (Packet) Highlight nearby Creaking Hearts
+                if (target instanceof Player) CreatureEvents.creakingHighlightNearbyCreakingHearts((Player) target);
+            }
         }
     }
 

@@ -9,10 +9,12 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BundleMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -22,6 +24,8 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,9 +66,9 @@ public class Util {
         EntityType type = target.getType();
         switch (type){
             case AXOLOTL -> {return ((Axolotl)target).getVariant().toString();}
-            case CAT -> {return ((Cat)target).getCatType().toString();}
+            case CAT -> {return ((Cat)target).getCatType().getKeyOrThrow().getKey();}
             case FOX -> {return ((Fox)target).getFoxType().toString();}
-            case FROG -> {return ((Frog)target).getVariant().toString();}
+            case FROG -> {return ((Frog)target).getVariant().getKeyOrThrow().getKey();}
             case HORSE -> {return ((Horse)target).getColor().toString();}
             case LLAMA -> {return ((Llama)target).getColor().toString();}
             case TRADER_LLAMA -> {return ((TraderLlama)target).getColor().toString();}
@@ -82,11 +86,25 @@ public class Util {
                 if (color == null) color = DyeColor.WHITE;
                 return color.toString();
             }
-            case VILLAGER -> {return ((Villager)target).getVillagerType().toString();}
-            case ZOMBIE_VILLAGER -> {return ((ZombieVillager)target).getVillagerType().toString();}
-            case WOLF -> {return ((Wolf)target).getVariant().toString();}
+            case VILLAGER -> {return ((Villager)target).getVillagerType().getKeyOrThrow().getKey();}
+            case ZOMBIE_VILLAGER -> {return ((ZombieVillager)target).getVillagerType().getKeyOrThrow().getKey();}
+            case WOLF -> {return ((Wolf)target).getVariant().getKeyOrThrow().getKey();}
+            case PIG -> {return ((Pig)target).getVariant().getKeyOrThrow().toString();}
+            case COW -> {return ((Cow)target).getVariant().getKeyOrThrow().toString();}
+            case CHICKEN -> {return ((Chicken)target).getVariant().getKeyOrThrow().toString();}
         }
         return null;
+    }
+
+    public static boolean hasWorkingElytra(LivingEntity livingEntity){
+        EntityEquipment ee = livingEntity.getEquipment();
+        if (ee == null)return false;
+        ItemStack elytra = ee.getChestplate();
+        if (elytra == null || !elytra.getType().equals(Material.ELYTRA))return false;
+        Damageable damageMeta = (Damageable) elytra.getItemMeta();
+        if (damageMeta == null)return false;
+        int damage = damageMeta.getDamage();
+        return damage < 432;
     }
 
     public static boolean useHeldItem(Player player, Material targetMat, boolean consume){
@@ -355,12 +373,9 @@ public class Util {
         }
     }
 
-    private static final Set<Material> sandyMats = Set.of(
-            Material.SAND, Material.RED_SAND, Material.SOUL_SAND
-    );
     public static boolean isWalkingOnSandyBlock(LivingEntity target){
         Block block = target.getLocation().getBlock().getRelative(BlockFace.DOWN);
-        return sandyMats.contains(block.getType()) || block.getType().toString().contains("SANDSTONE");
+        return block.getType().toString().contains("SAND");
     }
 
     public static boolean isExposedToSnowfall(LivingEntity target){
@@ -615,5 +630,140 @@ public class Util {
         }
     }
 
+    // Time & Date Functions -------------------------------------------------------------------------------------------
+    public static String getCurrentDateAndTime(){
+        LocalTime time = LocalTime.now();
+        LocalDate date = LocalDate.now();
+        String year = String.valueOf(date.getYear());
+        String month = String.valueOf(date.getMonthValue());
+        if (month.length() == 1){
+            month = "0" + month;
+        }
+        String day = String.valueOf(date.getDayOfMonth());
+        if (day.length() == 1){
+            day = "0" + day;
+        }
+        String hour = String.valueOf(time.getHour());
+        if (hour.length() == 1){
+            hour = "0" + hour;
+        }
+        String minute = String.valueOf(time.getMinute());
+        if (minute.length() == 1){
+            minute = "0" + minute;
+        }
+        String returnValue = year + month + day + hour + minute;
+        if (debug) System.out.println("getCurrentDateAndTime(): " + returnValue);
+        return returnValue;
+    }
+    public static String getFriendlyDateAndTimeString(String dateAndTime){
+        List<String> stringList = getDateAndTimeStringList(dateAndTime);
+        StringBuilder stringBuilder = new StringBuilder();
+        int size = stringList.size();
+        int i = 0;
+        for (String string:stringList){
+            stringBuilder.append(string);
+            if (i == 1){
+                stringBuilder.append(", ");
+            }else if (i == 2){
+                stringBuilder.append(". ");
+            }else if (i == 3){
+                stringBuilder.append(":");
+            }
+            else stringBuilder.append(" ");
+            i++;
+        }
+        String returnValue = stringBuilder.toString();
+        if (debug) System.out.println("getFriendlyDateAndTimeString(): " + returnValue);
+        return returnValue;
+    }
+    public static List<String> getDateAndTimeStringList(String dateAndTime){
+        if (dateAndTime.length() != 12){
+            System.out.println("getFriendlyDateAndTimeString() Was given a dateAndTime String of more or less than 12 characters.");
+            return List.of("INVALID DATE AND TIME STRING");
+        }
+        String year = dateAndTime.substring(0, 4);
+        int yearNum = Integer.parseInt(year);
+        String month = dateAndTime.substring(4, 6);
+        int monthNum = Integer.parseInt(month);
+        String day = dateAndTime.substring(6, 8);
+        int dayNum = Integer.parseInt(day);
+        String hour = dateAndTime.substring(8, 10);
+        int hourNum = Integer.parseInt(hour);
+        String minute = dateAndTime.substring(10, 12);
+        int minuteNum = Integer.parseInt(minute);
+        List<String> meridiemStrings = getMeridiemTime(hourNum);
+        hour = meridiemStrings.get(0);
+        String meridiem = meridiemStrings.get(1);
+
+        month = getMonthNameFromNumeral(monthNum);
+        day = getDaySpokenNameFromNumeral(dayNum);
+
+        List<String> stringList = new ArrayList<>();
+        stringList.add(month);
+        stringList.add(day);
+        stringList.add(year);
+        stringList.add(hour);
+        stringList.add(minute);
+        stringList.add(meridiem);
+        if (debug) System.out.println("getDateAndTimeStringList(): " + stringList);
+        return stringList;
+    }
+    public static String getMonthNameFromNumeral(int numeral){
+        if (numeral < 1 || numeral > 12){
+            System.out.println("getMonthNameFromNumeral() Was given a numeral less than one, or greater than twelve.");
+            return "INVALID NUMERAL PROVIDED";
+        }
+        return getMonthNumeralNameMap().getOrDefault(numeral,"");
+    }
+    private static Map<Integer, String> monthNumeralNameMap;
+    public static Map<Integer, String> getMonthNumeralNameMap(){
+        if (monthNumeralNameMap != null)return monthNumeralNameMap;
+        Map<Integer, String> map = new HashMap<>();
+        map.put(1, "January");
+        map.put(2, "February");
+        map.put(3, "March");
+        map.put(4, "April");
+        map.put(5, "May");
+        map.put(6, "June");
+        map.put(7, "July");
+        map.put(8, "August");
+        map.put(9, "September");
+        map.put(10, "October");
+        map.put(11, "November");
+        map.put(12, "December");
+        monthNumeralNameMap = map;
+        return getMonthNumeralNameMap();
+    }
+    public static String getDaySpokenNameFromNumeral(int i){
+        int lastDigit = i % 10;
+        String returnValue = i + getDaySpokenNameMap().getOrDefault(lastDigit, "");
+        if (debug) System.out.println("getDaySpokenNameFromNumeral(" + i + "): " + returnValue);
+        return returnValue;
+    }
+    private static Map<Integer, String> daySpokenNameMap;
+    public static Map<Integer, String> getDaySpokenNameMap(){
+        if (daySpokenNameMap != null)return daySpokenNameMap;
+        Map<Integer, String> map = new HashMap<>();
+        map.put(0, "th");
+        map.put(1, "st");
+        map.put(2, "nd");
+        map.put(3, "rd");
+        map.put(4, "th");
+        map.put(5, "th");
+        map.put(6, "th");
+        map.put(8, "th");
+        map.put(9, "th");
+        daySpokenNameMap = map;
+        return getDaySpokenNameMap();
+    }
+    public static List<String> getMeridiemTime(int hour){
+        String meridiem = "A.M.";
+        if (hour >= 12){
+            hour = hour - 12;
+            meridiem = "P.M.";
+        }
+        if (hour == 0) hour = 12;
+        return List.of(String.valueOf(hour), meridiem);
+    }
 
 }
